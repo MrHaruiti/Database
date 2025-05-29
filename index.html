@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Dubai International Airport-DATABASE</title>
+  <title>New Dubai International Airport - DATABASE</title>
   <style>
     body {
       font-family: Arial;
@@ -93,6 +93,22 @@
       max-height: 40px;
       object-fit: contain;
     }
+    #btn-topo {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #000;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
@@ -130,6 +146,8 @@
   <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
   <textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
+
+<button id="btn-topo" title="Voltar ao topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</button>
 
 <script>
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
@@ -282,6 +300,15 @@
   window.onload = () => {
     atualizarTabela();
   };
+
+  window.addEventListener("scroll", () => {
+    const botao = document.getElementById("btn-topo");
+    if (window.scrollY > 200) {
+      botao.style.display = "block";
+    } else {
+      botao.style.display = "none";
+    }
+  });
 </script>
 
 </body>
