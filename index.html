@@ -18,22 +18,22 @@
     th { background: #222; }
     .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
     img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
-  
-td.logo-cell {
-  background-color: white;
-  padding: 5px;
-  border-radius: 4px;
-  text-align: center;
-  width: 110px;
-  min-width: 110px;
-  max-width: 110px;
-}
-td.logo-cell img {
-  width: 90px;
-  max-height: 50px;
-  object-fit: contain;
-}
-</style>
+
+    td.logo-cell {
+      background-color: white;
+      padding: 5px;
+      border-radius: 4px;
+      text-align: center;
+      width: 110px;
+      min-width: 110px;
+      max-width: 110px;
+    }
+    td.logo-cell img {
+      width: 90px;
+      max-height: 50px;
+      object-fit: contain;
+    }
+  </style>
 </head>
 <body>
 
@@ -79,22 +79,19 @@ td.logo-cell img {
   }
 
   function atualizarTabela() {
-    
     registros.sort((a, b) => {
-      if (a.companhia.toLowerCase() === "emirates" && b.companhia.toLowerCase() === "emirates") {
-        return a.cidade.localeCompare(b.cidade);
-      }
-      if (a.companhia.toLowerCase() === "emirates") return 1;
-      if (b.companhia.toLowerCase() === "emirates") return -1;
-      return a.companhia.localeCompare(b.companhia);
+      const cmp = a.companhia.localeCompare(b.companhia);
+      if (cmp !== 0) return cmp;
+      return a.cidade.localeCompare(b.cidade);
     });
-    
+
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
     registros.forEach((e, index) => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
+      logoCell.className = "logo-cell";
       const img = document.createElement("img");
       img.className = "logo";
       img.src = "logos/" + normalizarNome(e.companhia) + ".png";
@@ -133,20 +130,18 @@ td.logo-cell img {
       try {
         const data = JSON.parse(e.target.result);
         if (Array.isArray(data)) {
-      data.forEach(item => {
-        // Para cada item importado, se não for Emirates, adicione também Emirates para o mesmo destino
-        if (item.companhia.toLowerCase() !== "emirates") {
-          const emiratesExiste = data.some(e =>
-            e.companhia.toLowerCase() === "emirates" &&
-            e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-            e.icao.toUpperCase() === item.icao.toUpperCase()
-          );
-          if (!emiratesExiste) {
-            data.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao });
-          }
-        }
-      });
-
+          data.forEach(item => {
+            if (item.companhia.toLowerCase() !== "emirates") {
+              const emiratesExiste = data.some(e =>
+                e.companhia.toLowerCase() === "emirates" &&
+                e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
+                e.icao.toUpperCase() === item.icao.toUpperCase()
+              );
+              if (!emiratesExiste) {
+                data.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao });
+              }
+            }
+          });
           registros = data;
           localStorage.setItem("registros", JSON.stringify(registros));
           atualizarTabela();
@@ -193,7 +188,6 @@ td.logo-cell img {
 
     registros.push({ companhia, cidade, icao });
 
-    // Emirates automático
     const emiratesExiste = registros.some(e =>
       e.companhia.toLowerCase() === "emirates" &&
       e.cidade.toLowerCase() === cidade.toLowerCase() &&
