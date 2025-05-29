@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Dubai International Airport-DATABASE</title>
   <style>
     body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 14px; }
@@ -12,48 +12,15 @@
     .tab.active { color: #fff; border-bottom: 2px solid #007bff; background: #111; }
     .tab-content { display: none; padding: 15px; }
     .tab-content.active { display: block; }
-    input, button, textarea, select {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      border-radius: 5px;
-      border: none;
-    }
+    input, button, textarea, select { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: none; }
     button { background: #007bff; color: white; font-weight: bold; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td {
-      padding: 6px 8px;
-      border: 1px solid #444;
-      text-align: left;
-      background: #333;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 300px;
-    }
+    th, td { padding: 6px 8px; border: 1px solid #444; text-align: left; background: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
     th { background: #222; }
-    .remove-btn {
-      background: red;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
+    .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
     img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
-    td.logo-cell {
-      background-color: white;
-      padding: 5px;
-      border-radius: 4px;
-      text-align: center;
-      width: 70px;
-      min-width: 70px;
-      max-width: 70px;
-    }
-    td.logo-cell img {
-      width: 60px;
-      max-height: 40px;
-      object-fit: contain;
-    }
+    td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
+    td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
   </style>
 </head>
 <body>
@@ -65,30 +32,21 @@
 
 <div class="tab-content active" id="aba-registro">
   <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: Air France" />
+  <input type="text" id="companhia" placeholder="Ex: Air France">
   <label>Cidade (Destino):</label>
-  <input type="text" id="cidade" placeholder="Ex: Paris" />
+  <input type="text" id="cidade" placeholder="Ex: Paris">
   <label>Código ICAO:</label>
-  <input type="text" id="icao" placeholder="Ex: LFPG" />
+  <input type="text" id="icao" placeholder="Ex: LFPG">
+  <label>País:</label>
+  <input type="text" id="pais" placeholder="Ex: França">
   <button id="addBtn">Adicionar</button>
-
-  <hr>
-
-  <label>🔍 Filtrar por Companhia:</label>
-  <select id="filtroCompanhia">
-    <option value="">Todas</option>
-  </select>
-
-  <label>🔍 Filtrar por Cidade:</label>
-  <select id="filtroCidade">
-    <option value="">Todas</option>
-  </select>
 
   <table>
     <thead>
       <tr>
         <th>Logo</th>
         <th>Destino</th>
+        <th>País</th>
         <th>ICAO</th>
         <th>Ação</th>
       </tr>
@@ -100,205 +58,165 @@
 <div class="tab-content" id="aba-backup">
   <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
   <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)" />
+  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
   <textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
 
 <script>
-let registros = JSON.parse(localStorage.getItem('registros')) || [];
+  let registros = JSON.parse(localStorage.getItem('registros')) || [];
 
-function normalizarNome(nome) {
-  return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
-}
-
-function atualizarTabela() {
-  registros.sort((a, b) => {
-    const cmp = a.companhia.localeCompare(b.companhia);
-    if (cmp !== 0) return cmp;
-    return a.cidade.localeCompare(b.cidade);
-  });
-
-  const tabela = document.getElementById("tabela");
-  tabela.innerHTML = "";
-
-  const filtroComp = document.getElementById("filtroCompanhia").value.toLowerCase();
-  const filtroCid = document.getElementById("filtroCidade").value.toLowerCase();
-
-  const companhias = new Set();
-  const cidades = new Set();
-
-  registros.forEach((e, index) => {
-    companhias.add(e.companhia);
-    cidades.add(e.cidade);
-
-    const mostrar =
-      (!filtroComp || e.companhia.toLowerCase() === filtroComp) &&
-      (!filtroCid || e.cidade.toLowerCase() === filtroCid);
-
-    if (!mostrar) return;
-
-    const linha = tabela.insertRow();
-    const logoCell = linha.insertCell(0);
-    logoCell.className = "logo-cell";
-    const img = document.createElement("img");
-    img.className = "logo";
-    img.src = "logos/" + normalizarNome(e.companhia) + ".png";
-    img.title = e.companhia;
-    img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
-    logoCell.appendChild(img);
-
-    linha.insertCell(1).innerText = e.cidade;
-    linha.insertCell(2).innerText = e.icao;
-
-    const acao = linha.insertCell(3);
-    const btn = document.createElement("button");
-    btn.innerText = "✖";
-    btn.className = "remove-btn";
-    btn.onclick = () => {
-      registros.splice(index, 1);
-      localStorage.setItem("registros", JSON.stringify(registros));
-      atualizarTabela();
-    };
-    acao.appendChild(btn);
-  });
-
-  preencherFiltros(companhias, cidades);
-}
-
-function preencherFiltros(companhias, cidades) {
-  const selectComp = document.getElementById("filtroCompanhia");
-  const selectCid = document.getElementById("filtroCidade");
-  const valorComp = selectComp.value;
-  const valorCid = selectCid.value;
-
-  selectComp.innerHTML = '<option value="">Todas</option>';
-  Array.from(companhias).sort().forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = opt.text = c;
-    selectComp.appendChild(opt);
-  });
-  selectComp.value = valorComp;
-
-  selectCid.innerHTML = '<option value="">Todas</option>';
-  Array.from(cidades).sort().forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = opt.text = c;
-    selectCid.appendChild(opt);
-  });
-  selectCid.value = valorCid;
-}
-
-document.getElementById("filtroCompanhia").addEventListener("change", atualizarTabela);
-document.getElementById("filtroCidade").addEventListener("change", atualizarTabela);
-
-document.getElementById("addBtn").addEventListener("click", () => {
-  const companhia = document.getElementById("companhia").value.trim();
-  const cidade = document.getElementById("cidade").value.trim();
-  const icao = document.getElementById("icao").value.trim().toUpperCase();
-
-  if (!companhia || !cidade || !icao) {
-    alert("Preencha todos os campos!");
-    return;
+  function normalizarNome(nome) {
+    return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
-  const existe = registros.some(e =>
-    e.companhia.toLowerCase() === companhia.toLowerCase() &&
-    e.cidade.toLowerCase() === cidade.toLowerCase() &&
-    e.icao.toUpperCase() === icao
-  );
-  if (existe) {
-    alert("Este destino já foi adicionado para essa companhia com o mesmo ICAO!");
-    return;
+  function atualizarTabela() {
+    registros.sort((a, b) => {
+      const cmp = a.companhia.localeCompare(b.companhia);
+      if (cmp !== 0) return cmp;
+      return a.cidade.localeCompare(b.cidade);
+    });
+
+    const tabela = document.getElementById("tabela");
+    tabela.innerHTML = "";
+
+    registros.forEach((e, index) => {
+      const linha = tabela.insertRow();
+      const logoCell = linha.insertCell(0);
+      logoCell.className = "logo-cell";
+      const img = document.createElement("img");
+      img.className = "logo";
+      img.src = "logos/" + normalizarNome(e.companhia) + ".png";
+      img.title = e.companhia;
+      img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
+      logoCell.appendChild(img);
+      linha.insertCell(1).innerText = e.cidade;
+      linha.insertCell(2).innerText = e.pais || "-";
+      linha.insertCell(3).innerText = e.icao;
+      const acao = linha.insertCell(4);
+      const btn = document.createElement("button");
+      btn.innerText = "✖";
+      btn.className = "remove-btn";
+      btn.onclick = () => {
+        registros.splice(index, 1);
+        localStorage.setItem("registros", JSON.stringify(registros));
+        atualizarTabela();
+      };
+      acao.appendChild(btn);
+    });
   }
 
-  registros.push({ companhia, cidade, icao });
-
-  const emiratesExiste = registros.some(e =>
-    e.companhia.toLowerCase() === "emirates" &&
-    e.cidade.toLowerCase() === cidade.toLowerCase() &&
-    e.icao.toUpperCase() === icao
-  );
-  if (!emiratesExiste) {
-    registros.push({ companhia: "Emirates", cidade, icao });
+  function exportarBackup() {
+    const texto = JSON.stringify(registros, null, 2);
+    const blob = new Blob([texto], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "voos_backup.json";
+    link.click();
+    document.getElementById("output").value = texto;
   }
 
-  localStorage.setItem("registros", JSON.stringify(registros));
-  atualizarTabela();
-
-  document.getElementById("companhia").value = "";
-  document.getElementById("cidade").value = "";
-  document.getElementById("icao").value = "";
-});
-
-function exportarBackup() {
-  const texto = JSON.stringify(registros, null, 2);
-  const blob = new Blob([texto], { type: "application/json" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "voos_backup.json";
-  link.click();
-  document.getElementById("output").value = texto;
-}
-
-function importarBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (Array.isArray(data)) {
-        const novaLista = [];
-        data.forEach(item => {
-          const duplicado = novaLista.some(e =>
-            e.companhia.toLowerCase() === item.companhia.toLowerCase() &&
-            e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-            e.icao.toUpperCase() === item.icao.toUpperCase()
-          );
-          if (!duplicado) {
-            novaLista.push(item);
-          }
-        });
-
-        novaLista.forEach(item => {
-          if (item.companhia.toLowerCase() !== "emirates") {
-            const emiratesExiste = novaLista.some(e =>
-              e.companhia.toLowerCase() === "emirates" &&
+  function importarBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (Array.isArray(data)) {
+          const novaLista = [];
+          data.forEach(item => {
+            const duplicado = novaLista.some(e =>
+              e.companhia.toLowerCase() === item.companhia.toLowerCase() &&
               e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
               e.icao.toUpperCase() === item.icao.toUpperCase()
             );
-            if (!emiratesExiste) {
-              novaLista.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao });
+            if (!duplicado) {
+              novaLista.push(item);
             }
-          }
-        });
+          });
 
-        registros = novaLista;
-        localStorage.setItem("registros", JSON.stringify(registros));
-        atualizarTabela();
-        alert("Backup importado com sucesso!");
-      } else {
-        alert("Formato inválido.");
+          novaLista.forEach(item => {
+            if (item.companhia.toLowerCase() !== "emirates") {
+              const emiratesExiste = novaLista.some(e =>
+                e.companhia.toLowerCase() === "emirates" &&
+                e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
+                e.icao.toUpperCase() === item.icao.toUpperCase()
+              );
+              if (!emiratesExiste) {
+                novaLista.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao, pais: item.pais });
+              }
+            }
+          });
+
+          registros = novaLista;
+          localStorage.setItem("registros", JSON.stringify(registros));
+          atualizarTabela();
+          alert("Backup importado com sucesso!");
+        } else {
+          alert("Formato inválido.");
+        }
+      } catch {
+        alert("Erro ao importar backup.");
       }
-    } catch {
-      alert("Erro ao importar backup.");
+    };
+    reader.readAsText(file);
+  }
+
+  function trocarAba(index) {
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.tab-content').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+  }
+
+  document.getElementById("addBtn").addEventListener("click", () => {
+    const companhia = document.getElementById("companhia").value.trim();
+    const cidade = document.getElementById("cidade").value.trim();
+    const icao = document.getElementById("icao").value.trim().toUpperCase();
+    const pais = document.getElementById("pais").value.trim();
+
+    if (!companhia || !cidade || !icao || !pais) {
+      alert("Preencha todos os campos!");
+      return;
     }
+
+    const existe = registros.some(e =>
+      e.companhia.toLowerCase() === companhia.toLowerCase() &&
+      e.cidade.toLowerCase() === cidade.toLowerCase() &&
+      e.icao.toUpperCase() === icao
+    );
+
+    if (existe) {
+      alert("Este destino já foi adicionado para essa companhia com o mesmo ICAO!");
+      return;
+    }
+
+    registros.push({ companhia, cidade, icao, pais });
+
+    const emiratesExiste = registros.some(e =>
+      e.companhia.toLowerCase() === "emirates" &&
+      e.cidade.toLowerCase() === cidade.toLowerCase() &&
+      e.icao.toUpperCase() === icao
+    );
+    if (!emiratesExiste) {
+      registros.push({ companhia: "Emirates", cidade, icao, pais });
+    }
+
+    localStorage.setItem("registros", JSON.stringify(registros));
+    atualizarTabela();
+
+    document.getElementById("companhia").value = "";
+    document.getElementById("cidade").value = "";
+    document.getElementById("icao").value = "";
+    document.getElementById("pais").value = "";
+  });
+
+  window.onload = () => {
+    atualizarTabela();
   };
-  reader.readAsText(file);
-}
-
-function trocarAba(index) {
-  document.querySelectorAll('.tab').forEach((el, i) => {
-    el.classList.toggle('active', i === index);
-  });
-  document.querySelectorAll('.tab-content').forEach((el, i) => {
-    el.classList.toggle('active', i === index);
-  });
-}
-
-window.onload = () => {
-  atualizarTabela();
-};
 </script>
+
 </body>
 </html>
