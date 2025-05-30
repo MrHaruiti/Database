@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Dubai International Airport-DATABASE</title>
+  <title>New Dubai International Airport - DATABASE</title>
   <style>
     body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 14px; }
     .tabs { display: flex; background: #222; }
@@ -20,8 +20,6 @@
     img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
     td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
     td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
-
-    /* Botão Voltar ao Topo */
     #topoBtn {
       position: fixed;
       bottom: 20px;
@@ -47,7 +45,7 @@
 
 <div class="tab-content active" id="aba-registro">
   <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: Air France">
+  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE">
   <label>Cidade (Destino):</label>
   <input type="text" id="cidade" placeholder="Ex: Paris">
   <label>Código ICAO:</label>
@@ -77,7 +75,6 @@
   <textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
 
-<!-- Botão Voltar ao Topo -->
 <div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
 
 <script>
@@ -154,14 +151,14 @@
           });
 
           novaLista.forEach(item => {
-            if (item.companhia.toLowerCase() !== "emirates") {
+            if (item.companhia.toLowerCase() !== "emirates airlines") {
               const emiratesExiste = novaLista.some(e =>
-                e.companhia.toLowerCase() === "emirates" &&
+                e.companhia.toLowerCase() === "emirates airlines" &&
                 e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
                 e.icao.toUpperCase() === item.icao.toUpperCase()
               );
               if (!emiratesExiste) {
-                novaLista.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao, pais: item.pais });
+                novaLista.push({ companhia: "EMIRATES AIRLINES", cidade: item.cidade, icao: item.icao, pais: item.pais });
               }
             }
           });
@@ -214,7 +211,7 @@
     registros.push({ companhia, cidade, icao, pais });
 
     const emiratesExiste = registros.some(e =>
-      e.companhia.toLowerCase() === "emirates" &&
+      e.companhia.toLowerCase() === "emirates airlines" &&
       e.cidade.toLowerCase() === cidade.toLowerCase() &&
       e.icao.toUpperCase() === icao
     );
@@ -231,7 +228,6 @@
     document.getElementById("pais").value = "";
   });
 
-  // Mostrar/esconder botão de voltar ao topo
   window.onscroll = function () {
     const btn = document.getElementById("topoBtn");
     if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
