@@ -89,7 +89,6 @@ function getAlpha2(pais) {
     "GERMANY": "de",
     "ITALY": "it",
     "BRAZIL": "br",
-    // Adicione mais se necessário
   };
   return map[pais.toUpperCase()] || pais.toLowerCase().slice(0, 2);
 }
@@ -121,6 +120,8 @@ function atualizarTabela() {
       tdPais.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" alt="England" title="England" width="24">`;
     } else if (iso) {
       tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
+    } else {
+      tdPais.textContent = e.pais;
     }
 
     const tdICAO = document.createElement("td");
