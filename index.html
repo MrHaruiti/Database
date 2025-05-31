@@ -52,6 +52,8 @@
   <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
   <input type="text" id="pais" placeholder="Ex: França" />
+  <label>TPS (Terminal):</label>
+  <input type="text" id="tps" placeholder="Ex: TPS1" />
   <button id="addBtn">Adicionar</button>
 
   <table>
@@ -61,6 +63,7 @@
         <th>Destino</th>
         <th>País</th>
         <th>ICAO</th>
+        <th>TPS</th>
         <th>Ação</th>
       </tr>
     </thead>
@@ -86,27 +89,19 @@
 
   function getAlpha2(nome) {
     const map = {
-      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am", "AUSTRALIA": "au",
-      "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd", "BELARUS": "by", "BHUTAN": "bt",
-      "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv", "CANADA": "ca", "CHILE": "cl", "CHINA": "cn",
-      "COLOMBIA": "co", "COSTA RICA": "cr", "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec",
-      "EGYPT": "eg", "EL SALVADOR": "sv", "ENGLAND": "gb", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj",
-      "FRANCE": "fr", "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
-      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie", "ISRAEL": "il", "ITALY": "it",
-      "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz", "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv",
-      "LIBYA": "ly", "LITHUANIA": "lt", "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm",
-      "NEPAL": "np", "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
-      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt", "QATAR": "qa",
-      "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa", "SOMALIA": "so", "SOUTH AFRICA": "za",
-      "SOUTH KOREA": "kr", "SPAIN": "es", "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw",
-      "TAJIKISTAN": "tj", "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm",
-      "UGANDA": "ug", "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
+      "IRAQ": "iq", "TURKEY": "tr", "QATAR": "qa", "UNITED ARAB EMIRATES": "ae", "SAUDI ARABIA": "sa",
+      "INDIA": "in", "CHINA": "cn", "JAPAN": "jp", "SOUTH KOREA": "kr", "EGYPT": "eg", "FRANCE": "fr",
+      "SPAIN": "es", "GERMANY": "de", "PORTUGAL": "pt", "UNITED KINGDOM": "gb", "UNITED STATES": "us",
+      "CANADA": "ca", "IRAN": "ir", "AFGHANISTAN": "af", "ISRAEL": "il", "AUSTRIA": "at", "SWITZERLAND": "ch",
+      "POLAND": "pl", "CROATIA": "hr", "ROMANIA": "ro", "TANZANIA": "tz", "ANGOLA": "ao", "PHILIPPINES": "ph",
+      "CYPRUS": "cy", "NETHERLANDS": "nl", "MOROCCO": "ma"
     };
     return map[nome.toUpperCase()] || null;
   }
 
   function atualizarTabela() {
     registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
@@ -124,14 +119,12 @@
 
       const tdPais = linha.insertCell(2);
       const iso = getAlpha2(e.pais);
-      if (iso) {
-        tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
-      } else {
-        tdPais.innerText = e.pais || "-";
-      }
+      tdPais.innerHTML = iso ? `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">` : e.pais || "-";
 
       linha.insertCell(3).innerText = e.icao;
-      const acao = linha.insertCell(4);
+      linha.insertCell(4).innerText = e.tps || "-";
+
+      const acao = linha.insertCell(5);
       const btn = document.createElement("button");
       btn.innerText = "✖";
       btn.className = "remove-btn";
@@ -169,8 +162,24 @@
               e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
               e.icao.toUpperCase() === item.icao.toUpperCase()
             );
-            if (!duplicado) novaLista.push(item);
+            if (!duplicado) {
+              novaLista.push(item);
+            }
           });
+
+          novaLista.forEach(item => {
+            if (item.companhia.toLowerCase() !== "emirates airlines") {
+              const emiratesExiste = novaLista.some(e =>
+                e.companhia.toLowerCase() === "emirates airlines" &&
+                e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
+                e.icao.toUpperCase() === item.icao.toUpperCase()
+              );
+              if (!emiratesExiste) {
+                novaLista.push({ companhia: "EMIRATES AIRLINES", cidade: item.cidade, icao: item.icao, pais: item.pais, tps: item.tps });
+              }
+            }
+          });
+
           registros = novaLista;
           localStorage.setItem("registros", JSON.stringify(registros));
           atualizarTabela();
@@ -185,18 +194,14 @@
     reader.readAsText(file);
   }
 
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
-  }
-
   document.getElementById("addBtn").addEventListener("click", () => {
     const companhia = document.getElementById("companhia").value.trim();
     const cidade = document.getElementById("cidade").value.trim();
     const icao = document.getElementById("icao").value.trim().toUpperCase();
     const pais = document.getElementById("pais").value.trim();
+    const tps = document.getElementById("tps").value.trim();
 
-    if (!companhia || !cidade || !icao || !pais) {
+    if (!companhia || !cidade || !icao || !pais || !tps) {
       alert("Preencha todos os campos!");
       return;
     }
@@ -212,7 +217,17 @@
       return;
     }
 
-    registros.push({ companhia, cidade, icao, pais });
+    registros.push({ companhia, cidade, icao, pais, tps });
+
+    const emiratesExiste = registros.some(e =>
+      e.companhia.toLowerCase() === "emirates airlines" &&
+      e.cidade.toLowerCase() === cidade.toLowerCase() &&
+      e.icao.toUpperCase() === icao
+    );
+    if (!emiratesExiste) {
+      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais, tps });
+    }
+
     localStorage.setItem("registros", JSON.stringify(registros));
     atualizarTabela();
 
@@ -220,14 +235,21 @@
     document.getElementById("cidade").value = "";
     document.getElementById("icao").value = "";
     document.getElementById("pais").value = "";
+    document.getElementById("tps").value = "";
   });
 
-  window.onscroll = () => {
-    document.getElementById("topoBtn").style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
+  function trocarAba(index) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
+  }
+
+  window.onscroll = function () {
+    document.getElementById("topoBtn").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
   };
 
-  window.onload = atualizarTabela;
+  window.onload = () => {
+    atualizarTabela();
+  };
 </script>
-
 </body>
 </html>
