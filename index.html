@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>New Dubai International Airport - DATABASE</title>
   <style>
     body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 14px; }
@@ -45,13 +45,13 @@
 
 <div class="tab-content active" id="aba-registro">
   <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE">
+  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
   <label>Cidade (Destino):</label>
-  <input type="text" id="cidade" placeholder="Ex: Paris">
+  <input type="text" id="cidade" placeholder="Ex: Paris" />
   <label>Código ICAO:</label>
-  <input type="text" id="icao" placeholder="Ex: LFPG">
+  <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
-  <input type="text" id="pais" placeholder="Ex: França">
+  <input type="text" id="pais" placeholder="Ex: França" />
   <button id="addBtn">Adicionar</button>
 
   <table>
@@ -84,6 +84,18 @@
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
+  function getAlpha2(nome) {
+    const map = {
+      "IRAQ": "iq", "TURKEY": "tr", "QATAR": "qa", "UNITED ARAB EMIRATES": "ae", "SAUDI ARABIA": "sa",
+      "INDIA": "in", "CHINA": "cn", "JAPAN": "jp", "SOUTH KOREA": "kr", "EGYPT": "eg", "FRANCE": "fr",
+      "SPAIN": "es", "GERMANY": "de", "PORTUGAL": "pt", "UNITED KINGDOM": "gb", "UNITED STATES": "us",
+      "CANADA": "ca", "IRAN": "ir", "AFGHANISTAN": "af", "ISRAEL": "il", "AUSTRIA": "at", "SWITZERLAND": "ch",
+      "POLAND": "pl", "CROATIA": "hr", "ROMANIA": "ro", "TANZANIA": "tz", "ANGOLA": "ao", "PHILIPPINES": "ph",
+      "CYPRUS": "cy", "NETHERLANDS": "nl", "MOROCCO": "ma"
+    };
+    return map[nome.toUpperCase()] || null;
+  }
+
   function atualizarTabela() {
     registros.sort((a, b) => {
       const cmp = a.companhia.localeCompare(b.companhia);
@@ -105,7 +117,15 @@
       img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
       logoCell.appendChild(img);
       linha.insertCell(1).innerText = e.cidade;
-      linha.insertCell(2).innerText = e.pais || "-";
+
+      const tdPais = linha.insertCell(2);
+      const iso = getAlpha2(e.pais);
+      if (iso) {
+        tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
+      } else {
+        tdPais.innerText = e.pais || "-";
+      }
+
       linha.insertCell(3).innerText = e.icao;
       const acao = linha.insertCell(4);
       const btn = document.createElement("button");
