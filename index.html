@@ -55,12 +55,12 @@
   <button id="addBtn">Adicionar</button>
 
   <hr>
-  <label>🔎 Filtrar por Companhia:</label>
-  <input type="text" id="filtroCompanhia" placeholder="Digite o nome da companhia...">
-  <label>🔎 Filtrar por Cidade:</label>
-  <input type="text" id="filtroCidade" placeholder="Digite o destino...">
-  <label>🔎 Filtrar por País:</label>
-  <input type="text" id="filtroPais" placeholder="Digite o país...">
+  <label>📁 Companhia:</label>
+  <select id="filtroCompanhia"><option value="">(Todas)</option></select>
+  <label>🌍 Cidade:</label>
+  <select id="filtroCidade"><option value="">(Todas)</option></select>
+  <label>🌐 País:</label>
+  <select id="filtroPais"><option value="">(Todos)</option></select>
 
   <table>
     <thead>
@@ -100,19 +100,43 @@
     );
   }
 
+  function popularFiltros() {
+    const ciaSet = new Set();
+    const cidadeSet = new Set();
+    const paisSet = new Set();
+
+    registros.forEach(e => {
+      ciaSet.add(e.companhia);
+      cidadeSet.add(e.cidade);
+      paisSet.add(e.pais);
+    });
+
+    const selCia = document.getElementById("filtroCompanhia");
+    const selCidade = document.getElementById("filtroCidade");
+    const selPais = document.getElementById("filtroPais");
+
+    selCia.innerHTML = '<option value="">(Todas)</option>';
+    selCidade.innerHTML = '<option value="">(Todas)</option>';
+    selPais.innerHTML = '<option value="">(Todos)</option>';
+
+    [...ciaSet].sort().forEach(c => selCia.innerHTML += `<option>${c}</option>`);
+    [...cidadeSet].sort().forEach(c => selCidade.innerHTML += `<option>${c}</option>`);
+    [...paisSet].sort().forEach(p => selPais.innerHTML += `<option>${p}</option>`);
+  }
+
   function atualizarTabela() {
-    const filtroCompanhia = document.getElementById("filtroCompanhia")?.value.toLowerCase() || "";
-    const filtroCidade = document.getElementById("filtroCidade")?.value.toLowerCase() || "";
-    const filtroPais = document.getElementById("filtroPais")?.value.toLowerCase() || "";
+    const filtroCompanhia = document.getElementById("filtroCompanhia").value;
+    const filtroCidade = document.getElementById("filtroCidade").value;
+    const filtroPais = document.getElementById("filtroPais").value;
 
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
     const listaFiltrada = registros
       .filter(e =>
-        e.companhia.toLowerCase().includes(filtroCompanhia) &&
-        e.cidade.toLowerCase().includes(filtroCidade) &&
-        e.pais.toLowerCase().includes(filtroPais)
+        (!filtroCompanhia || e.companhia === filtroCompanhia) &&
+        (!filtroCidade || e.cidade === filtroCidade) &&
+        (!filtroPais || e.pais === filtroPais)
       )
       .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
 
@@ -141,6 +165,7 @@
         );
         registros.splice(idxOriginal, 1);
         localStorage.setItem("registros", JSON.stringify(registros));
+        popularFiltros();
         atualizarTabela();
       };
       acao.appendChild(btn);
@@ -170,6 +195,7 @@
     }
 
     localStorage.setItem("registros", JSON.stringify(registros));
+    popularFiltros();
     atualizarTabela();
 
     document.getElementById("companhia").value = "";
@@ -189,6 +215,7 @@
         }
       });
       localStorage.setItem("registros", JSON.stringify(registros));
+      popularFiltros();
       atualizarTabela();
       alert("Backup importado com sucesso!");
     };
@@ -212,12 +239,13 @@
 
   window.onload = () => {
     atualizarTabela();
+    popularFiltros();
     window.onscroll = () => {
       document.getElementById("topoBtn").style.display = window.scrollY > 200 ? "block" : "none";
     };
-    document.getElementById("filtroCompanhia").addEventListener("input", atualizarTabela);
-    document.getElementById("filtroCidade").addEventListener("input", atualizarTabela);
-    document.getElementById("filtroPais").addEventListener("input", atualizarTabela);
+    document.getElementById("filtroCompanhia").addEventListener("change", atualizarTabela);
+    document.getElementById("filtroCidade").addEventListener("change", atualizarTabela);
+    document.getElementById("filtroPais").addEventListener("change", atualizarTabela);
   };
 </script>
 
