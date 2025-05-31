@@ -86,23 +86,27 @@
 
   function getAlpha2(nome) {
     const map = {
-      "IRAQ": "iq", "TURKEY": "tr", "QATAR": "qa", "UNITED ARAB EMIRATES": "ae", "SAUDI ARABIA": "sa",
-      "INDIA": "in", "CHINA": "cn", "JAPAN": "jp", "SOUTH KOREA": "kr", "EGYPT": "eg", "FRANCE": "fr",
-      "SPAIN": "es", "GERMANY": "de", "PORTUGAL": "pt", "UNITED KINGDOM": "gb", "UNITED STATES": "us",
-      "CANADA": "ca", "IRAN": "ir", "AFGHANISTAN": "af", "ISRAEL": "il", "AUSTRIA": "at", "SWITZERLAND": "ch",
-      "POLAND": "pl", "CROATIA": "hr", "ROMANIA": "ro", "TANZANIA": "tz", "ANGOLA": "ao", "PHILIPPINES": "ph",
-      "CYPRUS": "cy", "NETHERLANDS": "nl", "MOROCCO": "ma"
+      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am", "AUSTRALIA": "au",
+      "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd", "BELARUS": "by", "BHUTAN": "bt",
+      "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv", "CANADA": "ca", "CHILE": "cl", "CHINA": "cn",
+      "COLOMBIA": "co", "COSTA RICA": "cr", "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec",
+      "EGYPT": "eg", "EL SALVADOR": "sv", "ENGLAND": "gb", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj",
+      "FRANCE": "fr", "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
+      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie", "ISRAEL": "il", "ITALY": "it",
+      "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz", "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv",
+      "LIBYA": "ly", "LITHUANIA": "lt", "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm",
+      "NEPAL": "np", "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
+      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt", "QATAR": "qa",
+      "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa", "SOMALIA": "so", "SOUTH AFRICA": "za",
+      "SOUTH KOREA": "kr", "SPAIN": "es", "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw",
+      "TAJIKISTAN": "tj", "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm",
+      "UGANDA": "ug", "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
     };
     return map[nome.toUpperCase()] || null;
   }
 
   function atualizarTabela() {
-    registros.sort((a, b) => {
-      const cmp = a.companhia.localeCompare(b.companhia);
-      if (cmp !== 0) return cmp;
-      return a.cidade.localeCompare(b.cidade);
-    });
-
+    registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
@@ -165,24 +169,8 @@
               e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
               e.icao.toUpperCase() === item.icao.toUpperCase()
             );
-            if (!duplicado) {
-              novaLista.push(item);
-            }
+            if (!duplicado) novaLista.push(item);
           });
-
-          novaLista.forEach(item => {
-            if (item.companhia.toLowerCase() !== "emirates airlines") {
-              const emiratesExiste = novaLista.some(e =>
-                e.companhia.toLowerCase() === "emirates airlines" &&
-                e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-                e.icao.toUpperCase() === item.icao.toUpperCase()
-              );
-              if (!emiratesExiste) {
-                novaLista.push({ companhia: "EMIRATES AIRLINES", cidade: item.cidade, icao: item.icao, pais: item.pais });
-              }
-            }
-          });
-
           registros = novaLista;
           localStorage.setItem("registros", JSON.stringify(registros));
           atualizarTabela();
@@ -198,12 +186,8 @@
   }
 
   function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => {
-      el.classList.toggle('active', i === index);
-    });
-    document.querySelectorAll('.tab-content').forEach((el, i) => {
-      el.classList.toggle('active', i === index);
-    });
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
   }
 
   document.getElementById("addBtn").addEventListener("click", () => {
@@ -229,16 +213,6 @@
     }
 
     registros.push({ companhia, cidade, icao, pais });
-
-    const emiratesExiste = registros.some(e =>
-      e.companhia.toLowerCase() === "emirates airlines" &&
-      e.cidade.toLowerCase() === cidade.toLowerCase() &&
-      e.icao.toUpperCase() === icao
-    );
-    if (!emiratesExiste) {
-      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
-    }
-
     localStorage.setItem("registros", JSON.stringify(registros));
     atualizarTabela();
 
@@ -248,18 +222,11 @@
     document.getElementById("pais").value = "";
   });
 
-  window.onscroll = function () {
-    const btn = document.getElementById("topoBtn");
-    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-      btn.style.display = "block";
-    } else {
-      btn.style.display = "none";
-    }
+  window.onscroll = () => {
+    document.getElementById("topoBtn").style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
   };
 
-  window.onload = () => {
-    atualizarTabela();
-  };
+  window.onload = atualizarTabela;
 </script>
 
 </body>
