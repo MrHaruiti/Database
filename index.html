@@ -93,6 +93,10 @@ function getAlpha2(pais) {
   return map[pais.toUpperCase()] || pais.toLowerCase().slice(0, 2);
 }
 
+function normalizarLogo(nome) {
+  return nome.normalize("NFD").replace(/[^a-zA-Z0-9]/g, "_");
+}
+
 function atualizarTabela() {
   const tabela = document.getElementById("tabela");
   tabela.innerHTML = "";
@@ -105,7 +109,7 @@ function atualizarTabela() {
     const logo = document.createElement("td");
     logo.className = "logo-cell";
     const img = document.createElement("img");
-    img.src = `logos/${e.companhia}.png`;
+    img.src = `logos/${normalizarLogo(e.companhia)}.png`;
     img.onerror = () => img.src = "logos/default.png";
     img.alt = e.companhia;
     img.className = "logo";
