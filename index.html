@@ -6,7 +6,7 @@
   <title>New Dubai International Airport - DATABASE</title>
   <style>
     body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 12px; }
-    .tabs { display: flex; background: #222; }
+    .tabs { display: flex; background: #222; flex-wrap: wrap; }
     .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #ccc; border-bottom: 2px solid transparent; }
     .tab.active { color: #fff; border-bottom: 2px solid #007bff; background: #111; }
     .tab-content { display: none; padding: 15px; }
@@ -28,6 +28,7 @@
   <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
   <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
   <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
+  <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
 </div>
 
 <div class="tab-content active" id="aba-chegadas">
@@ -53,6 +54,13 @@
     <option value="partida">Partida</option>
   </select>
   <button onclick="adicionarVoo()">Adicionar</button>
+</div>
+
+<div class="tab-content" id="aba-backup">
+  <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
+  <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
+  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
+  <textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
 
 <script>
@@ -126,6 +134,34 @@
   function atualizarTabelas() {
     renderTabela(registrosChegadas, 'chegadasTabela');
     renderTabela(registrosPartidas, 'partidasTabela');
+  }
+
+  function exportarBackup() {
+    const backup = {
+      chegadas: registrosChegadas,
+      partidas: registrosPartidas
+    };
+    const texto = JSON.stringify(backup, null, 2);
+    const blob = new Blob([texto], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "backup_voos.json";
+    link.click();
+    document.getElementById("output").value = texto;
+  }
+
+  function importarBackup(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const data = JSON.parse(e.target.result);
+      if (data.chegadas) registrosChegadas = data.chegadas;
+      if (data.partidas) registrosPartidas = data.partidas;
+      salvarDados();
+      atualizarTabelas();
+      alert("Backup importado com sucesso!");
+    };
+    reader.readAsText(file);
   }
 
   window.onload = () => {
