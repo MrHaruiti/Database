@@ -1,112 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>New Dubai International Airport - DATABASE</title>
   <style>
-    body {
-      font-family: Arial;
-      background: #111;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      font-size: 14px;
-    }
-    .tabs {
-      display: flex;
-      background: #222;
-    }
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px;
-      cursor: pointer;
-      color: #ccc;
-      border-bottom: 2px solid transparent;
-    }
-    .tab.active {
-      color: #fff;
-      border-bottom: 2px solid #007bff;
-      background: #111;
-    }
-    .tab-content {
-      display: none;
-      padding: 15px;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    input, button, textarea {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      border-radius: 5px;
-      border: none;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      font-weight: bold;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      padding: 6px 8px;
-      border: 1px solid #444;
-      text-align: left;
-      background: #333;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 300px;
-    }
-    th {
-      background: #222;
-    }
-    .remove-btn {
-      background: red;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
-    img.logo {
-      height: 30px;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-    td.logo-cell {
-      background-color: white;
-      padding: 5px;
-      border-radius: 4px;
-      text-align: center;
-      width: 70px;
-      min-width: 70px;
-      max-width: 70px;
-    }
-    td.logo-cell img {
-      width: 60px;
-      max-height: 40px;
-      object-fit: contain;
-    }
-    #btn-topo {
+    body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 14px; }
+    .tabs { display: flex; background: #222; }
+    .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #ccc; border-bottom: 2px solid transparent; }
+    .tab.active { color: #fff; border-bottom: 2px solid #007bff; background: #111; }
+    .tab-content { display: none; padding: 15px; }
+    .tab-content.active { display: block; }
+    input, button, textarea, select { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: none; }
+    button { background: #007bff; color: white; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 6px 8px; border: 1px solid #444; text-align: left; background: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+    th { background: #222; }
+    .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
+    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
+    td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
+    td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
+    #topoBtn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #007bff;
+      background: #007bff;
       color: white;
-      border: none;
+      padding: 10px 15px;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
       cursor: pointer;
-      box-shadow: 0 0 10px #000;
       display: none;
+      font-size: 20px;
+      box-shadow: 0 0 8px #000;
       z-index: 1000;
     }
   </style>
@@ -120,19 +45,37 @@
 
 <div class="tab-content active" id="aba-registro">
   <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: Air France">
+  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
   <label>Cidade (Destino):</label>
-  <input type="text" id="cidade" placeholder="Ex: Paris">
+  <input type="text" id="cidade" placeholder="Ex: Paris" />
   <label>Código ICAO:</label>
-  <input type="text" id="icao" placeholder="Ex: LFPG">
+  <input type="text" id="icao" placeholder="Ex: LFPG" />
+  <label>País:</label>
+  <input type="text" id="pais" placeholder="Ex: França" />
+  <label>TPS (Terminal):</label>
+  <input type="text" id="tps" placeholder="Ex: TPS1" />
+  <label>TPS (Terminal):</label>
+  <input type="text" id="tps" placeholder="Ex: TPS1" />
   <button id="addBtn">Adicionar</button>
+
+<div id="filtros" style="display: flex; gap: 10px; margin-top: 15px;">
+  <input type="text" id="filtroCompanhia" placeholder="🔎 Filtrar por Companhia">
+  <input type="text" id="filtroCidade" placeholder="🔎 Filtrar por Cidade">
+  <input type="text" id="filtroPais" placeholder="🔎 Filtrar por País">
+  <input type="text" id="filtroTPS" placeholder="🔎 Filtrar por TPS">
+</div>
+
 
   <table>
     <thead>
       <tr>
         <th>Logo</th>
         <th>Destino</th>
+        <th>País</th>
         <th>ICAO</th>
+        <th>TPS</th>
+        <th>TPS</th>
+        <th>TPS</th>
         <th>Ação</th>
       </tr>
     </thead>
@@ -147,7 +90,7 @@
   <textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
 
-<button id="btn-topo" title="Voltar ao topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</button>
+<div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
 
 <script>
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
@@ -156,17 +99,38 @@
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
+  function getAlpha2(nome) {
+    const map = {
+      "IRAQ": "iq", "TURKEY": "tr", "QATAR": "qa", "UNITED ARAB EMIRATES": "ae", "SAUDI ARABIA": "sa",
+      "INDIA": "in", "CHINA": "cn", "JAPAN": "jp", "SOUTH KOREA": "kr", "EGYPT": "eg", "FRANCE": "fr",
+      "SPAIN": "es", "GERMANY": "de", "PORTUGAL": "pt", "UNITED KINGDOM": "gb", "UNITED STATES": "us",
+      "CANADA": "ca", "IRAN": "ir", "AFGHANISTAN": "af", "ISRAEL": "il", "AUSTRIA": "at", "SWITZERLAND": "ch",
+      "POLAND": "pl", "CROATIA": "hr", "ROMANIA": "ro", "TANZANIA": "tz", "ANGOLA": "ao", "PHILIPPINES": "ph",
+      "CYPRUS": "cy", "NETHERLANDS": "nl", "MOROCCO": "ma"
+    };
+    return map[nome.toUpperCase()] || null;
+  }
+
   function atualizarTabela() {
-    registros.sort((a, b) => {
-      const cmp = a.companhia.localeCompare(b.companhia);
-      if (cmp !== 0) return cmp;
-      return a.cidade.localeCompare(b.cidade);
-    });
+    registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
 
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
-    registros.forEach((e, index) => {
+    
+    const filtroCompanhia = document.getElementById("filtroCompanhia").value.toLowerCase();
+    const filtroCidade = document.getElementById("filtroCidade").value.toLowerCase();
+    const filtroPais = document.getElementById("filtroPais").value.toLowerCase();
+    const filtroTPS = document.getElementById("filtroTPS").value.toLowerCase();
+
+    const filtrados = registros.filter(e =>
+      e.companhia.toLowerCase().includes(filtroCompanhia) &&
+      e.cidade.toLowerCase().includes(filtroCidade) &&
+      (e.pais || "").toLowerCase().includes(filtroPais) &&
+      (e.tps || "").toLowerCase().includes(filtroTPS)
+    );
+
+    filtrados.forEach((e, index) => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
       logoCell.className = "logo-cell";
@@ -177,8 +141,16 @@
       img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
       logoCell.appendChild(img);
       linha.insertCell(1).innerText = e.cidade;
-      linha.insertCell(2).innerText = e.icao;
-      const acao = linha.insertCell(3);
+
+      const tdPais = linha.insertCell(2);
+      const iso = getAlpha2(e.pais);
+      tdPais.innerHTML = iso ? `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">` : e.pais || "-";
+
+      linha.insertCell(3).innerText = e.icao;
+      linha.insertCell(4).innerText = e.tps || '';
+      linha.insertCell(4).innerText = e.tps || "-";
+
+      const acao = linha.insertCell(5);
       const btn = document.createElement("button");
       btn.innerText = "✖";
       btn.className = "remove-btn";
@@ -217,19 +189,19 @@
               e.icao.toUpperCase() === item.icao.toUpperCase()
             );
             if (!duplicado) {
-              novaLista.push(item);
+              novaLista.push({ companhia: item.companhia, cidade: item.cidade, icao: item.icao, pais: item.pais, tps: item.tps || "" });
             }
           });
 
           novaLista.forEach(item => {
-            if (item.companhia.toLowerCase() !== "emirates") {
+            if (item.companhia.toLowerCase() !== "emirates airlines") {
               const emiratesExiste = novaLista.some(e =>
-                e.companhia.toLowerCase() === "emirates" &&
+                e.companhia.toLowerCase() === "emirates airlines" &&
                 e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
                 e.icao.toUpperCase() === item.icao.toUpperCase()
               );
               if (!emiratesExiste) {
-                novaLista.push({ companhia: "Emirates", cidade: item.cidade, icao: item.icao });
+                novaLista.push({ companhia: "EMIRATES AIRLINES", cidade: item.cidade, icao: item.icao, pais: item.pais, tps: item.tps });
               }
             }
           });
@@ -248,21 +220,15 @@
     reader.readAsText(file);
   }
 
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => {
-      el.classList.toggle('active', i === index);
-    });
-    document.querySelectorAll('.tab-content').forEach((el, i) => {
-      el.classList.toggle('active', i === index);
-    });
-  }
-
   document.getElementById("addBtn").addEventListener("click", () => {
     const companhia = document.getElementById("companhia").value.trim();
     const cidade = document.getElementById("cidade").value.trim();
     const icao = document.getElementById("icao").value.trim().toUpperCase();
+    const pais = document.getElementById("pais").value.trim();
+    const tps = document.getElementById("tps").value.trim();
+    const tps = document.getElementById("tps").value.trim();
 
-    if (!companhia || !cidade || !icao) {
+    if (!companhia || !cidade || !icao || !pais || !tps) {
       alert("Preencha todos os campos!");
       return;
     }
@@ -278,15 +244,15 @@
       return;
     }
 
-    registros.push({ companhia, cidade, icao });
+    registros.push({ companhia, cidade, icao, pais, tps });
 
     const emiratesExiste = registros.some(e =>
-      e.companhia.toLowerCase() === "emirates" &&
+      e.companhia.toLowerCase() === "emirates airlines" &&
       e.cidade.toLowerCase() === cidade.toLowerCase() &&
       e.icao.toUpperCase() === icao
     );
     if (!emiratesExiste) {
-      registros.push({ companhia: "Emirates", cidade, icao });
+      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais, tps });
     }
 
     localStorage.setItem("registros", JSON.stringify(registros));
@@ -295,21 +261,27 @@
     document.getElementById("companhia").value = "";
     document.getElementById("cidade").value = "";
     document.getElementById("icao").value = "";
+    document.getElementById("pais").value = "";
+    document.getElementById("tps").value = "";
   });
 
-  window.onload = () => {
-    atualizarTabela();
+  function trocarAba(index) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
+  }
+
+  window.onscroll = function () {
+    document.getElementById("topoBtn").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
   };
 
-  window.addEventListener("scroll", () => {
-    const botao = document.getElementById("btn-topo");
-    if (window.scrollY > 200) {
-      botao.style.display = "block";
-    } else {
-      botao.style.display = "none";
-    }
-  });
-</script>
+  window.onload = () => {
 
+  ["filtroCompanhia", "filtroCidade", "filtroPais", "filtroTPS"].forEach(id => {
+    document.getElementById(id).addEventListener("input", atualizarTabela);
+  });
+
+    atualizarTabela();
+  };
+</script>
 </body>
 </html>
