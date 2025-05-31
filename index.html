@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>New Dubai International Airport - DATABASE</title>
   <style>
-    body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 14px; }
+    body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 12px; }
     .tabs { display: flex; background: #222; }
     .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #ccc; border-bottom: 2px solid transparent; }
     .tab.active { color: #fff; border-bottom: 2px solid #007bff; background: #111; }
@@ -84,25 +84,12 @@
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
-  function getAlpha2(nome) {
-    const map = {
-      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am", "AUSTRALIA": "au",
-      "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd", "BELARUS": "by", "BHUTAN": "bt",
-      "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv", "CANADA": "ca", "CHILE": "cl", "CHINA": "cn",
-      "COLOMBIA": "co", "COSTA RICA": "cr", "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec",
-      "EGYPT": "eg", "EL SALVADOR": "sv", "ENGLAND": "gb", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj",
-      "FRANCE": "fr", "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
-      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie", "ISRAEL": "il", "ITALY": "it",
-      "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz", "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv",
-      "LIBYA": "ly", "LITHUANIA": "lt", "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm",
-      "NEPAL": "np", "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
-      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt", "QATAR": "qa",
-      "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa", "SOMALIA": "so", "SOUTH AFRICA": "za",
-      "SOUTH KOREA": "kr", "SPAIN": "es", "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw",
-      "TAJIKISTAN": "tj", "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm",
-      "UGANDA": "ug", "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
-    };
-    return map[nome.toUpperCase()] || null;
+  function registroDuplicado(companhia, cidade, icao) {
+    return registros.some(e =>
+      e.companhia.toLowerCase() === companhia.toLowerCase() &&
+      e.cidade.toLowerCase() === cidade.toLowerCase() &&
+      e.icao.toUpperCase() === icao.toUpperCase()
+    );
   }
 
   function atualizarTabela() {
@@ -118,19 +105,13 @@
       img.className = "logo";
       img.src = "logos/" + normalizarNome(e.companhia) + ".png";
       img.title = e.companhia;
-      img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
+      img.onerror = () => { img.src = "logos/default.png"; };
       logoCell.appendChild(img);
+
       linha.insertCell(1).innerText = e.cidade;
-
-      const tdPais = linha.insertCell(2);
-      const iso = getAlpha2(e.pais);
-      if (iso) {
-        tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
-      } else {
-        tdPais.innerText = e.pais || "-";
-      }
-
+      linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
+
       const acao = linha.insertCell(4);
       const btn = document.createElement("button");
       btn.innerText = "✖";
@@ -144,52 +125,6 @@
     });
   }
 
-  function exportarBackup() {
-    const texto = JSON.stringify(registros, null, 2);
-    const blob = new Blob([texto], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "voos_backup.json";
-    link.click();
-    document.getElementById("output").value = texto;
-  }
-
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (Array.isArray(data)) {
-          const novaLista = [];
-          data.forEach(item => {
-            const duplicado = novaLista.some(e =>
-              e.companhia.toLowerCase() === item.companhia.toLowerCase() &&
-              e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-              e.icao.toUpperCase() === item.icao.toUpperCase()
-            );
-            if (!duplicado) novaLista.push(item);
-          });
-          registros = novaLista;
-          localStorage.setItem("registros", JSON.stringify(registros));
-          atualizarTabela();
-          alert("Backup importado com sucesso!");
-        } else {
-          alert("Formato inválido.");
-        }
-      } catch {
-        alert("Erro ao importar backup.");
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
-  }
-
   document.getElementById("addBtn").addEventListener("click", () => {
     const companhia = document.getElementById("companhia").value.trim();
     const cidade = document.getElementById("cidade").value.trim();
@@ -201,18 +136,17 @@
       return;
     }
 
-    const existe = registros.some(e =>
-      e.companhia.toLowerCase() === companhia.toLowerCase() &&
-      e.cidade.toLowerCase() === cidade.toLowerCase() &&
-      e.icao.toUpperCase() === icao
-    );
-
-    if (existe) {
-      alert("Este destino já foi adicionado para essa companhia com o mesmo ICAO!");
+    if (registroDuplicado(companhia, cidade, icao)) {
+      alert("Registro já existe!");
       return;
     }
 
     registros.push({ companhia, cidade, icao, pais });
+
+    if (companhia.toUpperCase() !== "EMIRATES AIRLINES" && !registroDuplicado("EMIRATES AIRLINES", cidade, icao)) {
+      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
+    }
+
     localStorage.setItem("registros", JSON.stringify(registros));
     atualizarTabela();
 
@@ -222,11 +156,44 @@
     document.getElementById("pais").value = "";
   });
 
-  window.onscroll = () => {
-    document.getElementById("topoBtn").style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
-  };
+  function importarBackup(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const data = JSON.parse(e.target.result);
+      data.forEach(item => {
+        if (!registroDuplicado(item.companhia, item.cidade, item.icao)) {
+          registros.push(item);
+        }
+      });
+      localStorage.setItem("registros", JSON.stringify(registros));
+      atualizarTabela();
+      alert("Backup importado com sucesso!");
+    };
+    reader.readAsText(file);
+  }
 
-  window.onload = atualizarTabela;
+  function exportarBackup() {
+    const texto = JSON.stringify(registros, null, 2);
+    const blob = new Blob([texto], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "voos_backup.json";
+    link.click();
+    document.getElementById("output").value = texto;
+  }
+
+  function trocarAba(index) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
+  }
+
+  window.onload = () => {
+    atualizarTabela();
+    window.onscroll = () => {
+      document.getElementById("topoBtn").style.display = window.scrollY > 200 ? "block" : "none";
+    };
+  };
 </script>
 
 </body>
