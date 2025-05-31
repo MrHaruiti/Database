@@ -168,7 +168,7 @@
       linha.insertCell(1).innerText = e.cidade;
       linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
-      linha.insertCell(4).innerText = ""; // TPS vazio
+      linha.insertCell(4).innerText = e.TPS || ""; // Exibe TPS se existir
 
       const acao = linha.insertCell(5);
       const btn = document.createElement("button");
