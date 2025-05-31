@@ -1,3 +1,14 @@
+<script>
+  function trocarAba(indice) {
+    const abas = document.querySelectorAll(".tab");
+    const conteudos = document.querySelectorAll(".tab-content");
+    abas.forEach((aba, i) => {
+      aba.classList.toggle("active", i === indice);
+      conteudos[i].classList.toggle("active", i === indice);
+    });
+  }
+</script>
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -38,6 +49,55 @@
 </head>
 <body>
 
+<div class="tabs">
+  <div class="tab active" onclick="trocarAba(0)">✈️ Registro</div>
+  <div class="tab" onclick="trocarAba(1)">💾 Backup</div>
+</div>
+
+<div class="tab-content active" id="aba-registro">
+  <label>Companhia:</label>
+  <input id="companhia" type="text" placeholder="Companhia aérea">
+  <label>Cidade:</label>
+  <input id="cidade" type="text" placeholder="Cidade de destino">
+  <label>País:</label>
+  <input id="pais" type="text" placeholder="País de destino">
+  <label>ICAO:</label>
+  <input id="icao" type="text" placeholder="Código ICAO">
+  <label>TPS:</label>
+  <input id="tps" type="text" placeholder="Terminal TPS">
+  <button id="addBtn" onclick="adicionarRegistro()">Adicionar</button>
+  <br>
+
+  <label>Filtrar por companhia:</label>
+  <select id="filtroCompanhia" onchange="atualizarTabela()"></select>
+  <label>Filtrar por cidade:</label>
+  <select id="filtroCidade" onchange="atualizarTabela()"></select>
+  <label>Filtrar por país:</label>
+  <select id="filtroPais" onchange="atualizarTabela()"></select>
+  <label>Filtrar por TPS:</label>
+  <select id="filtroTPS" onchange="atualizarTabela()"></select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>AIRLINES</th>
+        <th>DESTINATION</th>
+        <th>COUNTRY</th>
+        <th>ICAO</th>
+        <th>TPS</th>
+        <th>ACTION</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+</div>
+
+<div class="tab-content" id="aba-backup">
+  <!-- BACKUP -->
+</div>
+
+<div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
+
 <script>
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
 
@@ -59,10 +119,24 @@
   }
 
   function atualizarTabela() {
+    const filtroCompanhia = document.getElementById("filtroCompanhia").value;
+    const filtroCidade = document.getElementById("filtroCidade").value;
+    const filtroPais = document.getElementById("filtroPais").value;
+    const filtroTPS = document.getElementById("filtroTPS").value;
+
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
-    const listaFiltrada = registros.sort((a, b) => a.companhia.localeCompare(b.companhia));
-    listaFiltrada.forEach(e => {
+
+    const listaFiltrada = registros
+      .filter(e =>
+        (!filtroCompanhia || e.companhia === filtroCompanhia) &&
+        (!filtroCidade || e.cidade === filtroCidade) &&
+        (!filtroPais || e.pais === filtroPais) &&
+        (!filtroTPS || e.TPS === filtroTPS)
+      )
+      .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+
+    listaFiltrada.forEach((e, index) => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
       logoCell.className = "logo-cell";
@@ -93,8 +167,12 @@
       btn.innerText = "✖";
       btn.className = "remove-btn";
       btn.onclick = () => {
-        registros = registros.filter(r => !(r.companhia === e.companhia && r.cidade === e.cidade && r.icao === e.icao));
+        const idxOriginal = registros.findIndex(x =>
+          x.companhia === e.companhia && x.cidade === e.cidade && x.icao === e.icao
+        );
+        registros.splice(idxOriginal, 1);
         localStorage.setItem("registros", JSON.stringify(registros));
+        popularFiltros();
         atualizarTabela();
       };
       acao.appendChild(btn);
@@ -103,6 +181,5 @@
 
   window.onload = atualizarTabela;
 </script>
-
 </body>
 </html>
