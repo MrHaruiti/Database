@@ -54,6 +54,14 @@
   <input type="text" id="pais" placeholder="Ex: França" />
   <button id="addBtn">Adicionar</button>
 
+  <hr>
+  <label>🔎 Filtrar por Companhia:</label>
+  <input type="text" id="filtroCompanhia" placeholder="Digite o nome da companhia...">
+  <label>🔎 Filtrar por Cidade:</label>
+  <input type="text" id="filtroCidade" placeholder="Digite o destino...">
+  <label>🔎 Filtrar por País:</label>
+  <input type="text" id="filtroPais" placeholder="Digite o país...">
+
   <table>
     <thead>
       <tr>
@@ -93,11 +101,22 @@
   }
 
   function atualizarTabela() {
-    registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+    const filtroCompanhia = document.getElementById("filtroCompanhia")?.value.toLowerCase() || "";
+    const filtroCidade = document.getElementById("filtroCidade")?.value.toLowerCase() || "";
+    const filtroPais = document.getElementById("filtroPais")?.value.toLowerCase() || "";
+
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
-    registros.forEach((e, index) => {
+    const listaFiltrada = registros
+      .filter(e =>
+        e.companhia.toLowerCase().includes(filtroCompanhia) &&
+        e.cidade.toLowerCase().includes(filtroCidade) &&
+        e.pais.toLowerCase().includes(filtroPais)
+      )
+      .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+
+    listaFiltrada.forEach((e, index) => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
       logoCell.className = "logo-cell";
@@ -117,7 +136,10 @@
       btn.innerText = "✖";
       btn.className = "remove-btn";
       btn.onclick = () => {
-        registros.splice(index, 1);
+        const idxOriginal = registros.findIndex(x =>
+          x.companhia === e.companhia && x.cidade === e.cidade && x.icao === e.icao
+        );
+        registros.splice(idxOriginal, 1);
         localStorage.setItem("registros", JSON.stringify(registros));
         atualizarTabela();
       };
@@ -193,6 +215,9 @@
     window.onscroll = () => {
       document.getElementById("topoBtn").style.display = window.scrollY > 200 ? "block" : "none";
     };
+    document.getElementById("filtroCompanhia").addEventListener("input", atualizarTabela);
+    document.getElementById("filtroCidade").addEventListener("input", atualizarTabela);
+    document.getElementById("filtroPais").addEventListener("input", atualizarTabela);
   };
 </script>
 
