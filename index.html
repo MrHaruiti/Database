@@ -85,21 +85,26 @@
   }
 
   function renderTabela(registros, destinoId) {
-    let html = '<table><thead><tr><th>AIRLINES</th><th>DESTINATION</th><th>COUNTRY</th><th>ICAO</th><th>FLIGHT</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody>';
+    let html = '<table><thead><tr>' +
+      '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+      '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>ACTION</th>' +
+      '</tr></thead><tbody>';
+
     registros.forEach((e, i) => {
       const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
       html += `<tr>
         ${logo}
-        <td>${e.cidade}</td>
-        <td>${e.pais}</td>
-        <td>${e.icao}</td>
         <td>${e.voo || ''}</td>
+        <td>${e.cidade}</td>
+        <td>${e.icao}</td>
+        <td>${e.pais}</td>
         <td>${e.horario || ''}</td>
         <td>${e.aeronave || ''}</td>
         <td>${e.status || ''}</td>
         <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
       </tr>`;
     });
+
     html += '</tbody></table>';
     document.getElementById(destinoId).innerHTML = html;
   }
