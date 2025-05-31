@@ -86,21 +86,25 @@
 
   function getAlpha2(nome) {
     const map = {
-      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am", "AUSTRALIA": "au",
-      "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd", "BELARUS": "by", "BHUTAN": "bt",
-      "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv", "CANADA": "ca", "CHILE": "cl", "CHINA": "cn",
-      "COLOMBIA": "co", "COSTA RICA": "cr", "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec",
-      "EGYPT": "eg", "EL SALVADOR": "sv", "ENGLAND": "gb", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj",
-      "FRANCE": "fr", "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
-      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie", "ISRAEL": "il", "ITALY": "it",
-      "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz", "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv",
-      "LIBYA": "ly", "LITHUANIA": "lt", "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm",
-      "NEPAL": "np", "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
-      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt", "QATAR": "qa",
-      "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa", "SOMALIA": "so", "SOUTH AFRICA": "za",
-      "SOUTH KOREA": "kr", "SPAIN": "es", "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw",
-      "TAJIKISTAN": "tj", "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm",
-      "UGANDA": "ug", "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
+      "ENGLAND": "gb-eng",
+      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am",
+      "AUSTRALIA": "au", "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd",
+      "BELARUS": "by", "BHUTAN": "bt", "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv",
+      "CANADA": "ca", "CHILE": "cl", "CHINA": "cn", "COLOMBIA": "co", "COSTA RICA": "cr",
+      "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec", "EGYPT": "eg",
+      "EL SALVADOR": "sv", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj", "FRANCE": "fr",
+      "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
+      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie",
+      "ISRAEL": "il", "ITALY": "it", "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz",
+      "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv", "LIBYA": "ly", "LITHUANIA": "lt",
+      "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm", "NEPAL": "np",
+      "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
+      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt",
+      "QATAR": "qa", "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa",
+      "SOMALIA": "so", "SOUTH AFRICA": "za", "SOUTH KOREA": "kr", "SPAIN": "es",
+      "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw", "TAJIKISTAN": "tj",
+      "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm", "UGANDA": "ug",
+      "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
     };
     return map[nome.toUpperCase()] || null;
   }
@@ -124,7 +128,9 @@
 
       const tdPais = linha.insertCell(2);
       const iso = getAlpha2(e.pais);
-      if (iso) {
+      if (iso === "gb-eng") {
+        tdPais.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" alt="England" title="England" width="24">`;
+      } else if (iso) {
         tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
       } else {
         tdPais.innerText = e.pais || "-";
@@ -228,6 +234,5 @@
 
   window.onload = atualizarTabela;
 </script>
-
 </body>
 </html>
