@@ -77,6 +77,7 @@
         <th>Destino</th>
         <th>País</th>
         <th>ICAO</th>
+        <th>TPS</th>
         <th>Ação</th>
       </tr>
     </thead>
@@ -93,7 +94,6 @@
 
 <div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
 
-<!-- Áudio ambiente oculto -->
 <audio autoplay loop style="display: none;">
   <source src="aeroporto.mp3" type="audio/mpeg">
   Seu navegador não suporta áudio HTML5.
@@ -168,8 +168,9 @@
       linha.insertCell(1).innerText = e.cidade;
       linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
+      linha.insertCell(4).innerText = ""; // TPS vazio
 
-      const acao = linha.insertCell(4);
+      const acao = linha.insertCell(5);
       const btn = document.createElement("button");
       btn.innerText = "✖";
       btn.className = "remove-btn";
