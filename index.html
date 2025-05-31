@@ -93,6 +93,12 @@
 
 <div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
 
+<!-- Áudio ambiente oculto -->
+<audio autoplay loop style="display: none;">
+  <source src="aeroporto.mp3" type="audio/mpeg">
+  Seu navegador não suporta áudio HTML5.
+</audio>
+
 <script>
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
 
