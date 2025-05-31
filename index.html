@@ -17,9 +17,17 @@
     th, td { padding: 6px 8px; border: 1px solid #444; text-align: left; background: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
     th { background: #222; }
     .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
-    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
     td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
-    td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
+    td.logo-cell img {
+      height: 40px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 2px;
+      border-radius: 4px;
+    }
     #topoBtn {
       position: fixed;
       bottom: 20px;
@@ -33,6 +41,17 @@
       font-size: 20px;
       box-shadow: 0 0 8px #000;
       z-index: 1000;
+    }
+    .filtros {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .filtros > div {
+      flex: 1;
+      min-width: 150px;
     }
   </style>
 </head>
@@ -55,12 +74,20 @@
   <button id="addBtn">Adicionar</button>
 
   <hr>
-  <label>📁 Companhia:</label>
-  <select id="filtroCompanhia"><option value="">(Todas)</option></select>
-  <label>🌍 Cidade:</label>
-  <select id="filtroCidade"><option value="">(Todas)</option></select>
-  <label>🌐 País:</label>
-  <select id="filtroPais"><option value="">(Todos)</option></select>
+  <div class="filtros">
+    <div>
+      <label>📁 Companhia:</label>
+      <select id="filtroCompanhia"><option value="">(Todas)</option></select>
+    </div>
+    <div>
+      <label>🌍 Cidade:</label>
+      <select id="filtroCidade"><option value="">(Todas)</option></select>
+    </div>
+    <div>
+      <label>🌐 País:</label>
+      <select id="filtroPais"><option value="">(Todos)</option></select>
+    </div>
+  </div>
 
   <table>
     <thead>
@@ -69,6 +96,7 @@
         <th>Destino</th>
         <th>País</th>
         <th>ICAO</th>
+        <th>TPS</th>
         <th>Ação</th>
       </tr>
     </thead>
@@ -154,8 +182,9 @@
       linha.insertCell(1).innerText = e.cidade;
       linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
+      linha.insertCell(4).innerText = e.tps || "";
 
-      const acao = linha.insertCell(4);
+      const acao = linha.insertCell(5);
       const btn = document.createElement("button");
       btn.innerText = "✖";
       btn.className = "remove-btn";
