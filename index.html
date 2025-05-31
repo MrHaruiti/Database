@@ -17,9 +17,18 @@
     th, td { padding: 6px 8px; border: 1px solid #444; text-align: left; background: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
     th { background: #222; }
     .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
-    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
+    img.logo { vertical-align: middle; margin-right: 8px; }
     td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
-    td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
+    td.logo-cell img {
+      height: 40px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 2px;
+      border-radius: 4px;
+    }
     #topoBtn {
       position: fixed;
       bottom: 20px;
