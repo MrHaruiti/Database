@@ -48,6 +48,14 @@
   <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
   <input type="text" id="pais" placeholder="Ex: França" />
+  <label>Voo (Flight):</label>
+  <input type="text" id="voo" placeholder="Ex: AF123" />
+  <label>Horário (Time):</label>
+  <input type="text" id="horario" placeholder="Ex: 14:35" />
+  <label>Aeronave (A/C):</label>
+  <input type="text" id="aeronave" placeholder="Ex: A320" />
+  <label>Status:</label>
+  <input type="text" id="status" placeholder="Ex: Aterrissado" />
   <label>Tipo:</label>
   <select id="tipo">
     <option value="chegada">Chegada</option>
@@ -77,10 +85,20 @@
   }
 
   function renderTabela(registros, destinoId) {
-    let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>DESTINATION</th><th>COUNTRY</th><th>ICAO</th><th>ACTION</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>AIRLINES</th><th>DESTINATION</th><th>COUNTRY</th><th>ICAO</th><th>FLIGHT</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody>';
     registros.forEach((e, i) => {
       const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-      html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${e.status || ''}</td><td>${e.cidade}</td><td>${e.pais}</td><td>${e.icao}</td><td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td></tr>`;
+      html += `<tr>
+        ${logo}
+        <td>${e.cidade}</td>
+        <td>${e.pais}</td>
+        <td>${e.icao}</td>
+        <td>${e.voo || ''}</td>
+        <td>${e.horario || ''}</td>
+        <td>${e.aeronave || ''}</td>
+        <td>${e.status || ''}</td>
+        <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
+      </tr>`;
     });
     html += '</tbody></table>';
     document.getElementById(destinoId).innerHTML = html;
@@ -98,14 +116,18 @@
     const cidade = document.getElementById("cidade").value.trim();
     const icao = document.getElementById("icao").value.trim().toUpperCase();
     const pais = document.getElementById("pais").value.trim();
+    const voo = document.getElementById("voo").value.trim();
+    const horario = document.getElementById("horario").value.trim();
+    const aeronave = document.getElementById("aeronave").value.trim();
+    const status = document.getElementById("status").value.trim();
     const tipo = document.getElementById("tipo").value;
 
     if (!companhia || !cidade || !icao || !pais) {
-      alert("Preencha todos os campos!");
+      alert("Preencha todos os campos obrigatórios!");
       return;
     }
 
-    const novoRegistro = { companhia, cidade, icao, pais };
+    const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status };
     const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
 
     if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
@@ -124,6 +146,10 @@
     document.getElementById("cidade").value = "";
     document.getElementById("icao").value = "";
     document.getElementById("pais").value = "";
+    document.getElementById("voo").value = "";
+    document.getElementById("horario").value = "";
+    document.getElementById("aeronave").value = "";
+    document.getElementById("status").value = "";
   }
 
   function salvarDados() {
