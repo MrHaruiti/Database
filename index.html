@@ -34,6 +34,17 @@
       box-shadow: 0 0 8px #000;
       z-index: 1000;
     }
+    .filtros {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .filtros > div {
+      flex: 1;
+      min-width: 150px;
+    }
   </style>
 </head>
 <body>
@@ -55,12 +66,20 @@
   <button id="addBtn">Adicionar</button>
 
   <hr>
-  <label>📁 Companhia:</label>
-  <select id="filtroCompanhia"><option value="">(Todas)</option></select>
-  <label>🌍 Cidade:</label>
-  <select id="filtroCidade"><option value="">(Todas)</option></select>
-  <label>🌐 País:</label>
-  <select id="filtroPais"><option value="">(Todos)</option></select>
+  <div class="filtros">
+    <div>
+      <label>📁 Companhia:</label>
+      <select id="filtroCompanhia"><option value="">(Todas)</option></select>
+    </div>
+    <div>
+      <label>🌍 Cidade:</label>
+      <select id="filtroCidade"><option value="">(Todas)</option></select>
+    </div>
+    <div>
+      <label>🌐 País:</label>
+      <select id="filtroPais"><option value="">(Todos)</option></select>
+    </div>
+  </div>
 
   <table>
     <thead>
