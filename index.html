@@ -68,6 +68,10 @@
       🌐 País:
       <select id="filtroPais"><option value="">(Todos)</option></select>
     </label>
+    <label style="display: flex; flex-direction: column; color: white;">
+      🏢 TPS:
+      <select id="filtroTPS"><option value="">(Todos)</option></select>
+    </label>
   </div>
 
   <table>
@@ -118,30 +122,36 @@
     const ciaSet = new Set();
     const cidadeSet = new Set();
     const paisSet = new Set();
+    const tpsSet = new Set();
 
     registros.forEach(e => {
       ciaSet.add(e.companhia);
       cidadeSet.add(e.cidade);
       paisSet.add(e.pais);
+      if (e.TPS) tpsSet.add(e.TPS);
     });
 
     const selCia = document.getElementById("filtroCompanhia");
     const selCidade = document.getElementById("filtroCidade");
     const selPais = document.getElementById("filtroPais");
+    const selTPS = document.getElementById("filtroTPS");
 
     selCia.innerHTML = '<option value="">(Todas)</option>';
     selCidade.innerHTML = '<option value="">(Todas)</option>';
     selPais.innerHTML = '<option value="">(Todos)</option>';
+    selTPS.innerHTML = '<option value="">(Todos)</option>';
 
     [...ciaSet].sort().forEach(c => selCia.innerHTML += `<option>${c}</option>`);
     [...cidadeSet].sort().forEach(c => selCidade.innerHTML += `<option>${c}</option>`);
     [...paisSet].sort().forEach(p => selPais.innerHTML += `<option>${p}</option>`);
+    [...tpsSet].sort((a, b) => a - b).forEach(t => selTPS.innerHTML += `<option>${t}</option>`);
   }
 
   function atualizarTabela() {
     const filtroCompanhia = document.getElementById("filtroCompanhia").value;
     const filtroCidade = document.getElementById("filtroCidade").value;
     const filtroPais = document.getElementById("filtroPais").value;
+    const filtroTPS = document.getElementById("filtroTPS").value;
 
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
@@ -150,7 +160,8 @@
       .filter(e =>
         (!filtroCompanhia || e.companhia === filtroCompanhia) &&
         (!filtroCidade || e.cidade === filtroCidade) &&
-        (!filtroPais || e.pais === filtroPais)
+        (!filtroPais || e.pais === filtroPais) &&
+        (!filtroTPS || e.TPS === filtroTPS)
       )
       .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
 
@@ -168,7 +179,7 @@
       linha.insertCell(1).innerText = e.cidade;
       linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
-      linha.insertCell(4).innerText = e.TPS || ""; // Exibe TPS se existir
+      linha.insertCell(4).innerText = e.TPS || "";
 
       const acao = linha.insertCell(5);
       const btn = document.createElement("button");
@@ -261,6 +272,7 @@
     document.getElementById("filtroCompanhia").addEventListener("change", atualizarTabela);
     document.getElementById("filtroCidade").addEventListener("change", atualizarTabela);
     document.getElementById("filtroPais").addEventListener("change", atualizarTabela);
+    document.getElementById("filtroTPS").addEventListener("change", atualizarTabela);
   };
 </script>
 
