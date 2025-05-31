@@ -38,71 +38,6 @@
 </head>
 <body>
 
-<div class="tabs">
-  <div class="tab active" onclick="trocarAba(0)">✈️ Registro</div>
-  <div class="tab" onclick="trocarAba(1)">💾 Backup</div>
-</div>
-
-<div class="tab-content active" id="aba-registro">
-  <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
-  <label>Cidade (Destino):</label>
-  <input type="text" id="cidade" placeholder="Ex: Paris" />
-  <label>Código ICAO:</label>
-  <input type="text" id="icao" placeholder="Ex: LFPG" />
-  <label>País:</label>
-  <input type="text" id="pais" placeholder="Ex: França" />
-  <button id="addBtn">Adicionar</button>
-
-  <hr>
-  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
-    <label style="display: flex; flex-direction: column; color: white;">
-      📁 Companhia:
-      <select id="filtroCompanhia"><option value="">(Todas)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🌍 Cidade:
-      <select id="filtroCidade"><option value="">(Todas)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🌐 País:
-      <select id="filtroPais"><option value="">(Todos)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🏢 TPS:
-      <select id="filtroTPS"><option value="">(Todos)</option></select>
-    </label>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>AIRLINES</th>
-        <th>DESTINATION</th>
-        <th>COUNTRY</th>
-        <th>ICAO</th>
-        <th>TPS</th>
-        <th>ACTION</th>
-      </tr>
-    </thead>
-    <tbody id="tabela"></tbody>
-  </table>
-</div>
-
-<div class="tab-content" id="aba-backup">
-  <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
-  <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
-  <textarea id="output" placeholder="Exportação em formato texto"></textarea>
-</div>
-
-<div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
-
-<audio autoplay loop style="display: none;">
-  <source src="aeroporto.mp3" type="audio/mpeg">
-  Seu navegador não suporta áudio HTML5.
-</audio>
-
 <script>
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
 
@@ -110,62 +45,24 @@
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
-  function registroDuplicado(companhia, cidade, icao) {
-    return registros.some(e =>
-      e.companhia.toLowerCase() === companhia.toLowerCase() &&
-      e.cidade.toLowerCase() === cidade.toLowerCase() &&
-      e.icao.toUpperCase() === icao.toUpperCase()
-    );
-  }
-
-  function popularFiltros() {
-    const ciaSet = new Set();
-    const cidadeSet = new Set();
-    const paisSet = new Set();
-    const tpsSet = new Set();
-
-    registros.forEach(e => {
-      ciaSet.add(e.companhia);
-      cidadeSet.add(e.cidade);
-      paisSet.add(e.pais);
-      if (e.TPS) tpsSet.add(e.TPS);
-    });
-
-    const selCia = document.getElementById("filtroCompanhia");
-    const selCidade = document.getElementById("filtroCidade");
-    const selPais = document.getElementById("filtroPais");
-    const selTPS = document.getElementById("filtroTPS");
-
-    selCia.innerHTML = '<option value="">(Todas)</option>';
-    selCidade.innerHTML = '<option value="">(Todas)</option>';
-    selPais.innerHTML = '<option value="">(Todos)</option>';
-    selTPS.innerHTML = '<option value="">(Todos)</option>';
-
-    [...ciaSet].sort().forEach(c => selCia.innerHTML += `<option>${c}</option>`);
-    [...cidadeSet].sort().forEach(c => selCidade.innerHTML += `<option>${c}</option>`);
-    [...paisSet].sort().forEach(p => selPais.innerHTML += `<option>${p}</option>`);
-    [...tpsSet].sort((a, b) => a - b).forEach(t => selTPS.innerHTML += `<option>${t}</option>`);
+  function obterCodigoISO(pais) {
+    const mapa = {
+      "FRANÇA": "fr", "FRANCE": "fr", "BRAZIL": "br", "BRASIL": "br",
+      "UNITED STATES": "us", "EUA": "us", "ESTADOS UNIDOS": "us",
+      "UNITED KINGDOM": "gb", "REINO UNIDO": "gb", "PORTUGAL": "pt",
+      "JAPÃO": "jp", "JAPAN": "jp", "GERMANY": "de", "ALEMANHA": "de",
+      "SPAIN": "es", "ESPANHA": "es", "ITALY": "it", "ITÁLIA": "it",
+      "GREECE": "gr", "GRÉCIA": "gr", "TURKEY": "tr", "TURQUIA": "tr"
+    };
+    const upper = pais.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return mapa[upper] || "xx";
   }
 
   function atualizarTabela() {
-    const filtroCompanhia = document.getElementById("filtroCompanhia").value;
-    const filtroCidade = document.getElementById("filtroCidade").value;
-    const filtroPais = document.getElementById("filtroPais").value;
-    const filtroTPS = document.getElementById("filtroTPS").value;
-
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
-
-    const listaFiltrada = registros
-      .filter(e =>
-        (!filtroCompanhia || e.companhia === filtroCompanhia) &&
-        (!filtroCidade || e.cidade === filtroCidade) &&
-        (!filtroPais || e.pais === filtroPais) &&
-        (!filtroTPS || e.TPS === filtroTPS)
-      )
-      .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
-
-    listaFiltrada.forEach((e, index) => {
+    const listaFiltrada = registros.sort((a, b) => a.companhia.localeCompare(b.companhia));
+    listaFiltrada.forEach(e => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
       logoCell.className = "logo-cell";
@@ -177,7 +74,17 @@
       logoCell.appendChild(img);
 
       linha.insertCell(1).innerText = e.cidade;
-      linha.insertCell(2).innerText = e.pais;
+
+      const flagCell = linha.insertCell(2);
+      flagCell.className = "logo-cell";
+      const flag = document.createElement("img");
+      flag.className = "logo";
+      const codigo = obterCodigoISO(e.pais);
+      flag.src = `https://flagcdn.com/32x24/${codigo}.png`;
+      flag.title = e.pais;
+      flag.onerror = () => { flag.src = "https://flagcdn.com/32x24/xx.png"; };
+      flagCell.appendChild(flag);
+
       linha.insertCell(3).innerText = e.icao;
       linha.insertCell(4).innerText = e.TPS || "";
 
@@ -186,94 +93,15 @@
       btn.innerText = "✖";
       btn.className = "remove-btn";
       btn.onclick = () => {
-        const idxOriginal = registros.findIndex(x =>
-          x.companhia === e.companhia && x.cidade === e.cidade && x.icao === e.icao
-        );
-        registros.splice(idxOriginal, 1);
+        registros = registros.filter(r => !(r.companhia === e.companhia && r.cidade === e.cidade && r.icao === e.icao));
         localStorage.setItem("registros", JSON.stringify(registros));
-        popularFiltros();
         atualizarTabela();
       };
       acao.appendChild(btn);
     });
   }
 
-  document.getElementById("addBtn").addEventListener("click", () => {
-    const companhia = document.getElementById("companhia").value.trim();
-    const cidade = document.getElementById("cidade").value.trim();
-    const icao = document.getElementById("icao").value.trim().toUpperCase();
-    const pais = document.getElementById("pais").value.trim();
-
-    if (!companhia || !cidade || !icao || !pais) {
-      alert("Preencha todos os campos!");
-      return;
-    }
-
-    if (registroDuplicado(companhia, cidade, icao)) {
-      alert("Registro já existe!");
-      return;
-    }
-
-    registros.push({ companhia, cidade, icao, pais });
-
-    if (companhia.toUpperCase() !== "EMIRATES AIRLINES" && !registroDuplicado("EMIRATES AIRLINES", cidade, icao)) {
-      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
-    }
-
-    localStorage.setItem("registros", JSON.stringify(registros));
-    popularFiltros();
-    atualizarTabela();
-
-    document.getElementById("companhia").value = "";
-    document.getElementById("cidade").value = "";
-    document.getElementById("icao").value = "";
-    document.getElementById("pais").value = "";
-  });
-
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = JSON.parse(e.target.result);
-      data.forEach(item => {
-        if (!registroDuplicado(item.companhia, item.cidade, item.icao)) {
-          registros.push(item);
-        }
-      });
-      localStorage.setItem("registros", JSON.stringify(registros));
-      popularFiltros();
-      atualizarTabela();
-      alert("Backup importado com sucesso!");
-    };
-    reader.readAsText(file);
-  }
-
-  function exportarBackup() {
-    const texto = JSON.stringify(registros, null, 2);
-    const blob = new Blob([texto], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "voos_backup.json";
-    link.click();
-    document.getElementById("output").value = texto;
-  }
-
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
-  }
-
-  window.onload = () => {
-    atualizarTabela();
-    popularFiltros();
-    window.onscroll = () => {
-      document.getElementById("topoBtn").style.display = window.scrollY > 200 ? "block" : "none";
-    };
-    document.getElementById("filtroCompanhia").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroCidade").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroPais").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroTPS").addEventListener("change", atualizarTabela);
-  };
+  window.onload = atualizarTabela;
 </script>
 
 </body>
