@@ -1,3 +1,7 @@
+# Gerar o conteúdo do index.html completo com limpeza automática de localStorage
+index_html_path = "/mnt/data/index_completo_com_limpeza.html"
+
+html_completo = """
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -96,10 +100,12 @@
 
 <audio autoplay loop style="display: none;">
   <source src="aeroporto.mp3" type="audio/mpeg">
-  Seu navegador não suporta áudio HTML5.
 </audio>
 
 <script>
+  // Forçar limpeza do localStorage ao carregar
+  localStorage.removeItem('registros');
+
   let registros = JSON.parse(localStorage.getItem('registros')) || [];
 
   function normalizarNome(nome) {
@@ -168,7 +174,7 @@
       linha.insertCell(1).innerText = e.cidade;
       linha.insertCell(2).innerText = e.pais;
       linha.insertCell(3).innerText = e.icao;
-      linha.insertCell(4).innerText = String(e.TPS || "");  // <-- Aqui o ajuste para exibir TPS como string
+      linha.insertCell(4).innerText = String(e.TPS || "");
 
       const acao = linha.insertCell(5);
       const btn = document.createElement("button");
@@ -266,3 +272,10 @@
 
 </body>
 </html>
+"""
+
+# Salvar o arquivo HTML final
+with open(index_html_path, "w", encoding="utf-8") as f:
+    f.write(html_completo)
+
+index_html_path
