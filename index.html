@@ -52,6 +52,8 @@
   <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
   <input type="text" id="pais" placeholder="Ex: França" />
+  <label>TPS:</label>
+  <input type="text" id="tps" placeholder="Ex: TPS9" />
   <button id="addBtn">Adicionar</button>
 
   <table>
@@ -61,6 +63,7 @@
         <th>Destino</th>
         <th>País</th>
         <th>ICAO</th>
+        <th>TPS</th>
         <th>Ação</th>
       </tr>
     </thead>
@@ -78,161 +81,132 @@
 <div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
 
 <script>
-  let registros = JSON.parse(localStorage.getItem('registros')) || [];
-
-  function normalizarNome(nome) {
-    return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
-  }
-
-  function getAlpha2(nome) {
-    const map = {
-      "ENGLAND": "gb-eng",
-      "AFGHANISTAN": "af", "ALGERIA": "dz", "ANGOLA": "ao", "ARGENTINA": "ar", "ARMENIA": "am",
-      "AUSTRALIA": "au", "AUSTRIA": "at", "AZERBAIJAN": "az", "BAHRAIN": "bh", "BANGLADESH": "bd",
-      "BELARUS": "by", "BHUTAN": "bt", "BOLIVIA": "bo", "BRAZIL": "br", "CABO VERDE": "cv",
-      "CANADA": "ca", "CHILE": "cl", "CHINA": "cn", "COLOMBIA": "co", "COSTA RICA": "cr",
-      "CROATIA": "hr", "CYPRUS": "cy", "CZECHIA": "cz", "ECUADOR": "ec", "EGYPT": "eg",
-      "EL SALVADOR": "sv", "ESTONIA": "ee", "ETHIOPIA": "et", "FIJI": "fj", "FRANCE": "fr",
-      "GERMANY": "de", "GREECE": "gr", "GUATEMALA": "gt", "HONDURAS": "hn", "HUNGARY": "hu",
-      "INDIA": "in", "INDONESIA": "id", "IRAN": "ir", "IRAQ": "iq", "IRELAND": "ie",
-      "ISRAEL": "il", "ITALY": "it", "JAPAN": "jp", "JORDAN": "jo", "KAZAKHSTAN": "kz",
-      "KENYA": "ke", "KUWAIT": "kw", "LATVIA": "lv", "LIBYA": "ly", "LITHUANIA": "lt",
-      "MALAYSIA": "my", "MEXICO": "mx", "MOROCCO": "ma", "MYANMAR": "mm", "NEPAL": "np",
-      "NETHERLANDS": "nl", "NEW ZEALAND": "nz", "NICARAGUA": "ni", "OMAN": "om", "PAKISTAN": "pk",
-      "PANAMA": "pa", "PERU": "pe", "PHILIPPINES": "ph", "POLAND": "pl", "PORTUGAL": "pt",
-      "QATAR": "qa", "ROMANIA": "ro", "RUSSIA": "ru", "RWANDA": "rw", "SAUDI ARABIA": "sa",
-      "SOMALIA": "so", "SOUTH AFRICA": "za", "SOUTH KOREA": "kr", "SPAIN": "es",
-      "SRI LANKA": "lk", "SWITZERLAND": "ch", "SYRIA": "sy", "TAIWAN": "tw", "TAJIKISTAN": "tj",
-      "TANZANIA": "tz", "THAILAND": "th", "TURKEY": "tr", "TURKMENISTAN": "tm", "UGANDA": "ug",
-      "UNITED STATES": "us", "UZBEKISTAN": "uz", "VIETNAM": "vn"
-    };
-    return map[nome.toUpperCase()] || null;
-  }
-
-  function atualizarTabela() {
-    registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
-    const tabela = document.getElementById("tabela");
-    tabela.innerHTML = "";
-
-    registros.forEach((e, index) => {
-      const linha = tabela.insertRow();
-      const logoCell = linha.insertCell(0);
-      logoCell.className = "logo-cell";
-      const img = document.createElement("img");
-      img.className = "logo";
-      img.src = "logos/" + normalizarNome(e.companhia) + ".png";
-      img.title = e.companhia;
-      img.onerror = () => { img.onerror = null; img.src = "logos/default.png"; };
-      logoCell.appendChild(img);
-      linha.insertCell(1).innerText = e.cidade;
-
-      const tdPais = linha.insertCell(2);
-      const iso = getAlpha2(e.pais);
-      if (iso === "gb-eng") {
-        tdPais.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" alt="England" title="England" width="24">`;
-      } else if (iso) {
-        tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
-      } else {
-        tdPais.innerText = e.pais || "-";
-      }
-
-      linha.insertCell(3).innerText = e.icao;
-      const acao = linha.insertCell(4);
-      const btn = document.createElement("button");
-      btn.innerText = "✖";
-      btn.className = "remove-btn";
-      btn.onclick = () => {
-        registros.splice(index, 1);
-        localStorage.setItem("registros", JSON.stringify(registros));
-        atualizarTabela();
-      };
-      acao.appendChild(btn);
-    });
-  }
-
-  function exportarBackup() {
-    const texto = JSON.stringify(registros, null, 2);
-    const blob = new Blob([texto], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "voos_backup.json";
-    link.click();
-    document.getElementById("output").value = texto;
-  }
-
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (Array.isArray(data)) {
-          const novaLista = [];
-          data.forEach(item => {
-            const duplicado = novaLista.some(e =>
-              e.companhia.toLowerCase() === item.companhia.toLowerCase() &&
-              e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-              e.icao.toUpperCase() === item.icao.toUpperCase()
-            );
-            if (!duplicado) novaLista.push(item);
-          });
-          registros = novaLista;
-          localStorage.setItem("registros", JSON.stringify(registros));
-          atualizarTabela();
-          alert("Backup importado com sucesso!");
-        } else {
-          alert("Formato inválido.");
-        }
-      } catch {
-        alert("Erro ao importar backup.");
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
-  }
-
-  document.getElementById("addBtn").addEventListener("click", () => {
-    const companhia = document.getElementById("companhia").value.trim();
-    const cidade = document.getElementById("cidade").value.trim();
-    const icao = document.getElementById("icao").value.trim().toUpperCase();
-    const pais = document.getElementById("pais").value.trim();
-
-    if (!companhia || !cidade || !icao || !pais) {
-      alert("Preencha todos os campos!");
-      return;
-    }
-
-    const existe = registros.some(e =>
-      e.companhia.toLowerCase() === companhia.toLowerCase() &&
-      e.cidade.toLowerCase() === cidade.toLowerCase() &&
-      e.icao.toUpperCase() === icao
-    );
-
-    if (existe) {
-      alert("Este destino já foi adicionado para essa companhia com o mesmo ICAO!");
-      return;
-    }
-
-    registros.push({ companhia, cidade, icao, pais });
-    localStorage.setItem("registros", JSON.stringify(registros));
-    atualizarTabela();
-
-    document.getElementById("companhia").value = "";
-    document.getElementById("cidade").value = "";
-    document.getElementById("icao").value = "";
-    document.getElementById("pais").value = "";
-  });
-
-  window.onscroll = () => {
-    document.getElementById("topoBtn").style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
+function getAlpha2(pais) {
+  const map = {
+    "ENGLAND": "gb-eng",
+    "UNITED STATES": "us",
+    "FRANCE": "fr",
+    "GERMANY": "de",
+    "ITALY": "it",
+    "BRAZIL": "br",
+    // Adicione mais se necessário
   };
+  return map[pais.toUpperCase()] || pais.toLowerCase().slice(0, 2);
+}
 
-  window.onload = atualizarTabela;
+function atualizarTabela() {
+  const tabela = document.getElementById("tabela");
+  tabela.innerHTML = "";
+  const dados = JSON.parse(localStorage.getItem("voos") || "[]");
+  dados.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+
+  dados.forEach((e, i) => {
+    const tr = document.createElement("tr");
+
+    const logo = document.createElement("td");
+    logo.className = "logo-cell";
+    const img = document.createElement("img");
+    img.src = `logos/${e.companhia}.png`;
+    img.onerror = () => img.src = "logos/default.png";
+    img.alt = e.companhia;
+    img.className = "logo";
+    logo.appendChild(img);
+
+    const tdCidade = document.createElement("td");
+    tdCidade.textContent = e.cidade;
+
+    const tdPais = document.createElement("td");
+    const iso = getAlpha2(e.pais);
+    if (iso === "gb-eng") {
+      tdPais.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" alt="England" title="England" width="24">`;
+    } else if (iso) {
+      tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
+    }
+
+    const tdICAO = document.createElement("td");
+    tdICAO.textContent = e.icao;
+
+    const tdTPS = document.createElement("td");
+    tdTPS.textContent = e.tps || "-";
+
+    const tdRemover = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.className = "remove-btn";
+    btn.textContent = "Remover";
+    btn.onclick = () => {
+      dados.splice(i, 1);
+      localStorage.setItem("voos", JSON.stringify(dados));
+      atualizarTabela();
+    };
+    tdRemover.appendChild(btn);
+
+    tr.appendChild(logo);
+    tr.appendChild(tdCidade);
+    tr.appendChild(tdPais);
+    tr.appendChild(tdICAO);
+    tr.appendChild(tdTPS);
+    tr.appendChild(tdRemover);
+    tabela.appendChild(tr);
+  });
+}
+
+function adicionarEntrada() {
+  const companhia = document.getElementById("companhia").value.trim();
+  const cidade = document.getElementById("cidade").value.trim();
+  const icao = document.getElementById("icao").value.trim();
+  const pais = document.getElementById("pais").value.trim();
+  const tps = document.getElementById("tps").value.trim();
+  if (!companhia || !cidade || !icao || !pais || !tps) return alert("Preencha todos os campos.");
+
+  let dados = JSON.parse(localStorage.getItem("voos") || "[]");
+  if (dados.some(e => e.companhia === companhia && e.cidade === cidade)) return alert("Entrada já existe.");
+
+  dados.push({ companhia, cidade, icao, pais, tps });
+  localStorage.setItem("voos", JSON.stringify(dados));
+  atualizarTabela();
+}
+
+document.getElementById("addBtn").addEventListener("click", adicionarEntrada);
+
+function exportarBackup() {
+  const dados = localStorage.getItem("voos");
+  document.getElementById("output").value = dados;
+  const blob = new Blob([dados], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "voos_backup.json";
+  a.click();
+}
+
+function importarBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const novo = JSON.parse(e.target.result);
+      const atual = JSON.parse(localStorage.getItem("voos") || "[]");
+      const combinados = [...atual, ...novo.filter(n => !atual.some(a => a.companhia === n.companhia && a.cidade === n.cidade))];
+      localStorage.setItem("voos", JSON.stringify(combinados));
+      atualizarTabela();
+    } catch (err) {
+      alert("Erro ao importar backup.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function trocarAba(index) {
+  document.querySelectorAll(".tab, .tab-content").forEach((el, i) => {
+    el.classList.toggle("active", i % 2 === index);
+  });
+}
+
+window.onload = atualizarTabela;
+window.onscroll = () => {
+  document.getElementById("topoBtn").style.display = window.scrollY > 100 ? "block" : "none";
+};
 </script>
 </body>
 </html>
