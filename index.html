@@ -20,20 +20,9 @@
     img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
     td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
     td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
-    #topoBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #007bff;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      font-size: 20px;
-      box-shadow: 0 0 8px #000;
-      z-index: 1000;
-    }
+    #topoBtn { position: fixed; bottom: 20px; right: 20px; background: #007bff; color: white; padding: 10px 15px; border-radius: 50%; cursor: pointer; display: none; font-size: 20px; box-shadow: 0 0 8px #000; z-index: 1000; }
+    .filtros { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filtros select { width: 24%; min-width: 150px; }
   </style>
 </head>
 <body>
@@ -52,9 +41,16 @@
   <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
   <input type="text" id="pais" placeholder="Ex: França" />
-  <label>TPS (Terminal):</label>
-  <input type="text" id="tps" placeholder="Ex: TPS1" />
+  <label>Terminal (TPS):</label>
+  <input type="text" id="tps" placeholder="Ex: TPS6" />
   <button id="addBtn">Adicionar</button>
+
+  <div class="filtros">
+    <select id="filtroCompanhia"><option value="">Todas as Companhias</option></select>
+    <select id="filtroCidade"><option value="">Todas as Cidades</option></select>
+    <select id="filtroPais"><option value="">Todos os Países</option></select>
+    <select id="filtroTPS"><option value="">Todos os TPS</option></select>
+  </div>
 
   <table>
     <thead>
@@ -100,12 +96,28 @@
   }
 
   function atualizarTabela() {
-    registros.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
-
     const tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
-    registros.forEach((e, index) => {
+    const fc = document.getElementById("filtroCompanhia").value.toLowerCase();
+    const fd = document.getElementById("filtroCidade").value.toLowerCase();
+    const fp = document.getElementById("filtroPais").value.toLowerCase();
+    const ft = document.getElementById("filtroTPS").value.toLowerCase();
+
+    const filtrado = registros.filter(e =>
+      (!fc || e.companhia.toLowerCase().includes(fc)) &&
+      (!fd || e.cidade.toLowerCase().includes(fd)) &&
+      (!fp || e.pais.toLowerCase().includes(fp)) &&
+      (!ft || (e.tps || "").toLowerCase().includes(ft))
+    );
+
+    [...new Set(registros.map(e => e.companhia))].forEach(c => addOption("filtroCompanhia", c));
+    [...new Set(registros.map(e => e.cidade))].forEach(c => addOption("filtroCidade", c));
+    [...new Set(registros.map(e => e.pais))].forEach(c => addOption("filtroPais", c));
+    [...new Set(registros.map(e => e.tps))].forEach(c => addOption("filtroTPS", c));
+
+    filtrado.sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
+    filtrado.forEach((e, index) => {
       const linha = tabela.insertRow();
       const logoCell = linha.insertCell(0);
       logoCell.className = "logo-cell";
@@ -119,7 +131,11 @@
 
       const tdPais = linha.insertCell(2);
       const iso = getAlpha2(e.pais);
-      tdPais.innerHTML = iso ? `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">` : e.pais || "-";
+      if (iso) {
+        tdPais.innerHTML = `<img src="https://flagcdn.com/w40/${iso}.png" alt="${e.pais}" title="${e.pais}" width="24">`;
+      } else {
+        tdPais.innerText = e.pais || "-";
+      }
 
       linha.insertCell(3).innerText = e.icao;
       linha.insertCell(4).innerText = e.tps || "-";
@@ -136,6 +152,18 @@
       acao.appendChild(btn);
     });
   }
+
+  function addOption(id, valor) {
+    const select = document.getElementById(id);
+    if (![...select.options].some(opt => opt.value === valor)) {
+      const opt = document.createElement("option");
+      opt.value = valor;
+      opt.innerText = valor;
+      select.appendChild(opt);
+    }
+  }
+
+  document.querySelectorAll("select").forEach(sel => sel.onchange = atualizarTabela);
 
   function exportarBackup() {
     const texto = JSON.stringify(registros, null, 2);
@@ -155,32 +183,7 @@
       try {
         const data = JSON.parse(e.target.result);
         if (Array.isArray(data)) {
-          const novaLista = [];
-          data.forEach(item => {
-            const duplicado = novaLista.some(e =>
-              e.companhia.toLowerCase() === item.companhia.toLowerCase() &&
-              e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-              e.icao.toUpperCase() === item.icao.toUpperCase()
-            );
-            if (!duplicado) {
-              novaLista.push(item);
-            }
-          });
-
-          novaLista.forEach(item => {
-            if (item.companhia.toLowerCase() !== "emirates airlines") {
-              const emiratesExiste = novaLista.some(e =>
-                e.companhia.toLowerCase() === "emirates airlines" &&
-                e.cidade.toLowerCase() === item.cidade.toLowerCase() &&
-                e.icao.toUpperCase() === item.icao.toUpperCase()
-              );
-              if (!emiratesExiste) {
-                novaLista.push({ companhia: "EMIRATES AIRLINES", cidade: item.cidade, icao: item.icao, pais: item.pais, tps: item.tps });
-              }
-            }
-          });
-
-          registros = novaLista;
+          registros = data;
           localStorage.setItem("registros", JSON.stringify(registros));
           atualizarTabela();
           alert("Backup importado com sucesso!");
@@ -192,6 +195,15 @@
       }
     };
     reader.readAsText(file);
+  }
+
+  function trocarAba(index) {
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.tab-content').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
   }
 
   document.getElementById("addBtn").addEventListener("click", () => {
@@ -213,7 +225,7 @@
     );
 
     if (existe) {
-      alert("Este destino já foi adicionado para essa companhia com o mesmo ICAO!");
+      alert("Este destino já foi adicionado!");
       return;
     }
 
@@ -238,18 +250,13 @@
     document.getElementById("tps").value = "";
   });
 
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
-  }
-
   window.onscroll = function () {
-    document.getElementById("topoBtn").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
+    const btn = document.getElementById("topoBtn");
+    btn.style.display = (document.documentElement.scrollTop > 300) ? "block" : "none";
   };
 
-  window.onload = () => {
-    atualizarTabela();
-  };
+  window.onload = atualizarTabela;
 </script>
+
 </body>
 </html>
