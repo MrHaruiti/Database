@@ -55,12 +55,20 @@
   <button id="addBtn">Adicionar</button>
 
   <hr>
-  <label>📁 Companhia:</label>
-  <select id="filtroCompanhia"><option value="">(Todas)</option></select>
-  <label>🌍 Cidade:</label>
-  <select id="filtroCidade"><option value="">(Todas)</option></select>
-  <label>🌐 País:</label>
-  <select id="filtroPais"><option value="">(Todos)</option></select>
+  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
+    <label style="display: flex; flex-direction: column; color: white;">
+      📁 Companhia:
+      <select id="filtroCompanhia"><option value="">(Todas)</option></select>
+    </label>
+    <label style="display: flex; flex-direction: column; color: white;">
+      🌍 Cidade:
+      <select id="filtroCidade"><option value="">(Todas)</option></select>
+    </label>
+    <label style="display: flex; flex-direction: column; color: white;">
+      🌐 País:
+      <select id="filtroPais"><option value="">(Todos)</option></select>
+    </label>
+  </div>
 
   <table>
     <thead>
