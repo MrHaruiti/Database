@@ -1,7 +1,4 @@
-# Gerar o conteúdo do index.html completo com limpeza automática de localStorage
-index_html_path = "/mnt/data/index_completo_com_limpeza.html"
 
-html_completo = """
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -104,9 +101,10 @@ html_completo = """
 
 <script>
   // Forçar limpeza do localStorage ao carregar
+  if (!localStorage.getItem('registros')) {
   localStorage.removeItem('registros');
-
-  let registros = JSON.parse(localStorage.getItem('registros')) || [];
+}
+let registros = JSON.parse(localStorage.getItem('registros') || "[]");
 
   function normalizarNome(nome) {
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -272,10 +270,3 @@ html_completo = """
 
 </body>
 </html>
-"""
-
-# Salvar o arquivo HTML final
-with open(index_html_path, "w", encoding="utf-8") as f:
-    f.write(html_completo)
-
-index_html_path
