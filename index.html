@@ -20,30 +20,25 @@
     img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
     td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
     td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
-    #topoBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #007bff;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      font-size: 20px;
-      box-shadow: 0 0 8px #000;
-      z-index: 1000;
-    }
   </style>
 </head>
 <body>
 
 <div class="tabs">
-  <div class="tab active" onclick="trocarAba(0)">✈️ Registro</div>
-  <div class="tab" onclick="trocarAba(1)">💾 Backup</div>
+  <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
+  <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
+  <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
 </div>
 
-<div class="tab-content active" id="aba-registro">
+<div class="tab-content active" id="aba-chegadas">
+  <div id="chegadasTabela"></div>
+</div>
+
+<div class="tab-content" id="aba-partidas">
+  <div id="partidasTabela"></div>
+</div>
+
+<div class="tab-content" id="aba-novo">
   <label>Companhia Aérea:</label>
   <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
   <label>Cidade (Destino):</label>
@@ -52,229 +47,90 @@
   <input type="text" id="icao" placeholder="Ex: LFPG" />
   <label>País:</label>
   <input type="text" id="pais" placeholder="Ex: França" />
-  <button id="addBtn">Adicionar</button>
-
-  <hr>
-  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; margin-bottom: 10px;">
-    <label style="display: flex; flex-direction: column; color: white;">
-      📁 Companhia:
-      <select id="filtroCompanhia"><option value="">(Todas)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🌍 Cidade:
-      <select id="filtroCidade"><option value="">(Todas)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🌐 País:
-      <select id="filtroPais"><option value="">(Todos)</option></select>
-    </label>
-    <label style="display: flex; flex-direction: column; color: white;">
-      🏢 TPS:
-      <select id="filtroTPS"><option value="">(Todos)</option></select>
-    </label>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>AIRLINES</th>
-        <th>DESTINATION</th>
-        <th>COUNTRY</th>
-        <th>ICAO</th>
-        <th>TPS</th>
-        <th>ACTION</th>
-      </tr>
-    </thead>
-    <tbody id="tabela"></tbody>
-  </table>
+  <label>Tipo:</label>
+  <select id="tipo">
+    <option value="chegada">Chegada</option>
+    <option value="partida">Partida</option>
+  </select>
+  <button onclick="adicionarVoo()">Adicionar</button>
 </div>
-
-<div class="tab-content" id="aba-backup">
-  <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
-  <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
-  <textarea id="output" placeholder="Exportação em formato texto"></textarea>
-</div>
-
-<div id="topoBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">🔝</div>
-
-<audio autoplay loop style="display: none;">
-  <source src="aeroporto.mp3" type="audio/mpeg">
-  Seu navegador não suporta áudio HTML5.
-</audio>
 
 <script>
-  let registros = JSON.parse(localStorage.getItem('registros')) || [];
+  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+  let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
+
+  function trocarAba(indice) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
+  }
 
   function normalizarNome(nome) {
     return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
   }
 
-  function registroDuplicado(companhia, cidade, icao) {
-    return registros.some(e =>
-      e.companhia.toLowerCase() === companhia.toLowerCase() &&
-      e.cidade.toLowerCase() === cidade.toLowerCase() &&
-      e.icao.toUpperCase() === icao.toUpperCase()
-    );
-  }
-
-  function popularFiltros() {
-    const ciaSet = new Set();
-    const cidadeSet = new Set();
-    const paisSet = new Set();
-    const tpsSet = new Set();
-
-    registros.forEach(e => {
-      ciaSet.add(e.companhia);
-      cidadeSet.add(e.cidade);
-      paisSet.add(e.pais);
-      if (e.TPS) tpsSet.add(e.TPS);
+  function renderTabela(registros, destinoId) {
+    let html = '<table><thead><tr><th>AIRLINES</th><th>DESTINATION</th><th>COUNTRY</th><th>ICAO</th><th>ACTION</th></tr></thead><tbody>';
+    registros.forEach((e, i) => {
+      const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+      html += `<tr>${logo}<td>${e.cidade}</td><td>${e.pais}</td><td>${e.icao}</td><td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td></tr>`;
     });
-
-    const selCia = document.getElementById("filtroCompanhia");
-    const selCidade = document.getElementById("filtroCidade");
-    const selPais = document.getElementById("filtroPais");
-    const selTPS = document.getElementById("filtroTPS");
-
-    selCia.innerHTML = '<option value="">(Todas)</option>';
-    selCidade.innerHTML = '<option value="">(Todas)</option>';
-    selPais.innerHTML = '<option value="">(Todos)</option>';
-    selTPS.innerHTML = '<option value="">(Todos)</option>';
-
-    [...ciaSet].sort().forEach(c => selCia.innerHTML += `<option>${c}</option>`);
-    [...cidadeSet].sort().forEach(c => selCidade.innerHTML += `<option>${c}</option>`);
-    [...paisSet].sort().forEach(p => selPais.innerHTML += `<option>${p}</option>`);
-    [...tpsSet].sort((a, b) => a - b).forEach(t => selTPS.innerHTML += `<option>${t}</option>`);
+    html += '</tbody></table>';
+    document.getElementById(destinoId).innerHTML = html;
   }
 
-  function atualizarTabela() {
-    const filtroCompanhia = document.getElementById("filtroCompanhia").value;
-    const filtroCidade = document.getElementById("filtroCidade").value;
-    const filtroPais = document.getElementById("filtroPais").value;
-    const filtroTPS = document.getElementById("filtroTPS").value;
-
-    const tabela = document.getElementById("tabela");
-    tabela.innerHTML = "";
-
-    const listaFiltrada = registros
-      .filter(e =>
-        (!filtroCompanhia || e.companhia === filtroCompanhia) &&
-        (!filtroCidade || e.cidade === filtroCidade) &&
-        (!filtroPais || e.pais === filtroPais) &&
-        (!filtroTPS || e.TPS === filtroTPS)
-      )
-      .sort((a, b) => a.companhia.localeCompare(b.companhia) || a.cidade.localeCompare(b.cidade));
-
-    listaFiltrada.forEach((e, index) => {
-      const linha = tabela.insertRow();
-      const logoCell = linha.insertCell(0);
-      logoCell.className = "logo-cell";
-      const img = document.createElement("img");
-      img.className = "logo";
-      img.src = "logos/" + normalizarNome(e.companhia) + ".png";
-      img.title = e.companhia;
-      img.onerror = () => { img.src = "logos/default.png"; };
-      logoCell.appendChild(img);
-
-      linha.insertCell(1).innerText = e.cidade;
-      linha.insertCell(2).innerText = e.pais;
-      linha.insertCell(3).innerText = e.icao;
-      linha.insertCell(4).innerText = e.TPS || "";
-
-      const acao = linha.insertCell(5);
-      const btn = document.createElement("button");
-      btn.innerText = "✖";
-      btn.className = "remove-btn";
-      btn.onclick = () => {
-        const idxOriginal = registros.findIndex(x =>
-          x.companhia === e.companhia && x.cidade === e.cidade && x.icao === e.icao
-        );
-        registros.splice(idxOriginal, 1);
-        localStorage.setItem("registros", JSON.stringify(registros));
-        popularFiltros();
-        atualizarTabela();
-      };
-      acao.appendChild(btn);
-    });
+  function removerVoo(indice, tipo) {
+    if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
+    else registrosPartidas.splice(indice, 1);
+    salvarDados();
+    atualizarTabelas();
   }
 
-  document.getElementById("addBtn").addEventListener("click", () => {
+  function adicionarVoo() {
     const companhia = document.getElementById("companhia").value.trim();
     const cidade = document.getElementById("cidade").value.trim();
     const icao = document.getElementById("icao").value.trim().toUpperCase();
     const pais = document.getElementById("pais").value.trim();
+    const tipo = document.getElementById("tipo").value;
 
     if (!companhia || !cidade || !icao || !pais) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    if (registroDuplicado(companhia, cidade, icao)) {
-      alert("Registro já existe!");
-      return;
+    const novoRegistro = { companhia, cidade, icao, pais };
+    const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
+
+    if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
+      registros.push(novoRegistro);
     }
 
-    registros.push({ companhia, cidade, icao, pais });
-
-    if (companhia.toUpperCase() !== "EMIRATES AIRLINES" && !registroDuplicado("EMIRATES AIRLINES", cidade, icao)) {
+    if (companhia.toUpperCase() !== "EMIRATES AIRLINES" &&
+        !registros.some(e => e.companhia === "EMIRATES AIRLINES" && e.cidade === cidade && e.icao === icao)) {
       registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
     }
 
-    localStorage.setItem("registros", JSON.stringify(registros));
-    popularFiltros();
-    atualizarTabela();
+    salvarDados();
+    atualizarTabelas();
 
     document.getElementById("companhia").value = "";
     document.getElementById("cidade").value = "";
     document.getElementById("icao").value = "";
     document.getElementById("pais").value = "";
-  });
-
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = JSON.parse(e.target.result);
-      data.forEach(item => {
-        if (!registroDuplicado(item.companhia, item.cidade, item.icao)) {
-          registros.push(item);
-        }
-      });
-      localStorage.setItem("registros", JSON.stringify(registros));
-      popularFiltros();
-      atualizarTabela();
-      alert("Backup importado com sucesso!");
-    };
-    reader.readAsText(file);
   }
 
-  function exportarBackup() {
-    const texto = JSON.stringify(registros, null, 2);
-    const blob = new Blob([texto], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "voos_backup.json";
-    link.click();
-    document.getElementById("output").value = texto;
+  function salvarDados() {
+    localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+    localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
   }
 
-  function trocarAba(index) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === index));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === index));
+  function atualizarTabelas() {
+    renderTabela(registrosChegadas, 'chegadasTabela');
+    renderTabela(registrosPartidas, 'partidasTabela');
   }
 
   window.onload = () => {
-    atualizarTabela();
-    popularFiltros();
-    window.onscroll = () => {
-      document.getElementById("topoBtn").style.display = window.scrollY > 200 ? "block" : "none";
-    };
-    document.getElementById("filtroCompanhia").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroCidade").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroPais").addEventListener("change", atualizarTabela);
-    document.getElementById("filtroTPS").addEventListener("change", atualizarTabela);
+    atualizarTabelas();
   };
 </script>
-
 </body>
 </html>
