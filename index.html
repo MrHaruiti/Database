@@ -209,24 +209,4 @@ function atualizarStatusTabela(selectEl) {
   }
 }
 
-</script>
-function atualizarStatusMenu() {
-  const tipo = document.getElementById('tipo').value;
-  document.getElementById('statusPousoBloco').style.display = (tipo === 'chegada') ? 'block' : 'none';
-  document.getElementById('statusDecolagemBloco').style.display = (tipo === 'partida') ? 'block' : 'none';
-  document.getElementById('confirmadoHorario').style.display = 'none';
-}
-function verificarStatusSubmenu() {
-  const tipo = document.getElementById('tipo').value;
-  const status = tipo === 'chegada'
-    ? document.getElementById('statusPouso').value
-    : document.getElementById('statusDecolagem').value;
-  document.getElementById('confirmadoHorario').style.display = (status === 'Confirmed') ? 'inline-block' : 'none';
-}
 
-<div class="tab-content">
-<textarea id="backup" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." rows="10" style="width:100%; font-family:monospace;"></textarea>
-<button onclick="carregarBackup()">Importar Arquivo</button>
-<button onclick="salvarBackup()">Exportar Dados</button>
-</div></body>
-</html>
