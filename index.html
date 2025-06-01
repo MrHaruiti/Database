@@ -53,11 +53,33 @@
       background: #0f141a; text-transform: uppercase;
       font-weight: bold; color: #00d2ff;
     }
-    .filter-container {
-      display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0;
+    .remove-btn {
+      background: #ff4e50; border: none; color: white;
+      padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    }
+    .remove-btn:hover { background: #e43e3e; }
+    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
+    td.logo-cell {
+      background-color: #fff; padding: 5px; border-radius: 4px;
+      text-align: center; width: 70px; min-width: 70px; max-width: 70px;
+    }
+    td.logo-cell img {
+      width: 60px; max-height: 40px; object-fit: contain;
     }
     .clock {
       text-align: right; padding: 10px; font-size: 14px; color: #00d2ff;
+    }
+    .message {
+      padding: 8px; margin-top: 10px; border-radius: 4px;
+    }
+    .success { background-color: #28a745; color: white; }
+    .error { background-color: #dc3545; color: white; }
+    .filter-container {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .filter-container input {
+      max-width: 200px;
     }
   </style>
 </head>
@@ -72,36 +94,15 @@
 
   <div class="tab-content active" id="aba-chegadas">
     <div class="filter-container">
-      <select id="filtroChegadasAirlines"><option value="">Airlines</option></select>
-      <select id="filtroChegadasCidade"><option value="">Destination</option></select>
-      <select id="filtroChegadasPais"><option value="">Country</option></select>
-      <select id="filtroChegadasTPS"><option value="">TPS</option></select>
+      <input id="filtroChegadas" placeholder="Filtrar chegadas..." onkeyup="filtrarTabela('chegadasTabela', this.value)">
     </div>
-    <table id="chegadasTabela">
-      <thead>
-        <tr>
-          <th>Airlines</th><th>Destination</th><th>ICAO</th><th>Country</th><th>Flight</th><th>Time</th><th>Aircraft</th><th>Status</th><th>TPS</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div id="chegadasTabela"></div>
   </div>
-
   <div class="tab-content" id="aba-partidas">
     <div class="filter-container">
-      <select id="filtroPartidasAirlines"><option value="">Airlines</option></select>
-      <select id="filtroPartidasCidade"><option value="">Destination</option></select>
-      <select id="filtroPartidasPais"><option value="">Country</option></select>
-      <select id="filtroPartidasTPS"><option value="">TPS</option></select>
+      <input id="filtroPartidas" placeholder="Filtrar partidas..." onkeyup="filtrarTabela('partidasTabela', this.value)">
     </div>
-    <table id="partidasTabela">
-      <thead>
-        <tr>
-          <th>Airlines</th><th>Destination</th><th>ICAO</th><th>Country</th><th>Flight</th><th>Time</th><th>Aircraft</th><th>Status</th><th>TPS</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div id="partidasTabela"></div>
   </div>
 
   <div class="tab-content" id="aba-novo">
@@ -130,79 +131,30 @@
     <textarea id="output" placeholder="Exportação em formato texto"></textarea>
   </div>
 
-<script>
-  // Função que exibe a hora atual
-  const clock = () => {
-    const agora = new Date();
-    const h = agora.getHours().toString().padStart(2, '0');
-    const m = agora.getMinutes().toString().padStart(2, '0');
-    const s = agora.getSeconds().toString().padStart(2, '0');
-    document.getElementById("clock").innerText = `Hora atual: ${h}:${m}:${s}`;
-  };
-  setInterval(clock, 1000);
-  clock();
-
-  // Função que troca entre as abas
-  function trocarAba(indice) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
-  }
-
-  // Função para importar o backup e validar o formato
-  function importarBackup(event) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const json = JSON.parse(e.target.result);
-
-        // Debug: Verificando o conteúdo do arquivo
-        console.log('Conteúdo do arquivo:', json);
-
-        // Agora não estamos mais verificando o formato do arquivo, apenas carregando os voos
-        localStorage.setItem("painelVoos", JSON.stringify(json));
-        location.reload();  // Recarrega a página com os dados atualizados
-      } catch (err) {
-        alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
-      }
+  <script>
+    const clock = () => {
+      const agora = new Date();
+      const h = agora.getHours().toString().padStart(2, '0');
+      const m = agora.getMinutes().toString().padStart(2, '0');
+      const s = agora.getSeconds().toString().padStart(2, '0');
+      document.getElementById("clock").innerText = `Hora atual: ${h}:${m}:${s}`;
     };
-    reader.readAsText(event.target.files[0]);
-  }
+    setInterval(clock, 1000);
+    clock();
 
-  // Função para salvar os dados de voo no localStorage
-  function salvarLocalStorage() {
-    const voos = { chegadas: [], partidas: [] };
-    document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
-      voos.chegadas.push([...tr.cells].map(td => td.innerText));
-    });
-    document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
-      voos.partidas.push([...tr.cells].map(td => td.innerText));
-    });
-    localStorage.setItem("painelVoos", JSON.stringify(voos));
-  }
-
-  // Função para carregar os dados do localStorage
-  function carregarLocalStorage() {
-    const dados = JSON.parse(localStorage.getItem("painelVoos") || "[]");
-
-    // Verifica se os dados estão no formato adequado (array de voos)
-    if (Array.isArray(dados) && dados.length > 0) {
-      dados.forEach(v => {
-        // Aqui estamos assumindo que todos os voos são tanto chegadas quanto partidas
-        adicionarLinha("chegadasTabela", Object.values(v)); // Adiciona nas chegadas
-        adicionarLinha("partidasTabela", Object.values(v)); // Adiciona nas partidas
-      });
-    } else {
-      alert("Nenhum dado de voo encontrado.");
+    function trocarAba(indice) {
+      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+      document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
     }
-  }
 
-  // Função para adicionar dados de voo na tabela
-  function adicionarLinha(tabelaId, valores) {
-    const tabela = document.getElementById(tabelaId).querySelector("tbody");
-    const linha = tabela.insertRow();
-    valores.forEach(valor => linha.insertCell().innerText = valor);
-  }
-
-  // Carregar dados do localStorage
-  carregarLocalStorage();
-</script>
+    function filtrarTabela(tabelaId, termo) {
+      const tabela = document.getElementById(tabelaId);
+      const linhas = tabela.querySelectorAll("tbody tr");
+      termo = termo.toLowerCase();
+      linhas.forEach(linha => {
+        linha.style.display = [...linha.children].some(td => td.textContent.toLowerCase().includes(termo)) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
