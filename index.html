@@ -60,8 +60,11 @@
   </div>
   <div class="tab-content">
     <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
+    <input type="file" id="arquivoJson" accept="application/json">
+    <br>
     <button onclick="carregarBackup()">Carregar Backup</button>
     <button onclick="salvarBackup()">Salvar Backup</button>
+    <button onclick="carregarDeArquivo()">Carregar JSON do Arquivo</button>
   </div>
 
   <script>
@@ -152,7 +155,6 @@
 
       salvarDados();
       atualizarTabelas();
-
       document.querySelectorAll("input").forEach(i => i.value = "");
     }
 
@@ -182,6 +184,27 @@
       } catch (e) {
         alert("Erro ao carregar backup. Verifique o conteúdo do JSON.");
       }
+    }
+
+    function carregarDeArquivo() {
+      const input = document.getElementById("arquivoJson");
+      const file = input.files[0];
+      if (!file) return alert("Selecione um arquivo JSON primeiro.");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const backup = JSON.parse(e.target.result);
+          registrosChegadas = backup.chegadas || [];
+          registrosPartidas = backup.partidas || [];
+          salvarDados();
+          atualizarTabelas();
+          alert("JSON carregado do arquivo com sucesso!");
+        } catch (err) {
+          alert("Erro ao ler o arquivo JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
     }
 
     window.onload = () => {
