@@ -175,14 +175,17 @@
       const hoje = new Date();
       const amanha = new Date();
       amanha.setDate(hoje.getDate() + 1);
+
       registros.forEach(r => {
         if (!r.horario) return;
+
         const [h, m] = r.horario.split(":").map(Number);
-        const horario = new Date();
-        horario.setHours(h, m, 0, 0);
-        const corte = new Date();
-        corte.setHours(14, 0, 0, 0);
-        r.data = (horario < corte) ? amanha.toISOString().split("T")[0] : hoje.toISOString().split("T")[0];
+        const horarioVoo = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), h, m);
+        const corte = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 14, 0);
+
+        r.data = (horarioVoo < corte)
+          ? amanha.toISOString().split("T")[0]
+          : hoje.toISOString().split("T")[0];
       });
     }
 
