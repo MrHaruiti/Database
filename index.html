@@ -196,196 +196,158 @@
   </div>
 
   <script>
-    let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
-    let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
-    
-    let registrosFiltradosChegadas = registrosChegadas;
-    let registrosFiltradosPartidas = registrosPartidas;
+  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+  let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
+  
+  // Filtragem separada para chegadas e partidas
+  let registrosFiltradosChegadas = registrosChegadas;
+  let registrosFiltradosPartidas = registrosPartidas;
 
-    function trocarAba(indice) {
-      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-      document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
-    }
+  // Trocar entre as abas
+  function trocarAba(indice) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
 
-    function normalizarNome(nome) {
-      return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
-    }
-
-    function renderTabela(registros, destinoId) {
-      registros.forEach(voo => {
-        voo.horario = voo.horario.padStart(5, '0');
-      });
-
-      registros.sort((a, b) => {
-        const [aHour, aMinute] = a.horario.split(':').map(Number);
-        const [bHour, bMinute] = b.horario.split(':').map(Number);
-        if (aHour !== bHour) return aHour - bHour;
-        return aMinute - bMinute;
-      });
-
-      let html = '<table><thead><tr>' +
-        '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
-        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
-        '</tr></thead><tbody>';
-
-      registros.forEach((e, i) => {
-        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-        html += `<tr>
-          ${logo}
-          <td>${e.voo || ''}</td>
-          <td>${e.cidade}</td>
-          <td>${e.icao}</td>
-          <td>${e.pais}</td>
-          <td>${e.horario || ''}</td>
-          <td>${e.aeronave || ''}</td>
-          <td>${e.tps || ''}</td>
-          <td>${e.status || ''}</td>
-          <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
-        </tr>`;
-      });
-
-      html += '</tbody></table>';
-      document.getElementById(destinoId).innerHTML = html;
-    }
-
-    function popularSelects() {
-      const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))].sort();
-      const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))].sort();
-      const paises = [...new Set(registrosChegadas.map(voo => voo.pais))].sort();
-      const tps = [...new Set(registrosChegadas.map(voo => voo.tps))].sort();
-
-      const updateSelectOptions = (selectId, options) => {
-        const select = document.getElementById(selectId);
-        options.forEach(option => {
-          const optionElement = document.createElement('option');
-          optionElement.value = option;
-          optionElement.textContent = option;
-          select.appendChild(optionElement);
-        });
-      };
-
-      updateSelectOptions('filter-companhia', ['', ...companhias]);
-      updateSelectOptions('filter-destino', ['', ...destinos]);
-      updateSelectOptions('filter-pais', ['', ...paises]);
-      updateSelectOptions('filter-tps', ['', ...tps]);
-
-      updateSelectOptions('filter-companhia-partidas', ['', ...companhias]);
-      updateSelectOptions('filter-destino-partidas', ['', ...destinos]);
-      updateSelectOptions('filter-pais-partidas', ['', ...paises]);
-      updateSelectOptions('filter-tps-partidas', ['', ...tps]);
-    }
-
-    function filtrar() {
-  const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
-  const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
-  const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
-  const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
-
-  // Filtrar Chegadas
-  registrosFiltradosChegadas = registrosChegadas.filter(voo =>
-    (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
-    (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
-    (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
-    (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
-  );
-
-  // Filtrar Partidas
-  registrosFiltradosPartidas = registrosPartidas.filter(voo =>
-    (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
-    (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
-    (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
-    (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
-  );
-
-  renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
-  renderTabela(registrosFiltradosPartidas, 'partidasTabela');
-}
-
-
-    function removerVoo(indice, tipo) {
-      if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
-      else registrosPartidas.splice(indice, 1);
-      salvarDados();
-      atualizarTabelas();
-    }
-
-    function adicionarVoo() {
-      const companhia = document.getElementById("companhia").value.trim();
-      const cidade = document.getElementById("cidade").value.trim();
-      const icao = document.getElementById("icao").value.trim().toUpperCase();
-      const pais = document.getElementById("pais").value.trim();
-      const voo = document.getElementById("voo").value.trim();
-      const horario = document.getElementById("horario").value.trim();
-      const aeronave = document.getElementById("aeronave").value.trim();
-      const status = document.getElementById("status").value.trim();
-      const tps = document.getElementById("tps").value.trim();
-      const tipo = document.getElementById("tipo").value;
-
-      if (!companhia || !cidade || !icao || !pais) {
-        alert("Preencha todos os campos obrigatórios!");
-        return;
-      }
-
-      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps };
-      const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
-
-      if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
-        registros.push(novoRegistro);
-      }
-
-      salvarDados();
-      atualizarTabelas();
-
-      document.getElementById("companhia").value = "";
-      document.getElementById("cidade").value = "";
-      document.getElementById("icao").value = "";
-      document.getElementById("pais").value = "";
-      document.getElementById("voo").value = "";
-      document.getElementById("horario").value = "";
-      document.getElementById("aeronave").value = "";
-      document.getElementById("status").value = "";
-      document.getElementById("tps").value = "";
-    }
-
-    function salvarDados() {
-      localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
-      localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
-    }
-
-    function atualizarTabelas() {
+    // Resetar a filtragem ao mudar de aba
+    if (indice === 0) {
       renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+    } else if (indice === 1) {
       renderTabela(registrosFiltradosPartidas, 'partidasTabela');
     }
+  }
 
-    function exportarBackup() {
-      const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
-      const texto = JSON.stringify(backup, null, 2);
-      const blob = new Blob([texto], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "backup_voos.json";
-      link.click();
-      document.getElementById("output").value = texto;
-    }
+  // Renderizar a tabela com os dados filtrados
+  function renderTabela(registros, destinoId) {
+    // Limpar o conteúdo da tabela antes de renderizar
+    document.getElementById(destinoId).innerHTML = '';
+    
+    registros.forEach(voo => {
+      voo.horario = voo.horario.padStart(5, '0');
+    });
 
-    function importarBackup(event) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = JSON.parse(e.target.result);
-        if (data.chegadas) registrosChegadas = data.chegadas;
-        if (data.partidas) registrosPartidas = data.partidas;
-        salvarDados();
-        atualizarTabelas();
-        alert("Backup importado com sucesso!");
-      };
-      reader.readAsText(file);
-    }
+    registros.sort((a, b) => {
+      const [aHour, aMinute] = a.horario.split(':').map(Number);
+      const [bHour, bMinute] = b.horario.split(':').map(Number);
+      if (aHour !== bHour) return aHour - bHour;
+      return aMinute - bMinute;
+    });
 
-    window.onload = () => {
-      popularSelects();
-      atualizarTabelas();
+    let html = '<table><thead><tr>' +
+      '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+      '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
+      '</tr></thead><tbody>';
+
+    registros.forEach((e, i) => {
+      const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+      html += `<tr>
+        ${logo}
+        <td>${e.voo || ''}</td>
+        <td>${e.cidade}</td>
+        <td>${e.icao}</td>
+        <td>${e.pais}</td>
+        <td>${e.horario || ''}</td>
+        <td>${e.aeronave || ''}</td>
+        <td>${e.tps || ''}</td>
+        <td>${e.status || ''}</td>
+        <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    document.getElementById(destinoId).innerHTML = html;
+  }
+
+  // Função de normalização para a criação de logos
+  function normalizarNome(nome) {
+    return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
+  }
+
+  // Popular os selects para filtros de chegadas e partidas
+  function popularSelects() {
+    const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))].sort();
+    const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))].sort();
+    const paises = [...new Set(registrosChegadas.map(voo => voo.pais))].sort();
+    const tps = [...new Set(registrosChegadas.map(voo => voo.tps))].sort();
+
+    const updateSelectOptions = (selectId, options) => {
+      const select = document.getElementById(selectId);
+      options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        select.appendChild(optionElement);
+      });
     };
-  </script>
-</body>
-</html>
+
+    updateSelectOptions('filter-companhia', ['', ...companhias]);
+    updateSelectOptions('filter-destino', ['', ...destinos]);
+    updateSelectOptions('filter-pais', ['', ...paises]);
+    updateSelectOptions('filter-tps', ['', ...tps]);
+
+    updateSelectOptions('filter-companhia-partidas', ['', ...companhias]);
+    updateSelectOptions('filter-destino-partidas', ['', ...destinos]);
+    updateSelectOptions('filter-pais-partidas', ['', ...paises]);
+    updateSelectOptions('filter-tps-partidas', ['', ...tps]);
+  }
+
+  // Função de filtragem para chegadas
+  function filtrar() {
+    const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
+    const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
+    const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
+    const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
+
+    registrosFiltradosChegadas = registrosChegadas.filter(voo =>
+      (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
+      (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
+      (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
+      (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
+    );
+
+    renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+    renderTabela(registrosFiltradosPartidas, 'partidasTabela');
+  }
+
+  // Função de filtragem para partidas (similares às chegadas)
+  function filtrarPartidas() {
+    const filtroCompanhia = document.getElementById('filter-companhia-partidas').value.toLowerCase();
+    const filtroDestino = document.getElementById('filter-destino-partidas').value.toLowerCase();
+    const filtroPais = document.getElementById('filter-pais-partidas').value.toLowerCase();
+    const filtroTps = document.getElementById('filter-tps-partidas').value.toLowerCase();
+
+    registrosFiltradosPartidas = registrosPartidas.filter(voo =>
+      (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
+      (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
+      (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
+      (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
+    );
+
+    renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+    renderTabela(registrosFiltradosPartidas, 'partidasTabela');
+  }
+
+  // Remover voo de uma aba específica
+  function removerVoo(indice, tipo) {
+    if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
+    else registrosPartidas.splice(indice, 1);
+    salvarDados();
+    atualizarTabelas();
+  }
+
+  // Função de salvar dados
+  function salvarDados() {
+    localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+    localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
+  }
+
+  // Atualizar as tabelas com os dados filtrados
+  function atualizarTabelas() {
+    renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+    renderTabela(registrosFiltradosPartidas, 'partidasTabela');
+  }
+
+  window.onload = () => {
+    popularSelects();
+    atualizarTabelas();
+  };
+</script>
