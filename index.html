@@ -1,5 +1,170 @@
-<script>
-let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Voos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    .tabs {
+      display: flex;
+      background: #111;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: #ccc;
+      border-bottom: 2px solid transparent;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .tab.active {
+      color: #00d2ff;
+      border-bottom: 2px solid #00d2ff;
+      background: #1e1e1e;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    th, td {
+      padding: 6px 8px;
+      border: 1px solid #444;
+      text-align: left;
+    }
+    th {
+      background: #222;
+      color: #00d2ff;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    td {
+      font-size: 12px;
+    }
+    input, select, button, textarea {
+      margin: 5px 0;
+      padding: 8px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: none;
+    }
+    input.half, select.half {
+      width: 48%;
+      display: inline-block;
+      margin-right: 2%;
+    }
+    .remove-btn {
+      background: #d00;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .logo-cell {
+      background: white;
+      text-align: center;
+      padding: 4px;
+      width: 50px;
+      height: 30px;
+      vertical-align: middle;
+    }
+    .logo {
+      max-height: 20px;
+      max-width: 100%;
+      object-fit: contain;
+      display: inline-block;
+    }
+    #mensagem-sucesso {
+      color: #0f0;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    #topo {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00d2ff;
+      color: #111;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00d2ff;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
+    <div class="tab" onclick="trocarAba(1)">Partidas</div>
+    <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
+    <div class="tab" onclick="trocarAba(3)">Backup</div>
+  </div>
+  <div class="tab-content active">
+    <div id="chegadasTabela"></div>
+  </div>
+  <div class="tab-content">
+    <div id="partidasTabela"></div>
+  </div>
+  <div class="tab-content">
+    <label>Companhia Aérea:</label>
+    <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
+    <label>Cidade (Destino):</label>
+    <input type="text" id="cidade" placeholder="Ex: Paris" />
+    <label>Código ICAO:</label>
+    <input type="text" id="icao" placeholder="Ex: LFPG" />
+    <label>País:</label>
+    <input type="text" id="pais" placeholder="Ex: França" />
+    <div>
+      <input class="half" type="text" id="voo" placeholder="Flight (Ex: 01234)" />
+      <input class="half" type="text" id="horario" placeholder="Time (Ex: 14:35)" />
+    </div>
+    <div>
+      <input class="half" type="text" id="aeronave" placeholder="A/C (Ex: A320)" />
+      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 123)" />
+    </div>
+    <input type="text" id="status" placeholder="Status (Ex: Confirmado)" />
+    <select id="tipo">
+      <option value="chegada">Chegada</option>
+      <option value="partida">Partida</option>
+    </select>
+    <button onclick="adicionarVoo()">Adicionar</button>
+    <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
+  </div>
+  <div class="tab-content">
+    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
+    <button onclick="carregarBackup()">Importar Arquivo</button>
+    <button onclick="salvarBackup()">Exportar Dados</button>
+  </div>
+  <button id="topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">▲ Topo</button>
+  <!-- Script abaixo foi totalmente integrado -->
+  <script>
+  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
 let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
 function trocarAba(indice) {
@@ -147,12 +312,12 @@ function verificarStatusTempoReal() {
         if (diffMin > 300) voo.status = "Estimated";
         else if (diffMin <= 300 && diffMin > 180) {
           if (!voo.status.includes("Confirmed") && !voo.status.includes("Unconfirmed") && !voo.status.includes("Cancelled") && !voo.status.includes("Delayed")) {
-            const novoStatus = prompt(`Confirme o status do voo ${voo.voo}: Confirmed, Unconfirmed, Cancelled ou Delayed?`, "Confirmed");
+            voo.status = "Confirmed";
             if (novoStatus) voo.status = novoStatus;
           }
         }
         else if (diffMin <= 180 && diffMin > 60) {
-          const confirm = prompt(`Insira o horário real de pouso do voo ${voo.voo}: (formato HH:MM)`, voo.horario);
+          voo.status = `Confirmed ${voo.horario}`;
           if (confirm) voo.status = `Confirmed ${confirm}`;
         }
         else if (diffMin <= 3 && diffMin > 0) voo.status = "Landing";
@@ -186,4 +351,6 @@ window.onload = () => {
   atualizarTabelas();
   setInterval(verificarStatusTempoReal, 60000);
 };
-</script>
+  </script>
+</body>
+</html>
