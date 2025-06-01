@@ -189,11 +189,18 @@
     }
 
     function importarBackup(event) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        localStorage.setItem("painelVoos", e.target.result);
-        location.reload();
-      };
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const json = JSON.parse(e.target.result);
+      localStorage.setItem("painelVoos", JSON.stringify(json));
+      location.reload();
+    } catch (err) {
+      alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
+    }
+  };
+  reader.readAsText(event.target.files[0]);
+};
       reader.readAsText(event.target.files[0]);
     }
 
