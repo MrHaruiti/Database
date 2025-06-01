@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>New Dubai International Airport - DATABASE</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>New Dubai International Airport - DATABASE</title>
+<style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
@@ -128,54 +129,48 @@
   </style>
 </head>
 <body>
-
 <div class="tabs">
-  <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
-  <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
-  <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
-  <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
+<div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
+<div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
+<div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
+<div class="tab" onclick="trocarAba(3)">💾 Backup</div>
 </div>
-
 <div class="tab-content active" id="aba-chegadas">
-  <div id="chegadasTabela"></div>
+<div id="chegadasTabela"></div>
 </div>
-
 <div class="tab-content" id="aba-partidas">
-  <div id="partidasTabela"></div>
+<div id="partidasTabela"></div>
 </div>
-
 <div class="tab-content" id="aba-novo">
-  <label>Companhia Aérea:</label>
-  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
-  <label>Cidade (Destino):</label>
-  <input type="text" id="cidade" placeholder="Ex: Paris" />
-  <label>Código ICAO:</label>
-  <input type="text" id="icao" placeholder="Ex: LFPG" />
-  <label>País:</label>
-  <input type="text" id="pais" placeholder="Ex: França" />
-  <label>Voo (Flight):</label>
-  <input type="text" id="voo" placeholder="Ex: 01234" />
-  <label>Horário (Time):</label>
-  <input type="text" id="horario" placeholder="Ex: 14:35" />
-  <label>Aeronave (A/C):</label>
-  <input type="text" id="aeronave" placeholder="Ex: A320" />
-  <label>Status:</label>
-  <input type="text" id="status" placeholder="Ex: Confirmado" />
-  <label>Tipo:</label>
-  <select id="tipo">
-    <option value="chegada">Chegada</option>
-    <option value="partida">Partida</option>
-  </select>
-  <button onclick="adicionarVoo()">Adicionar</button>
+<label>Companhia Aérea:</label>
+<input id="companhia" placeholder="Ex: AIR FRANCE" type="text"/>
+<label>Cidade (Destino):</label>
+<input id="cidade" placeholder="Ex: Paris" type="text"/>
+<label>Código ICAO:</label>
+<input id="icao" placeholder="Ex: LFPG" type="text"/>
+<label>País:</label>
+<input id="pais" placeholder="Ex: França" type="text"/>
+<label>Voo (Flight):</label>
+<input id="voo" placeholder="Ex: 01234" type="text"/>
+<label>Horário (Time):</label>
+<input id="horario" placeholder="Ex: 14:35" type="text"/>
+<label>Aeronave (A/C):</label>
+<input id="aeronave" placeholder="Ex: A320" type="text"/>
+<label>Status:</label>
+<input id="status" placeholder="Ex: Confirmado" type="text"/>
+<label>Tipo:</label>
+<select id="tipo">
+<option value="chegada">Chegada</option>
+<option value="partida">Partida</option>
+</select>
+<button onclick="adicionarVoo()">Adicionar</button>
 </div>
-
 <div class="tab-content" id="aba-backup">
-  <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
-  <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
-  <textarea id="output" placeholder="Exportação em formato texto"></textarea>
+<button onclick="exportarBackup()">⬇️ Exportar Backup</button>
+<button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
+<input accept=".json" id="importar" onchange="importarBackup(event)" style="display:none" type="file"/>
+<textarea id="output" placeholder="Exportação em formato texto"></textarea>
 </div>
-
 <script>
   let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
   let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
