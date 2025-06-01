@@ -59,11 +59,6 @@
     .clock {
       text-align: right; padding: 10px; font-size: 14px; color: #00d2ff;
     }
-    .message {
-      padding: 8px; margin-top: 10px; border-radius: 4px;
-    }
-    .success { background-color: #28a745; color: white; }
-    .error { background-color: #dc3545; color: white; }
   </style>
 </head>
 <body>
@@ -77,22 +72,36 @@
 
   <div class="tab-content active" id="aba-chegadas">
     <div class="filter-container">
-      <select id="filtroChegadasAirlines" onchange="filtrarSelects('chegadasTabela', 'chegada')"><option value="">Airlines</option></select>
-      <select id="filtroChegadasCidade" onchange="filtrarSelects('chegadasTabela', 'chegada')"><option value="">Destination</option></select>
-      <select id="filtroChegadasPais" onchange="filtrarSelects('chegadasTabela', 'chegada')"><option value="">Country</option></select>
-      <select id="filtroChegadasTPS" onchange="filtrarSelects('chegadasTabela', 'chegada')"><option value="">TPS</option></select>
+      <select id="filtroChegadasAirlines"><option value="">Airlines</option></select>
+      <select id="filtroChegadasCidade"><option value="">Destination</option></select>
+      <select id="filtroChegadasPais"><option value="">Country</option></select>
+      <select id="filtroChegadasTPS"><option value="">TPS</option></select>
     </div>
-    <div id="chegadasTabela"></div>
+    <table id="chegadasTabela">
+      <thead>
+        <tr>
+          <th>Airlines</th><th>Destination</th><th>ICAO</th><th>Country</th><th>Flight</th><th>Time</th><th>Aircraft</th><th>Status</th><th>TPS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <div class="tab-content" id="aba-partidas">
     <div class="filter-container">
-      <select id="filtroPartidasAirlines" onchange="filtrarSelects('partidasTabela', 'partida')"><option value="">Airlines</option></select>
-      <select id="filtroPartidasCidade" onchange="filtrarSelects('partidasTabela', 'partida')"><option value="">Destination</option></select>
-      <select id="filtroPartidasPais" onchange="filtrarSelects('partidasTabela', 'partida')"><option value="">Country</option></select>
-      <select id="filtroPartidasTPS" onchange="filtrarSelects('partidasTabela', 'partida')"><option value="">TPS</option></select>
+      <select id="filtroPartidasAirlines"><option value="">Airlines</option></select>
+      <select id="filtroPartidasCidade"><option value="">Destination</option></select>
+      <select id="filtroPartidasPais"><option value="">Country</option></select>
+      <select id="filtroPartidasTPS"><option value="">TPS</option></select>
     </div>
-    <div id="partidasTabela"></div>
+    <table id="partidasTabela">
+      <thead>
+        <tr>
+          <th>Airlines</th><th>Destination</th><th>ICAO</th><th>Country</th><th>Flight</th><th>Time</th><th>Aircraft</th><th>Status</th><th>TPS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <div class="tab-content" id="aba-novo">
@@ -137,32 +146,81 @@
       document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
     }
 
-    function filtrarSelects(tabelaId, tipo) {
-      const filtros = {
-        companhia: document.getElementById(`filtro${capitalize(tipo)}sAirlines`).value.toLowerCase(),
-        cidade: document.getElementById(`filtro${capitalize(tipo)}sCidade`).value.toLowerCase(),
-        pais: document.getElementById(`filtro${capitalize(tipo)}sPais`).value.toLowerCase(),
-        tps: document.getElementById(`filtro${capitalize(tipo)}sTPS`).value.toLowerCase()
+    function adicionarVoo() {
+      const voo = {
+        companhia: document.getElementById("companhia").value,
+        cidade: document.getElementById("cidade").value,
+        icao: document.getElementById("icao").value,
+        pais: document.getElementById("pais").value,
+        voo: document.getElementById("voo").value,
+        horario: document.getElementById("horario").value,
+        aeronave: document.getElementById("aeronave").value,
+        status: document.getElementById("status").value,
+        tps: document.getElementById("tps").value,
+        tipo: document.getElementById("tipo").value
       };
-      const tabela = document.getElementById(tabelaId);
-      const linhas = tabela.querySelectorAll("tbody tr");
-      linhas.forEach(linha => {
-        const [companhia, cidade, , pais, , , , , tps] = [...linha.children].map(td => td.textContent.toLowerCase());
-        const mostrar =
-          (!filtros.companhia || companhia.includes(filtros.companhia)) &&
-          (!filtros.cidade || cidade.includes(filtros.cidade)) &&
-          (!filtros.pais || pais.includes(filtros.pais)) &&
-          (!filtros.tps || tps.includes(filtros.tps));
-        linha.style.display = mostrar ? '' : 'none';
+
+      if (!voo.companhia || !voo.cidade || !voo.icao || !voo.pais) {
+        document.getElementById("mensagem").innerText = "Preencha todos os campos obrigatórios.";
+        return;
+      }
+
+      const tabelaId = voo.tipo === "chegada" ? "chegadasTabela" : "partidasTabela";
+      const tabela = document.getElementById(tabelaId).querySelector("tbody");
+      const linha = tabela.insertRow();
+
+      linha.insertCell().innerText = voo.companhia;
+      linha.insertCell().innerText = voo.cidade;
+      linha.insertCell().innerText = voo.icao;
+      linha.insertCell().innerText = voo.pais;
+      linha.insertCell().innerText = voo.voo;
+      linha.insertCell().innerText = voo.horario;
+      linha.insertCell().innerText = voo.aeronave;
+      linha.insertCell().innerText = voo.status;
+      linha.insertCell().innerText = voo.tps;
+
+      salvarLocalStorage();
+      document.getElementById("mensagem").innerText = "Voo adicionado com sucesso.";
+    }
+
+    function exportarBackup() {
+      const voos = localStorage.getItem("painelVoos") || "{}";
+      document.getElementById("output").value = voos;
+    }
+
+    function importarBackup(event) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        localStorage.setItem("painelVoos", e.target.result);
+        location.reload();
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+
+    function salvarLocalStorage() {
+      const voos = { chegadas: [], partidas: [] };
+      document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
+        voos.chegadas.push([...tr.cells].map(td => td.innerText));
       });
+      document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
+        voos.partidas.push([...tr.cells].map(td => td.innerText));
+      });
+      localStorage.setItem("painelVoos", JSON.stringify(voos));
     }
 
-    function capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
+    function carregarLocalStorage() {
+      const dados = JSON.parse(localStorage.getItem("painelVoos") || "{}");
+      if (dados.chegadas) dados.chegadas.forEach(v => adicionarLinha("chegadasTabela", v));
+      if (dados.partidas) dados.partidas.forEach(v => adicionarLinha("partidasTabela", v));
     }
 
-    // Funções como adicionarVoo(), exportarBackup(), importarBackup() e renderizarTabelas()
-    // devem ser implementadas separadamente, conforme seu sistema já tem.
+    function adicionarLinha(tabelaId, valores) {
+      const tabela = document.getElementById(tabelaId).querySelector("tbody");
+      const linha = tabela.insertRow();
+      valores.forEach(valor => linha.insertCell().innerText = valor);
+    }
+
+    carregarLocalStorage();
   </script>
 </body>
 </html>
