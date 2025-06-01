@@ -195,9 +195,50 @@
     reader.readAsText(file);
   }
 
+  function verificarVoos() {
+    const agora = new Date();
+
+    function atualizarVoo(voo) {
+      const horarioVoo = new Date(`1970-01-01T${voo.horario}:00Z`);
+
+      if (horarioVoo <= agora) {
+        if (voo.tipo === "chegada") {
+          registrosChegadas = registrosChegadas.filter(item => item !== voo);
+        } else {
+          registrosPartidas = registrosPartidas.filter(item => item !== voo);
+        }
+
+        voo.horario = ajustarHorarioParaProximoDia(voo.horario);
+        if (voo.tipo === "chegada") {
+          registrosChegadas.push(voo);
+        } else {
+          registrosPartidas.push(voo);
+        }
+      }
+    }
+
+    function ajustarHorarioParaProximoDia(horario) {
+      const [hora, minuto] = horario.split(":").map(Number);
+      const novoHorario = new Date(agora);
+      novoHorario.setDate(agora.getDate() + 1);
+      novoHorario.setHours(hora);
+      novoHorario.setMinutes(minuto);
+      return novoHorario.toISOString().substring(11, 16);
+    }
+
+    registrosChegadas.forEach(atualizarVoo);
+    registrosPartidas.forEach(atualizarVoo);
+
+    salvarDados();
+    atualizarTabelas();
+  }
+
+  setInterval(verificarVoos, 60000);
+
   window.onload = () => {
     atualizarTabelas();
   };
 </script>
+
 </body>
 </html>
