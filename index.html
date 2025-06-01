@@ -5,20 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel de Voos</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #111; color: #eee; margin: 0; padding: 0; }
-    .tabs { display: flex; background: #222; }
-    .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #ccc; border-bottom: 2px solid transparent; }
-    .tab.active { color: #00d2ff; border-bottom: 2px solid #00d2ff; background: #333; }
-    .tab-content { display: none; padding: 20px; }
-    .tab-content.active { display: block; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 8px; border: 1px solid #444; text-align: left; }
-    th { background: #333; color: #00d2ff; }
-    input, select, button, textarea { margin: 5px 0; padding: 8px; box-sizing: border-box; }
-    input.half, select.half { width: 48%; display: inline-block; margin-right: 2%; }
-    .remove-btn { background: #d00; color: #fff; border: none; padding: 5px 10px; cursor: pointer; }
-    .logo-cell { background: white; text-align: center; }
-    .logo { height: 30px; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    .tabs {
+      display: flex;
+      background: #111;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: #ccc;
+      border-bottom: 2px solid transparent;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .tab.active {
+      color: #00d2ff;
+      border-bottom: 2px solid #00d2ff;
+      background: #1e1e1e;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    th, td {
+      padding: 6px 8px;
+      border: 1px solid #444;
+      text-align: left;
+    }
+    th {
+      background: #222;
+      color: #00d2ff;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    td {
+      font-size: 12px;
+    }
+    input, select, button, textarea {
+      margin: 5px 0;
+      padding: 8px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: none;
+    }
+    input.half, select.half {
+      width: 48%;
+      display: inline-block;
+      margin-right: 2%;
+    }
+    .remove-btn {
+      background: #d00;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .logo-cell {
+      background: white;
+      text-align: center;
+      padding: 0;
+      max-width: 40px;
+    }
+    .logo {
+      height: 20px;
+    }
+    #mensagem-sucesso {
+      color: #0f0;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -28,6 +107,9 @@
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
     <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
+
+  <div id="mensagem-sucesso">✅ Voo adicionado com sucesso!</div>
+
   <div class="tab-content active">
     <div id="chegadasTabela"></div>
   </div>
@@ -49,7 +131,7 @@
     </div>
     <div>
       <input class="half" type="text" id="aeronave" placeholder="A/C (Ex: A320)" />
-      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 123)" />
+      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 1)" />
     </div>
     <input type="text" id="status" placeholder="Status (Ex: Confirmado)" />
     <select id="tipo">
@@ -59,13 +141,9 @@
     <button onclick="adicionarVoo()">Adicionar</button>
   </div>
   <div class="tab-content">
-    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
-    <br>
-    <input type="file" id="fileInput" accept="application/json" />
-    <br>
-    <button onclick="salvarBackup()">Exportar Backup</button>
-    <button onclick="carregarBackup()">Importar Backup</button>
-    <button onclick="carregarDeArquivo()">Importar Arquivo</button>
+    <textarea id="backup" rows="10" style="width:100%; font-family:monospace;"></textarea>
+    <button onclick="carregarBackup()">Importar</button>
+    <button onclick="salvarBackup()">Exportar</button>
   </div>
 
   <script>
@@ -81,7 +159,16 @@
       return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
     }
 
+    function ordenarAutomaticamentePorHorario(registros) {
+      return registros.sort((a, b) => {
+        const t1 = (a.horario || '').padStart(5, '0');
+        const t2 = (b.horario || '').padStart(5, '0');
+        return t1.localeCompare(t2);
+      });
+    }
+
     function renderTabela(registros, destinoId) {
+      registros = ordenarAutomaticamentePorHorario(registros);
       let html = '<table><thead><tr>' +
         '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
         '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
@@ -157,6 +244,7 @@
       salvarDados();
       atualizarTabelas();
       document.querySelectorAll("input").forEach(i => i.value = "");
+      mostrarMensagemSucesso();
     }
 
     function salvarDados() {
@@ -187,30 +275,9 @@
       }
     }
 
-    function carregarDeArquivo() {
-      const fileInput = document.getElementById("fileInput");
-      const file = fileInput.files[0];
-      if (!file) return alert("Selecione um arquivo .json primeiro.");
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const dados = JSON.parse(e.target.result);
-          registrosChegadas = dados.chegadas || [];
-          registrosPartidas = dados.partidas || [];
-          salvarDados();
-          atualizarTabelas();
-          alert("Backup importado com sucesso do arquivo!");
-        } catch (erro) {
-          alert("Erro ao ler o arquivo JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
     window.onload = () => {
       atualizarTabelas();
-    };
+    }
   </script>
 </body>
 </html>
