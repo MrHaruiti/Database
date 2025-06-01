@@ -43,6 +43,13 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    @keyframes flipOut {
+      0% { transform: rotateX(0); opacity: 1; }
+      100% { transform: rotateX(90deg); opacity: 0; }
+    }
+    .flip {
+      animation: flipOut 1s ease forwards;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -125,133 +132,82 @@
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
     <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
-  <div class="tab-content active"><div id="chegadasTabela"></div></div>
-  <div class="tab-content"><div id="partidasTabela"></div></div>
-  <div class="tab-content">
-    <label>Companhia Aérea:</label><input type="text" id="companhia" />
-    <label>Cidade (Destino):</label><input type="text" id="cidade" />
-    <label>Código ICAO:</label><input type="text" id="icao" />
-    <label>País:</label><input type="text" id="pais" />
-    <div><input class="half" type="text" id="voo" /><input class="half" type="text" id="horario" /></div>
-    <div><input class="half" type="text" id="aeronave" /><input class="half" type="text" id="tps" /></div>
-    <input type="text" id="status" />
-    <select id="tipo"><option value="chegada">Chegada</option><option value="partida">Partida</option></select>
-    <button onclick="adicionarVoo()">Adicionar</button>
-    <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
+  <div class="tab-content active">
+    <div id="chegadasTabela"></div>
   </div>
   <div class="tab-content">
-    <textarea id="backup" rows="10" style="width:100%; font-family:monospace;"></textarea>
-    <button onclick="carregarBackup()">Importar Arquivo</button>
-    <button onclick="salvarBackup()">Exportar Dados</button>
+    <div id="partidasTabela"></div>
+  </div>
+  <div class="tab-content">
+    <!-- formulário de novo voo -->
+  </div>
+  <div class="tab-content">
+    <!-- backup -->
   </div>
   <button id="topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">▲ Topo</button>
-<script>
-let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
-let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
-function trocarAba(indice) {
-  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-  document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
-}
-function normalizarNome(nome) {
-  return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
-}
-function renderTabela(registros, destinoId) {
-  const hoje = new Date().toISOString().split('T')[0];
-  registros.sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
-  let html = '<table><thead><tr>' +
-    '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
-    '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
-    '</tr></thead><tbody>';
-  registros.forEach((e, i) => {
-    if (e.data !== hoje) return;
-    const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-    html += `<tr>
-      ${logo}
-      <td>${e.voo || ''}</td>
-      <td>${e.cidade}</td>
-      <td>${e.icao}</td>
-      <td>${e.pais}</td>
-      <td>${e.horario || ''}</td>
-      <td>${e.aeronave || ''}</td>
-      <td>${e.tps ? parseInt(e.tps) : ''}</td>
-      <td>${e.status || ''}</td>
-      <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById(destinoId).innerHTML = html;
-}
-function removerVoo(indice, tipo) {
-  if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
-  else registrosPartidas.splice(indice, 1);
-  salvarDados();
-  atualizarTabelas();
-}
-function adicionarVoo() {
-  const companhia = document.getElementById("companhia").value.trim();
-  const cidade = document.getElementById("cidade").value.trim();
-  const icao = document.getElementById("icao").value.trim().toUpperCase();
-  const pais = document.getElementById("pais").value.trim();
-  const voo = document.getElementById("voo").value.trim() || String(Math.floor(10000 + Math.random() * 90000));
-  const horario = document.getElementById("horario").value.trim();
-  const aeronave = document.getElementById("aeronave").value.trim();
-  const tps = document.getElementById("tps").value.trim();
-  const status = document.getElementById("status").value.trim();
-  const tipo = document.getElementById("tipo").value;
-  if (!companhia || !cidade || !icao || !pais) {
-    alert("Preencha todos os campos obrigatórios!");
-    return;
-  }
-  const hora = parseInt(horario.split(':')[0]);
-  const data = hora < 14 ? new Date(Date.now() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-  const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, tps, status, data };
-  const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
-  registros.push(novoRegistro);
-  salvarDados();
-  atualizarTabelas();
-  document.querySelectorAll("input").forEach(i => i.value = "");
-  document.getElementById("mensagem-sucesso").style.display = 'block';
-  setTimeout(() => document.getElementById("mensagem-sucesso").style.display = 'none', 3000);
-}
-function salvarDados() {
-  localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
-  localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
-}
-function atualizarTabelas() {
-  renderTabela(registrosChegadas, 'chegadasTabela');
-  renderTabela(registrosPartidas, 'partidasTabela');
-}
-function salvarBackup() {
-  const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
-  document.getElementById("backup").value = JSON.stringify(backup, null, 2);
-}
-function carregarBackup() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json";
-  input.onchange = e => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = event => {
-      try {
-        const backup = JSON.parse(event.target.result);
-        registrosChegadas = backup.chegadas || [];
-        registrosPartidas = backup.partidas || [];
-        salvarDados();
+  <script>
+    function aplicarAnimacaoRemocao(tr) {
+      tr.classList.add('flip');
+      setTimeout(() => {
+        tr.remove();
         atualizarTabelas();
-        alert("Backup carregado com sucesso!");
-      } catch (e) {
-        alert("Erro ao carregar backup. Verifique o conteúdo do JSON.");
-      }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
-window.onload = () => {
-  atualizarTabelas();
-  setInterval(atualizarTabelas, 60000);
-};
-</script>
+      }, 1000);
+    }
+
+    function verificarStatusTempoReal() {
+      const agora = new Date();
+      const atualizar = (lista, tipo, destinoId) => {
+        const tabela = document.getElementById(destinoId);
+        const linhas = tabela ? tabela.querySelectorAll('tbody tr') : [];
+
+        lista.forEach((voo, index) => {
+          if (!voo.horario || !voo.status || voo.status === "Removed") return;
+
+          const [hora, minuto] = voo.horario.split(":".padEnd(2, '0')).map(Number);
+          const horarioVoo = new Date();
+          horarioVoo.setHours(hora, minuto, 0, 0);
+
+          const diffMin = Math.floor((horarioVoo - agora) / 60000);
+          const diffPosMin = Math.floor((agora - horarioVoo) / 60000);
+
+          let linha = linhas[index];
+
+          if (tipo === "chegada") {
+            if (diffMin > 300) voo.status = "Estimated";
+            else if (diffMin <= 300 && diffMin > 180) voo.status = "Confirmed";
+            else if (diffMin <= 180 && diffMin > 60) voo.status = `Confirmed ${voo.horario}`;
+            else if (diffMin <= 3 && diffMin > 0) voo.status = "Landing";
+            else if (diffMin === 0) voo.status = `Landed (${voo.horario})`;
+            else if (diffPosMin > 10 && diffPosMin <= 90) voo.status = "Deplaining";
+            else if (diffPosMin > 90 && diffPosMin <= 120) voo.status = "Finished";
+            else if (diffPosMin > 120) {
+              if (linha) aplicarAnimacaoRemocao(linha);
+              lista.splice(index, 1);
+              voo.status = "Removed";
+            }
+          } else {
+            if (diffMin > 300) voo.status = "Estimated";
+            else if (diffMin <= 300 && diffMin > 180) voo.status = "Check-in Opened";
+            else if (diffMin <= 180 && diffMin > 60) voo.status = "Boarding";
+            else if (diffMin <= 60 && diffMin > 30) voo.status = "Last Call";
+            else if (diffMin <= 30 && diffMin > 0) voo.status = "Confirmed";
+            else if (diffMin === 0) voo.status = "Taking Off";
+            else if (diffPosMin >= 5 && diffPosMin < 120) voo.status = "Finished";
+            else if (diffPosMin >= 120) {
+              if (linha) aplicarAnimacaoRemocao(linha);
+              lista.splice(index, 1);
+              voo.status = "Removed";
+            }
+          }
+        });
+      };
+      atualizar(registrosChegadas, "chegada", 'chegadasTabela');
+      atualizar(registrosPartidas, "partida", 'partidasTabela');
+      salvarDados();
+      atualizarTabelas();
+    }
+
+    setInterval(verificarStatusTempoReal, 60000);
+  </script>
 </body>
 </html>
