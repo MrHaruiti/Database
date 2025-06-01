@@ -14,7 +14,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 8px; border: 1px solid #444; text-align: left; }
     th { background: #333; color: #00d2ff; }
-    input, select, button { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
+    input, select, button, textarea { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
     .remove-btn { background: #d00; color: #fff; border: none; padding: 5px 10px; cursor: pointer; }
     .logo-cell { background: white; text-align: center; }
     .logo { height: 30px; }
@@ -25,6 +25,7 @@
     <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
     <div class="tab" onclick="trocarAba(1)">Partidas</div>
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
+    <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
   <div class="tab-content active">
     <div id="chegadasTabela"></div>
@@ -33,21 +34,37 @@
     <div id="partidasTabela"></div>
   </div>
   <div class="tab-content">
-    <input type="text" id="companhia" placeholder="Companhia">
-    <input type="text" id="cidade" placeholder="Cidade">
-    <input type="text" id="icao" placeholder="ICAO">
-    <input type="text" id="pais" placeholder="País">
-    <input type="text" id="voo" placeholder="Flight">
-    <input type="text" id="horario" placeholder="Horário">
-    <input type="text" id="aeronave" placeholder="Aeronave">
-    <input type="text" id="tps" placeholder="TPS">
-    <input type="text" id="status" placeholder="Status">
+    <label>Companhia Aérea:</label>
+    <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
+    <label>Cidade (Destino):</label>
+    <input type="text" id="cidade" placeholder="Ex: Paris" />
+    <label>Código ICAO:</label>
+    <input type="text" id="icao" placeholder="Ex: LFPG" />
+    <label>País:</label>
+    <input type="text" id="pais" placeholder="Ex: França" />
+    <label>Voo (Flight):</label>
+    <input type="text" id="voo" placeholder="Ex: 01234" />
+    <label>Horário (Time):</label>
+    <input type="text" id="horario" placeholder="Ex: 14:35" />
+    <label>Aeronave (A/C):</label>
+    <input type="text" id="aeronave" placeholder="Ex: A320" />
+    <label>TPS:</label>
+    <input type="text" id="tps" placeholder="Ex: 123" />
+    <label>Status:</label>
+    <input type="text" id="status" placeholder="Ex: Confirmado" />
+    <label>Tipo:</label>
     <select id="tipo">
       <option value="chegada">Chegada</option>
       <option value="partida">Partida</option>
     </select>
-    <button onclick="adicionarVoo()">Adicionar Voo</button>
+    <button onclick="adicionarVoo()">Adicionar</button>
   </div>
+  <div class="tab-content">
+    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais."></textarea>
+    <button onclick="carregarBackup()">Carregar Backup</button>
+    <button onclick="salvarBackup()">Salvar Backup</button>
+  </div>
+
   <script>
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
@@ -143,6 +160,24 @@
     function atualizarTabelas() {
       renderTabela(registrosChegadas, 'chegadasTabela');
       renderTabela(registrosPartidas, 'partidasTabela');
+    }
+
+    function salvarBackup() {
+      const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
+      document.getElementById("backup").value = JSON.stringify(backup, null, 2);
+    }
+
+    function carregarBackup() {
+      try {
+        const backup = JSON.parse(document.getElementById("backup").value);
+        registrosChegadas = backup.chegadas || [];
+        registrosPartidas = backup.partidas || [];
+        salvarDados();
+        atualizarTabelas();
+        alert("Backup carregado com sucesso!");
+      } catch (e) {
+        alert("Erro ao carregar backup. Verifique o conteúdo do JSON.");
+      }
     }
 
     window.onload = () => {
