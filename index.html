@@ -189,10 +189,10 @@
     }
 
     function popularSelects() {
-      const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))];
-      const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))];
-      const paises = [...new Set(registrosChegadas.map(voo => voo.pais))];
-      const tps = [...new Set(registrosChegadas.map(voo => voo.tps))];
+      const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))].sort();
+      const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))].sort();
+      const paises = [...new Set(registrosChegadas.map(voo => voo.pais))].sort();
+      const tps = [...new Set(registrosChegadas.map(voo => voo.tps))].sort();
 
       const updateSelectOptions = (selectId, options) => {
         const select = document.getElementById(selectId);
