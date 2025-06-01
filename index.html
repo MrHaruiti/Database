@@ -130,7 +130,7 @@
     <textarea id="output" placeholder="Exportação em formato texto"></textarea>
   </div>
 
-  <script>
+ <script>
   const clock = () => {
     const agora = new Date();
     const h = agora.getHours().toString().padStart(2, '0');
@@ -195,46 +195,8 @@
         const json = JSON.parse(e.target.result);
 
         // Debug: Verificando o conteúdo do arquivo
-        console.log('Conteúdo do arquivo:', json);
+        console.log('Conteúdo do
 
-        // Verifica se é um array de voos
-        if (Array.isArray(json)) {
-          localStorage.setItem("painelVoos", JSON.stringify(json));
-          location.reload();  // Recarrega a página com os dados atualizados
-        } else {
-          alert("Erro: O arquivo não contém um array de voos.");
-        }
-      } catch (err) {
-        alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
-      }
-    };
-    reader.readAsText(event.target.files[0]);
-  }
-
-  function salvarLocalStorage() {
-    const voos = { chegadas: [], partidas: [] };
-    document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
-      voos.chegadas.push([...tr.cells].map(td => td.innerText));
-    });
-    document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
-      voos.partidas.push([...tr.cells].map(td => td.innerText));
-    });
-    localStorage.setItem("painelVoos", JSON.stringify(voos));
-  }
-
-  function carregarLocalStorage() {
-    const dados = JSON.parse(localStorage.getItem("painelVoos") || "[]");
-
-    // Verifica se os dados estão em um formato adequado
-    if (Array.isArray(dados) && dados.length > 0) {
-      dados.forEach(v => {
-        // Aqui estamos assumindo que todos os voos são tanto chegadas quanto partidas
-        adicionarLinha("chegadasTabela", Object.values(v)); // Adiciona nas chegadas
-        adicionarLinha("partidasTabela", Object.values(v)); // Adiciona nas partidas
-      });
-    } else {
-      alert("Nenhum dado de voo encontrado.");
-    }
   }
 
   carregarLocalStorage();
