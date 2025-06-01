@@ -117,9 +117,38 @@
 <option value="chegada">Chegada</option>
 <option value="partida">Partida</option>
 </select>
-<select class="half" id="status" onchange="verificarStatus()"></select>
-<input id="confirmadoHorario" placeholder="Horário Confirmado" type="time"/>
 <button onclick="adicionarVoo()" type="button">Adicionar Voo</button>
+<div id="statusBlocos">
+<div id="statusPousoBloco" style="display:none;">
+<label for="statusPouso">Status de Pouso:</label>
+<select class="half" id="statusPouso" onchange="verificarStatusSubmenu()">
+<option value="Estimated">Estimated</option>
+<option value="Confirmed">Confirmed</option>
+<option value="Landing">Landing</option>
+<option value="Landed">Landed</option>
+<option value="Delayed">Delayed</option>
+<option value="Cancelled">Cancelled</option>
+<option value="Unknown">Unknown</option>
+<option value="Deplaining">Deplaining</option>
+</select>
+</div>
+<div id="statusDecolagemBloco" style="display:none;">
+<label for="statusDecolagem">Status de Decolagem:</label>
+<select class="half" id="statusDecolagem" onchange="verificarStatusSubmenu()">
+<option value="Estimated">Estimated</option>
+<option value="Confirmed">Confirmed</option>
+<option value="Check-in Opened">Check-in Opened</option>
+<option value="Boarding Now">Boarding Now</option>
+<option value="Last Call">Last Call</option>
+<option value="Taking Off">Taking Off</option>
+<option value="Finished">Finished</option>
+<option value="Delayed">Delayed</option>
+<option value="Cancelled">Cancelled</option>
+<option value="Unknown">Unknown</option>
+</select>
+</div>
+<input id="confirmadoHorario" placeholder="Horário Confirmado" style="display:none;" type="time"/>
+</div>
 <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
 </form>
 </div>
@@ -145,6 +174,7 @@
     }
 
     function renderTabela(registros, destinoId) {
+  const tipo = (destinoId === 'chegadasTabela') ? 'chegada' : 'partida';
       ajustarDatas(registros);
       registros.sort((a, b) => {
         const dataHoraA = new Date(`${a.data}T${a.horario}:00`);
@@ -211,41 +241,40 @@
       document.getElementById('confirmadoHorario').style.display = status === "Confirmed" ? 'block' : 'none';
     }
 
-    function adicionarVoo() {
-      let status = document.getElementById('status').value;
-      if (status === "Confirmed") {
-        const horaConfirmada = document.getElementById('confirmadoHorario').value;
-        status += " " + horaConfirmada;
-      }
-      const novo = {
-        companhia: document.getElementById('companhia').value,
-        voo: document.getElementById('voo').value,
-        cidade: document.getElementById('cidade').value,
-        icao: document.getElementById('icao').value,
-        pais: document.getElementById('pais').value,
-        horario: document.getElementById('horario').value,
-        aeronave: document.getElementById('aeronave').value,
-        tps: parseInt(document.getElementById('tps').value),
-        status: status
-      };
-      ajustarDatas([novo]);
-      const tipo = document.getElementById('tipo').value;
-      if (tipo === 'chegada') registrosChegadas.push(novo);
-      else registrosPartidas.push(novo);
-      salvarDados();
-      atualizarTabelas();
-      document.getElementById('mensagem-sucesso').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('mensagem-sucesso').style.display = 'none';
-      }, 2000);
-      document.getElementById('formularioVoo').reset();
-      atualizarStatusMenu();
-    }
+    
+function adicionarVoo() {
+  const tipo = document.getElementById('tipo').value;
+  let status = tipo === 'chegada'
+    ? document.getElementById('statusPouso').value
+    : document.getElementById('statusDecolagem').value;
 
-    atualizarStatusMenu();
-    atualizarTabelas();
-  
-function carregarBackup() {
+  if (status === "Confirmed") {
+    const horarioConfirmado = document.getElementById('confirmadoHorario').value;
+    if (horarioConfirmado) status += " " + horarioConfirmado;
+  }
+
+  const novo = {
+    companhia: document.getElementById('companhia').value,
+    voo: document.getElementById('voo').value,
+    cidade: document.getElementById('cidade').value,
+    icao: document.getElementById('icao').value,
+    pais: document.getElementById('pais').value,
+    horario: document.getElementById('horario').value,
+    aeronave: document.getElementById('aeronave').value,
+    tps: parseInt(document.getElementById('tps').value),
+    status: status
+  };
+  ajustarDatas([novo]);
+  if (tipo === 'chegada') registrosChegadas.push(novo);
+  else registrosPartidas.push(novo);
+  salvarDados();
+  atualizarTabelas();
+  document.getElementById('mensagem-sucesso').style.display = 'block';
+  setTimeout(() => document.getElementById('mensagem-sucesso').style.display = 'none', 2000);
+  document.getElementById('formularioVoo').reset();
+  atualizarStatusMenu();
+}
+function carregarBackup() { {
   try {
     const backup = JSON.parse(document.getElementById('backup').value);
     registrosChegadas = backup.chegadas || [];
@@ -264,7 +293,41 @@ function salvarBackup() {
   };
   document.getElementById('backup').value = JSON.stringify(dados, null, 2);
 }
+
+function criarSelectStatus(valorAtual, tipo) {
+  const opcoesPouso = ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"];
+  const opcoesDecolagem = ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
+  const opcoes = (tipo === "chegada") ? opcoesPouso : opcoesDecolagem;
+  return `<select data-tipo="${tipo}" onchange="atualizarStatusTabela(this)">` + 
+         opcoes.map(opt =&gt; `<option ${valoratual.includes(opt)="" ''}="" 'selected'="" :="" ?="" value="${opt}">${opt}</option>`).join("") +
+         `</select>`;
+}
+
+function atualizarStatusTabela(selectEl) {
+  const tipo = selectEl.dataset.tipo;
+  const index = [...selectEl.closest("tbody").children].indexOf(selectEl.closest("tr"));
+  const valor = selectEl.value;
+  if (tipo === "chegada") registrosChegadas[index].status = valor;
+  else registrosPartidas[index].status = valor;
+
+  salvarDados();
+  atualizarTabelas();
+}
 </script>
+function atualizarStatusMenu() {
+  const tipo = document.getElementById('tipo').value;
+  document.getElementById('statusPousoBloco').style.display = (tipo === 'chegada') ? 'block' : 'none';
+  document.getElementById('statusDecolagemBloco').style.display = (tipo === 'partida') ? 'block' : 'none';
+  document.getElementById('confirmadoHorario').style.display = 'none';
+}
+function verificarStatusSubmenu() {
+  const tipo = document.getElementById('tipo').value;
+  const status = tipo === 'chegada'
+    ? document.getElementById('statusPouso').value
+    : document.getElementById('statusDecolagem').value;
+  document.getElementById('confirmadoHorario').style.display = (status === 'Confirmed') ? 'inline-block' : 'none';
+}
+
 <div class="tab-content">
 <textarea id="backup" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." rows="10" style="width:100%; font-family:monospace;"></textarea>
 <button onclick="carregarBackup()">Importar Arquivo</button>
