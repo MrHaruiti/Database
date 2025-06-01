@@ -247,11 +247,62 @@ function renderTabela(registros, destinoId) {
 
   registros.forEach((e, index) => {
     const logo = `<td class='logo-cell'><img class='logo' src='logos/${(e.companhia || "").toLowerCase().replace(/[^a-z0-9]/g, "_")}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-    html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${parseInt(e.tps) || ''}</td><td>${e.status || ''}</td></tr>`;
+    const statusOptions = tipo === 'chegada'
+      ? ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining", "Finished"]
+      : ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
+    const baseStatus = (e.status || "").split(" ")[0];
+    const horarioExtra = (e.status || "").split(" ")[1] || "";
+
+    let select = `<select data-index='${index}' data-tipo='${tipo}' onchange='atualizarStatusTabela(this)' style="font-size:11px">`;
+    statusOptions.forEach(opt => {
+      select += `<option value="${opt}" ${baseStatus === opt ? "selected" : ""}>${opt}</option>`;
+    });
+    select += `</select>`;
+
+    const input = `<input type="time" class="confirmado-input" data-index="${index}" data-tipo="${tipo}" value="${baseStatus === 'Confirmed' ? horarioExtra : ''}" style="display:${baseStatus === 'Confirmed' ? 'inline-block' : 'none'};" onchange="atualizarStatusTabela(this)">`;
+
+    html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${parseInt(e.tps) || ''}</td><td>${select + input}</td></tr>`;
   });
 
   html += '</tbody></table>';
   document.getElementById(destinoId).innerHTML = html;
+}
+
+function atualizarStatusTabela(el) {
+  const row = el.closest("tr");
+  const select = row.querySelector("select");
+  const input = row.querySelector("input[type='time']");
+  const tipo = select.dataset.tipo;
+  const index = parseInt(select.dataset.index);
+
+  let status = select.value;
+  if (status === "Confirmed" && input.value) {
+    status += " " + input.value;
+    input.style.display = "inline-block";
+  } else {
+    input.style.display = "none";
+  }
+
+  if (tipo === "chegada") registrosChegadas[index].status = status;
+  else registrosPartidas[index].status = status;
+
+  salvarDados();
+  atualizarTabelas();
+
+  if (status.startsWith("Finished")) {
+    setTimeout(() => {
+      const linha = el.closest("tr");
+      linha.style.transition = "transform 10s ease-in-out, opacity 10s";
+      linha.style.transform = "rotateX(90deg)";
+      linha.style.opacity = "0";
+      setTimeout(() => {
+        if (tipo === "chegada") registrosChegadas.splice(index, 1);
+        else registrosPartidas.splice(index, 1);
+        salvarDados();
+        atualizarTabelas();
+      }, 10000);
+    }, 120000);
+  }
 }
 
 function atualizarTabelas() {
