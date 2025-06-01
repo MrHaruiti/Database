@@ -190,8 +190,21 @@
   }
 
   function renderTabela(registros, destinoId) {
-    // Ordenar os voos por horário, do mais cedo para o mais tarde
-    registros.sort((a, b) => a.horario.localeCompare(b.horario));
+    // Garantir que todos os horários estejam no formato correto "HH:mm"
+    registros.forEach(voo => {
+      // Adiciona um zero à esquerda para horários como 9:00, para que fique "09:00"
+      voo.horario = voo.horario.padStart(5, '0');
+    });
+
+    // Ordena os voos por horário, do mais cedo para o mais tarde
+    registros.sort((a, b) => {
+      const [aHour, aMinute] = a.horario.split(':').map(Number); // Divide o horário em hora e minuto
+      const [bHour, bMinute] = b.horario.split(':').map(Number); // Divide o horário em hora e minuto
+
+      // Compara as horas primeiro, depois os minutos
+      if (aHour !== bHour) return aHour - bHour;
+      return aMinute - bMinute;
+    });
 
     let html = '<table><thead><tr>' +
       '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
