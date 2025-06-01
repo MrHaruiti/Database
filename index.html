@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Painel de Voos Final</title>
+  <title>Painel de Voos com Submenu</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -88,6 +88,10 @@
       display: inline-block;
       margin-right: 2%;
     }
+    #confirmadoHorario {
+      display: none;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -95,7 +99,6 @@
     <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
     <div class="tab" onclick="trocarAba(1)">Partidas</div>
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
-    <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
 
   <div class="tab-content active" id="chegadasTabela"></div>
@@ -111,31 +114,15 @@
       <input type="time" placeholder="Horário" id="horario" class="half" required />
       <input type="text" placeholder="Aeronave" id="aeronave" class="half" required />
       <input type="number" placeholder="TPS" id="tps" class="half" required />
-      <select id="status" class="half">
-        <option value="">Status</option>
-        <option value="On Time">On Time</option>
-        <option value="Delayed">Delayed</option>
-        <option value="Cancelled">Cancelled</option>
-        <option value="Boarding">Boarding</option>
-        <option value="Gate Closed">Gate Closed</option>
-        <option value="Final Call">Final Call</option>
-        <option value="Departed">Departed</option>
-        <option value="Arrived">Arrived</option>
-        <option value="Finished">Finished</option>
-      </select>
-      <select id="tipo" class="half">
+      <select id="tipo" class="half" onchange="atualizarStatusMenu()">
         <option value="chegada">Chegada</option>
         <option value="partida">Partida</option>
       </select>
+      <select id="status" class="half" onchange="verificarStatus()"></select>
+      <input type="time" id="confirmadoHorario" placeholder="Horário Confirmado"/>
       <button type="button" onclick="adicionarVoo()">Adicionar Voo</button>
       <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
     </form>
-  </div>
-
-  <div class="tab-content">
-    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
-    <button onclick="carregarBackup()">Importar Arquivo</button>
-    <button onclick="salvarBackup()">Exportar Dados</button>
   </div>
 
   <script>
@@ -161,19 +148,14 @@
 
     function renderTabela(registros, destinoId) {
       ajustarDatas(registros);
-      const hoje = new Date().toISOString().split("T")[0];
-      const amanha = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-      const hojeList = registros.filter(r => r.data === hoje && r.status !== 'Finished');
-      const amanhaList = registros.filter(r => r.data === amanha && r.status !== 'Finished');
-      const finalList = [...hojeList, ...amanhaList];
-      finalList.sort((a, b) => {
+      registros.sort((a, b) => {
         const dataHoraA = new Date(`${a.data}T${a.horario}:00`);
         const dataHoraB = new Date(`${b.data}T${b.horario}:00`);
         return dataHoraA - dataHoraB;
       });
 
       let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th><th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th></tr></thead><tbody>';
-      finalList.forEach((e, i) => {
+      registros.forEach((e, i) => {
         html += `<tr>
           <td class='logo-cell'><img class='logo' src='logos/${e.companhia.toLowerCase().replace(/[^a-z0-9]/g, "_")}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>
           <td>${e.voo}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td>
@@ -183,11 +165,15 @@
       html += '</tbody></table>';
       document.getElementById(destinoId).innerHTML = html;
 
-      registros.filter(r => r.status === 'Finished').forEach((r, i) => {
-        const row = document.querySelectorAll(`#${destinoId} table tbody tr`)[i];
-        if (row) {
-          row.classList.add('flip-out');
-          setTimeout(() => row.remove(), 10000);
+      registros.forEach((r, i) => {
+        if (r.status === 'Finished') {
+          setTimeout(() => {
+            const row = document.querySelectorAll(`#${destinoId} table tbody tr`)[i];
+            if (row) {
+              row.classList.add('flip-out');
+              setTimeout(() => row.remove(), 10000);
+            }
+          }, 120000); // 2 minutos
         }
       });
     }
@@ -206,7 +192,33 @@
       });
     }
 
+    function atualizarStatusMenu() {
+      const tipo = document.getElementById('tipo').value;
+      const status = document.getElementById('status');
+      status.innerHTML = '';
+      const opcoes = tipo === 'chegada' ?
+        ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"] :
+        ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
+      opcoes.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt;
+        o.textContent = opt.includes("Confirmed") ? "Confirmed HH:MM" : opt;
+        status.appendChild(o);
+      });
+      document.getElementById('confirmadoHorario').style.display = 'none';
+    }
+
+    function verificarStatus() {
+      const status = document.getElementById('status').value;
+      document.getElementById('confirmadoHorario').style.display = status === "Confirmed" ? 'block' : 'none';
+    }
+
     function adicionarVoo() {
+      let status = document.getElementById('status').value;
+      if (status === "Confirmed") {
+        const horaConfirmada = document.getElementById('confirmadoHorario').value;
+        status += " " + horaConfirmada;
+      }
       const novo = {
         companhia: document.getElementById('companhia').value,
         voo: document.getElementById('voo').value,
@@ -216,7 +228,7 @@
         horario: document.getElementById('horario').value,
         aeronave: document.getElementById('aeronave').value,
         tps: parseInt(document.getElementById('tps').value),
-        status: document.getElementById('status').value
+        status: status
       };
       ajustarDatas([novo]);
       const tipo = document.getElementById('tipo').value;
@@ -229,29 +241,10 @@
         document.getElementById('mensagem-sucesso').style.display = 'none';
       }, 2000);
       document.getElementById('formularioVoo').reset();
+      atualizarStatusMenu();
     }
 
-    function carregarBackup() {
-      try {
-        const backup = JSON.parse(document.getElementById('backup').value);
-        registrosChegadas = backup.chegadas || [];
-        registrosPartidas = backup.partidas || [];
-        salvarDados();
-        atualizarTabelas();
-      } catch (e) {
-        alert('Erro ao importar backup. Verifique o formato JSON.');
-      }
-    }
-
-    function salvarBackup() {
-      const dados = {
-        chegadas: registrosChegadas,
-        partidas: registrosPartidas
-      };
-      document.getElementById('backup').value = JSON.stringify(dados, null, 2);
-    }
-
-    salvarDados();
+    atualizarStatusMenu();
     atualizarTabelas();
   </script>
 </body>
