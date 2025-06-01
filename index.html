@@ -199,7 +199,9 @@
     const agora = new Date(); // Hora atual
 
     function atualizarVoo(voo) {
-      const horarioVoo = new Date(`1970-01-01T${voo.horario}:00Z`); // Converte o horário do voo para um objeto Date
+      const horarioVoo = new Date();
+      const [hora, minuto] = voo.horario.split(":").map(Number);
+      horarioVoo.setHours(hora, minuto, 0, 0); // Ajusta o horário do voo para o horário local
 
       if (horarioVoo <= agora) {
         // Remove o voo da lista
@@ -219,8 +221,8 @@
     }
 
     function ajustarHorarioParaProximoDia(horario) {
-      const [hora, minuto] = horario.split(":").map(Number); // Divide o horário em horas e minutos
-      const novoHorario = new Date(agora);
+      const [hora, minuto] = horario.split(":").map(Number);
+      const novoHorario = new Date();
       novoHorario.setDate(agora.getDate() + 1); // Avança para o próximo dia
       novoHorario.setHours(hora);
       novoHorario.setMinutes(minuto);
