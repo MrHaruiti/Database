@@ -313,12 +313,10 @@ function verificarStatusTempoReal() {
         else if (diffMin <= 300 && diffMin > 180) {
           if (!voo.status.includes("Confirmed") && !voo.status.includes("Unconfirmed") && !voo.status.includes("Cancelled") && !voo.status.includes("Delayed")) {
             voo.status = "Confirmed";
-            if (novoStatus) voo.status = novoStatus;
           }
         }
         else if (diffMin <= 180 && diffMin > 60) {
           voo.status = `Confirmed ${voo.horario}`;
-          if (confirm) voo.status = `Confirmed ${confirm}`;
         }
         else if (diffMin <= 3 && diffMin > 0) voo.status = "Landing";
         else if (diffMin === 0) voo.status = `Landed (${voo.horario})`;
