@@ -91,7 +91,6 @@
     <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
     <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
   </div>
-
   <div class="tab-content active" id="aba-chegadas">
     <div class="filter-container">
       <input id="filtroChegadas" placeholder="Filtrar chegadas..." onkeyup="filtrarTabela('chegadasTabela', this.value)">
@@ -104,12 +103,11 @@
     </div>
     <div id="partidasTabela"></div>
   </div>
-
   <div class="tab-content" id="aba-novo">
-    <label>Companhia Aérea:</label><input id="companhia" type="text" required>
-    <label>Cidade (Destino):</label><input id="cidade" type="text" required>
-    <label>Código ICAO:</label><input id="icao" type="text" required>
-    <label>País:</label><input id="pais" type="text" required>
+    <label>Companhia Aérea:</label><input id="companhia" type="text">
+    <label>Cidade (Destino):</label><input id="cidade" type="text">
+    <label>Código ICAO:</label><input id="icao" type="text">
+    <label>País:</label><input id="pais" type="text">
     <label>Voo:</label><input id="voo" type="text">
     <label>Horário:</label><input id="horario" type="time">
     <label>Aeronave:</label><input id="aeronave" type="text">
@@ -121,16 +119,13 @@
       <option value="partida">Partida</option>
     </select>
     <button onclick="adicionarVoo()">Adicionar</button>
-    <div id="mensagem"></div>
   </div>
-
   <div class="tab-content" id="aba-backup">
     <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
     <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
     <input accept=".json" id="importar" onchange="importarBackup(event)" style="display:none" type="file"/>
     <textarea id="output" placeholder="Exportação em formato texto"></textarea>
   </div>
-
   <script>
     const clock = () => {
       const agora = new Date();
@@ -155,6 +150,99 @@
         linha.style.display = [...linha.children].some(td => td.textContent.toLowerCase().includes(termo)) ? '' : 'none';
       });
     }
+
+    let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+    let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
+
+    function salvarDados() {
+      localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+      localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
+    }
+
+    function atualizarTabelas() {
+      renderTabela(registrosChegadas, 'chegadasTabela');
+      renderTabela(registrosPartidas, 'partidasTabela');
+    }
+
+    function normalizarNome(nome) {
+      return nome.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    }
+
+    function renderTabela(registros, destinoId) {
+      registros.sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
+      let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th><th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody>';
+      registros.forEach((e, i) => {
+        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+        html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${e.tps || ''}</td><td>${e.status || ''}</td><td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById(destinoId).innerHTML = html;
+    }
+
+    function adicionarVoo() {
+      const companhia = document.getElementById("companhia").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const icao = document.getElementById("icao").value.trim().toUpperCase();
+      const pais = document.getElementById("pais").value.trim();
+      const voo = document.getElementById("voo").value.trim();
+      const horario = document.getElementById("horario").value.trim();
+      const aeronave = document.getElementById("aeronave").value.trim();
+      const status = document.getElementById("status").value.trim();
+      const tps = document.getElementById("tps").value.trim();
+      const tipo = document.getElementById("tipo").value;
+
+      if (!companhia || !cidade || !icao || !pais) {
+        alert("Preencha todos os campos obrigatórios!");
+        return;
+      }
+
+      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps };
+      if (tipo === 'chegada') registrosChegadas.push(novoRegistro);
+      else registrosPartidas.push(novoRegistro);
+
+      salvarDados();
+      atualizarTabelas();
+      document.querySelectorAll('#aba-novo input').forEach(input => input.value = '');
+    }
+
+    function removerVoo(indice, destinoId) {
+      if (destinoId === 'chegadasTabela') registrosChegadas.splice(indice, 1);
+      else registrosPartidas.splice(indice, 1);
+      salvarDados();
+      atualizarTabelas();
+    }
+
+    function exportarBackup() {
+      const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
+      const texto = JSON.stringify(backup, null, 2);
+      const blob = new Blob([texto], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "backup_voos.json";
+      link.click();
+      document.getElementById("output").value = texto;
+    }
+
+    function importarBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.chegadas) registrosChegadas = data.chegadas;
+          if (data.partidas) registrosPartidas = data.partidas;
+          salvarDados();
+          atualizarTabelas();
+          alert("✅ Backup importado com sucesso!");
+        } catch {
+          alert("❌ Erro ao importar backup: formato inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    window.onload = () => atualizarTabelas();
   </script>
 </body>
 </html>
