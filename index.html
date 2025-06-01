@@ -130,7 +130,8 @@
     <textarea id="output" placeholder="Exportação em formato texto"></textarea>
   </div>
 
- <script>
+<script>
+  // Função que exibe a hora atual
   const clock = () => {
     const agora = new Date();
     const h = agora.getHours().toString().padStart(2, '0');
@@ -141,53 +142,13 @@
   setInterval(clock, 1000);
   clock();
 
+  // Função que troca entre as abas
   function trocarAba(indice) {
     document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
     document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
   }
 
-  function adicionarVoo() {
-    const voo = {
-      companhia: document.getElementById("companhia").value,
-      cidade: document.getElementById("cidade").value,
-      icao: document.getElementById("icao").value,
-      pais: document.getElementById("pais").value,
-      voo: document.getElementById("voo").value,
-      horario: document.getElementById("horario").value,
-      aeronave: document.getElementById("aeronave").value,
-      status: document.getElementById("status").value,
-      tps: document.getElementById("tps").value,
-      tipo: document.getElementById("tipo").value
-    };
-
-    if (!voo.companhia || !voo.cidade || !voo.icao || !voo.pais) {
-      document.getElementById("mensagem").innerText = "Preencha todos os campos obrigatórios.";
-      return;
-    }
-
-    const tabelaId = voo.tipo === "chegada" ? "chegadasTabela" : "partidasTabela";
-    const tabela = document.getElementById(tabelaId).querySelector("tbody");
-    const linha = tabela.insertRow();
-
-    linha.insertCell().innerText = voo.companhia;
-    linha.insertCell().innerText = voo.cidade;
-    linha.insertCell().innerText = voo.icao;
-    linha.insertCell().innerText = voo.pais;
-    linha.insertCell().innerText = voo.voo;
-    linha.insertCell().innerText = voo.horario;
-    linha.insertCell().innerText = voo.aeronave;
-    linha.insertCell().innerText = voo.status;
-    linha.insertCell().innerText = voo.tps;
-
-    salvarLocalStorage();
-    document.getElementById("mensagem").innerText = "Voo adicionado com sucesso.";
-  }
-
-  function exportarBackup() {
-    const voos = localStorage.getItem("painelVoos") || "{}";
-    document.getElementById("output").value = voos;
-  }
-
+  // Função para importar o backup e validar o formato
   function importarBackup(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -195,9 +156,53 @@
         const json = JSON.parse(e.target.result);
 
         // Debug: Verificando o conteúdo do arquivo
-        console.log('Conteúdo do
+        console.log('Conteúdo do arquivo:', json);
 
+        // Agora não estamos mais verificando o formato do arquivo, apenas carregando os voos
+        localStorage.setItem("painelVoos", JSON.stringify(json));
+        location.reload();  // Recarrega a página com os dados atualizados
+      } catch (err) {
+        alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
+      }
+    };
+    reader.readAsText(event.target.files[0]);
   }
 
+  // Função para salvar os dados de voo no localStorage
+  function salvarLocalStorage() {
+    const voos = { chegadas: [], partidas: [] };
+    document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
+      voos.chegadas.push([...tr.cells].map(td => td.innerText));
+    });
+    document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
+      voos.partidas.push([...tr.cells].map(td => td.innerText));
+    });
+    localStorage.setItem("painelVoos", JSON.stringify(voos));
+  }
+
+  // Função para carregar os dados do localStorage
+  function carregarLocalStorage() {
+    const dados = JSON.parse(localStorage.getItem("painelVoos") || "[]");
+
+    // Verifica se os dados estão no formato adequado (array de voos)
+    if (Array.isArray(dados) && dados.length > 0) {
+      dados.forEach(v => {
+        // Aqui estamos assumindo que todos os voos são tanto chegadas quanto partidas
+        adicionarLinha("chegadasTabela", Object.values(v)); // Adiciona nas chegadas
+        adicionarLinha("partidasTabela", Object.values(v)); // Adiciona nas partidas
+      });
+    } else {
+      alert("Nenhum dado de voo encontrado.");
+    }
+  }
+
+  // Função para adicionar dados de voo na tabela
+  function adicionarLinha(tabelaId, valores) {
+    const tabela = document.getElementById(tabelaId).querySelector("tbody");
+    const linha = tabela.insertRow();
+    valores.forEach(valor => linha.insertCell().innerText = valor);
+  }
+
+  // Carregar dados do localStorage
   carregarLocalStorage();
 </script>
