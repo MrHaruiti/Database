@@ -196,19 +196,20 @@
   }
 
   function verificarVoos() {
-    const agora = new Date();
+    const agora = new Date(); // Hora atual
 
     function atualizarVoo(voo) {
-      const horarioVoo = new Date(`1970-01-01T${voo.horario}:00Z`);
+      const horarioVoo = new Date(`1970-01-01T${voo.horario}:00Z`); // Converte o horário do voo para um objeto Date
 
       if (horarioVoo <= agora) {
+        // Remove o voo da lista
         if (voo.tipo === "chegada") {
           registrosChegadas = registrosChegadas.filter(item => item !== voo);
         } else {
           registrosPartidas = registrosPartidas.filter(item => item !== voo);
         }
 
-        voo.horario = ajustarHorarioParaProximoDia(voo.horario);
+        voo.horario = ajustarHorarioParaProximoDia(voo.horario); // Atualiza o horário para o próximo dia
         if (voo.tipo === "chegada") {
           registrosChegadas.push(voo);
         } else {
@@ -218,22 +219,22 @@
     }
 
     function ajustarHorarioParaProximoDia(horario) {
-      const [hora, minuto] = horario.split(":").map(Number);
+      const [hora, minuto] = horario.split(":").map(Number); // Divide o horário em horas e minutos
       const novoHorario = new Date(agora);
-      novoHorario.setDate(agora.getDate() + 1);
+      novoHorario.setDate(agora.getDate() + 1); // Avança para o próximo dia
       novoHorario.setHours(hora);
       novoHorario.setMinutes(minuto);
-      return novoHorario.toISOString().substring(11, 16);
+      return novoHorario.toISOString().substring(11, 16); // Retorna o novo horário no formato HH:MM
     }
 
     registrosChegadas.forEach(atualizarVoo);
     registrosPartidas.forEach(atualizarVoo);
 
-    salvarDados();
-    atualizarTabelas();
+    salvarDados(); // Salva os dados atualizados no localStorage
+    atualizarTabelas(); // Atualiza as tabelas no painel
   }
 
-  setInterval(verificarVoos, 60000);
+  setInterval(verificarVoos, 60000); // A cada 60 segundos, verifica e atualiza os voos
 
   window.onload = () => {
     atualizarTabelas();
