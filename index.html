@@ -1,6 +1,4 @@
-
 <!DOCTYPE html>
-
 <html lang="pt">
 <head>
 <meta charset="utf-8"/>
@@ -62,7 +60,8 @@
       padding: 4px;
     }
     .logo {
-      max-height: 20px;
+      max-height: 40px;
+      width: auto;
     }
     .flip-out {
       animation: flipOut 0.7s forwards;
@@ -71,15 +70,36 @@
       0% { transform: rotateX(0deg); opacity: 1; }
       100% { transform: rotateX(90deg); opacity: 0; }
     }
-  </style>
+    @keyframes scrollOut {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100px); opacity: 0; }
+    }
+    .scroll-out {
+      animation: scrollOut 2s forwards;
+    }
+    .submenu {
+      visibility: hidden;
+      position: absolute;
+      background-color: #222;
+      min-width: 150px;
+      z-index: 10;
+    }
+    .submenu.active {
+      visibility: visible;
+    }
+</style>
 </head>
 <body>
+<audio id="placaGirandoSom" src="placa_girando.mp3" preload="auto" loop></audio>
+
 <div class="tabs">
-<div class="tab active" onclick="trocarAba(0)">Chegadas</div>
-<div class="tab" onclick="trocarAba(1)">Partidas</div>
+  <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
+  <div class="tab" onclick="trocarAba(1)">Partidas</div>
 </div>
+
 <div class="tab-content active" id="chegadasTabela"></div>
 <div class="tab-content" id="partidasTabela"></div>
+
 <script>
 function atualizarStatusTabela(el) {
   const row = el.closest("tr");
@@ -103,23 +123,25 @@ function atualizarStatusTabela(el) {
   atualizarTabelas();
 
   if (status.startsWith("Finished")) {
-    // Corrigir a animação para que ela aconteça corretamente
+    // Tocar som de placa girando
+    const som = document.getElementById("placaGirandoSom");
+    som.play();  // Inicia o som da placa girando
+
+    // Começar animação de rolagem após 2 minutos
     setTimeout(() => {
       const linha = el.closest("tr");
-      linha.style.transition = "transform 10s ease-in-out, opacity 10s";
-      requestAnimationFrame(() => {
-        linha.style.transform = "rotateX(90deg)";
-        linha.style.opacity = "0";
-      });
+      linha.classList.add("scroll-out");  // Adiciona a classe de animação de rolagem
 
+      // Remover linha após 2 segundos de animação
       const timeoutId = setTimeout(() => {
         if (tipo === "chegada") registrosChegadas.splice(index, 1);
         else registrosPartidas.splice(index, 1);
         salvarDados();
         atualizarTabelas();
-      }, 10000);  // Remover após 10 segundos de animação
+      }, 2000);  // Remover após animação de rolagem
+
       el.dataset.timeoutId = timeoutId;
-    }, 120000);  // Esperar 2 minutos antes de iniciar a animação
+    }, 120000);  // Espera 2 minutos antes de iniciar a animação
   }
 }
 </script>
