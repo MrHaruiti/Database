@@ -165,9 +165,12 @@
       const amanha = new Date(Date.now() + 86400000).toISOString().split("T")[0];
       const hojeList = registros.filter(r => r.data === hoje && r.status !== 'Finished');
       const amanhaList = registros.filter(r => r.data === amanha && r.status !== 'Finished');
-      hojeList.sort((a, b) => a.horario.localeCompare(b.horario));
-      amanhaList.sort((a, b) => a.horario.localeCompare(b.horario));
-      const finalList = hojeList.concat(amanhaList);
+      const finalList = [...hojeList, ...amanhaList];
+      finalList.sort((a, b) => {
+        const dataHoraA = new Date(`${a.data}T${a.horario}:00`);
+        const dataHoraB = new Date(`${b.data}T${b.horario}:00`);
+        return dataHoraA - dataHoraB;
+      });
 
       let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th><th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th></tr></thead><tbody>';
       finalList.forEach((e, i) => {
