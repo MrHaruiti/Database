@@ -1,11 +1,12 @@
 
 <!DOCTYPE html>
+
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Painel de Voos com Submenu</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Painel de Voos com Submenu</title>
+<style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #000;
@@ -95,37 +96,34 @@
   </style>
 </head>
 <body>
-  <div class="tabs">
-    <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
-    <div class="tab" onclick="trocarAba(1)">Partidas</div>
-    <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
-  </div>
-
-  <div class="tab-content active" id="chegadasTabela"></div>
-  <div class="tab-content" id="partidasTabela"></div>
-
-  <div class="tab-content">
-    <form id="formularioVoo">
-      <input type="text" placeholder="Companhia" id="companhia" class="half" required />
-      <input type="text" placeholder="Voo" id="voo" class="half" required />
-      <input type="text" placeholder="Cidade" id="cidade" class="half" required />
-      <input type="text" placeholder="ICAO" id="icao" class="half" required />
-      <input type="text" placeholder="País" id="pais" class="half" required />
-      <input type="time" placeholder="Horário" id="horario" class="half" required />
-      <input type="text" placeholder="Aeronave" id="aeronave" class="half" required />
-      <input type="number" placeholder="TPS" id="tps" class="half" required />
-      <select id="tipo" class="half" onchange="atualizarStatusMenu()">
-        <option value="chegada">Chegada</option>
-        <option value="partida">Partida</option>
-      </select>
-      <select id="status" class="half" onchange="verificarStatus()"></select>
-      <input type="time" id="confirmadoHorario" placeholder="Horário Confirmado"/>
-      <button type="button" onclick="adicionarVoo()">Adicionar Voo</button>
-      <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
-    </form>
-  </div>
-
-  <script>
+<div class="tabs">
+<div class="tab active" onclick="trocarAba(0)">Chegadas</div>
+<div class="tab" onclick="trocarAba(1)">Partidas</div>
+<div class="tab" onclick="trocarAba(2)">Novo Voo</div>
+<div class="tab" onclick="trocarAba(3)">Backup</div></div>
+<div class="tab-content active" id="chegadasTabela"></div>
+<div class="tab-content" id="partidasTabela"></div>
+<div class="tab-content">
+<form id="formularioVoo">
+<input class="half" id="companhia" placeholder="Companhia" required="" type="text"/>
+<input class="half" id="voo" placeholder="Voo" required="" type="text"/>
+<input class="half" id="cidade" placeholder="Cidade" required="" type="text"/>
+<input class="half" id="icao" placeholder="ICAO" required="" type="text"/>
+<input class="half" id="pais" placeholder="País" required="" type="text"/>
+<input class="half" id="horario" placeholder="Horário" required="" type="time"/>
+<input class="half" id="aeronave" placeholder="Aeronave" required="" type="text"/>
+<input class="half" id="tps" placeholder="TPS" required="" type="number"/>
+<select class="half" id="tipo" onchange="atualizarStatusMenu()">
+<option value="chegada">Chegada</option>
+<option value="partida">Partida</option>
+</select>
+<select class="half" id="status" onchange="verificarStatus()"></select>
+<input id="confirmadoHorario" placeholder="Horário Confirmado" type="time"/>
+<button onclick="adicionarVoo()" type="button">Adicionar Voo</button>
+<div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
+</form>
+</div>
+<script>
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
@@ -246,6 +244,30 @@
 
     atualizarStatusMenu();
     atualizarTabelas();
-  </script>
-</body>
+  
+function carregarBackup() {
+  try {
+    const backup = JSON.parse(document.getElementById('backup').value);
+    registrosChegadas = backup.chegadas || [];
+    registrosPartidas = backup.partidas || [];
+    salvarDados();
+    atualizarTabelas();
+  } catch (e) {
+    alert('Erro ao importar backup. Verifique o formato JSON.');
+  }
+}
+
+function salvarBackup() {
+  const dados = {
+    chegadas: registrosChegadas,
+    partidas: registrosPartidas
+  };
+  document.getElementById('backup').value = JSON.stringify(dados, null, 2);
+}
+</script>
+<div class="tab-content">
+<textarea id="backup" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." rows="10" style="width:100%; font-family:monospace;"></textarea>
+<button onclick="carregarBackup()">Importar Arquivo</button>
+<button onclick="salvarBackup()">Exportar Dados</button>
+</div></body>
 </html>
