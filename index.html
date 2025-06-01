@@ -131,101 +131,111 @@
   </div>
 
   <script>
-    const clock = () => {
-      const agora = new Date();
-      const h = agora.getHours().toString().padStart(2, '0');
-      const m = agora.getMinutes().toString().padStart(2, '0');
-      const s = agora.getSeconds().toString().padStart(2, '0');
-      document.getElementById("clock").innerText = `Hora atual: ${h}:${m}:${s}`;
+  const clock = () => {
+    const agora = new Date();
+    const h = agora.getHours().toString().padStart(2, '0');
+    const m = agora.getMinutes().toString().padStart(2, '0');
+    const s = agora.getSeconds().toString().padStart(2, '0');
+    document.getElementById("clock").innerText = `Hora atual: ${h}:${m}:${s}`;
+  };
+  setInterval(clock, 1000);
+  clock();
+
+  function trocarAba(indice) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
+  }
+
+  function adicionarVoo() {
+    const voo = {
+      companhia: document.getElementById("companhia").value,
+      cidade: document.getElementById("cidade").value,
+      icao: document.getElementById("icao").value,
+      pais: document.getElementById("pais").value,
+      voo: document.getElementById("voo").value,
+      horario: document.getElementById("horario").value,
+      aeronave: document.getElementById("aeronave").value,
+      status: document.getElementById("status").value,
+      tps: document.getElementById("tps").value,
+      tipo: document.getElementById("tipo").value
     };
-    setInterval(clock, 1000);
-    clock();
 
-    function trocarAba(indice) {
-      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-      document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
+    if (!voo.companhia || !voo.cidade || !voo.icao || !voo.pais) {
+      document.getElementById("mensagem").innerText = "Preencha todos os campos obrigatórios.";
+      return;
     }
 
-    function adicionarVoo() {
-      const voo = {
-        companhia: document.getElementById("companhia").value,
-        cidade: document.getElementById("cidade").value,
-        icao: document.getElementById("icao").value,
-        pais: document.getElementById("pais").value,
-        voo: document.getElementById("voo").value,
-        horario: document.getElementById("horario").value,
-        aeronave: document.getElementById("aeronave").value,
-        status: document.getElementById("status").value,
-        tps: document.getElementById("tps").value,
-        tipo: document.getElementById("tipo").value
-      };
+    const tabelaId = voo.tipo === "chegada" ? "chegadasTabela" : "partidasTabela";
+    const tabela = document.getElementById(tabelaId).querySelector("tbody");
+    const linha = tabela.insertRow();
 
-      if (!voo.companhia || !voo.cidade || !voo.icao || !voo.pais) {
-        document.getElementById("mensagem").innerText = "Preencha todos os campos obrigatórios.";
-        return;
-      }
+    linha.insertCell().innerText = voo.companhia;
+    linha.insertCell().innerText = voo.cidade;
+    linha.insertCell().innerText = voo.icao;
+    linha.insertCell().innerText = voo.pais;
+    linha.insertCell().innerText = voo.voo;
+    linha.insertCell().innerText = voo.horario;
+    linha.insertCell().innerText = voo.aeronave;
+    linha.insertCell().innerText = voo.status;
+    linha.insertCell().innerText = voo.tps;
 
-      const tabelaId = voo.tipo === "chegada" ? "chegadasTabela" : "partidasTabela";
-      const tabela = document.getElementById(tabelaId).querySelector("tbody");
-      const linha = tabela.insertRow();
+    salvarLocalStorage();
+    document.getElementById("mensagem").innerText = "Voo adicionado com sucesso.";
+  }
 
-      linha.insertCell().innerText = voo.companhia;
-      linha.insertCell().innerText = voo.cidade;
-      linha.insertCell().innerText = voo.icao;
-      linha.insertCell().innerText = voo.pais;
-      linha.insertCell().innerText = voo.voo;
-      linha.insertCell().innerText = voo.horario;
-      linha.insertCell().innerText = voo.aeronave;
-      linha.insertCell().innerText = voo.status;
-      linha.insertCell().innerText = voo.tps;
+  function exportarBackup() {
+    const voos = localStorage.getItem("painelVoos") || "{}";
+    document.getElementById("output").value = voos;
+  }
 
-      salvarLocalStorage();
-      document.getElementById("mensagem").innerText = "Voo adicionado com sucesso.";
-    }
+  function importarBackup(event) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const json = JSON.parse(e.target.result);
 
-    function exportarBackup() {
-      const voos = localStorage.getItem("painelVoos") || "{}";
-      document.getElementById("output").value = voos;
-    }
+        // Debug: Verificando o conteúdo do arquivo
+        console.log('Conteúdo do arquivo:', json);
 
-    function importarBackup(event) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const json = JSON.parse(e.target.result);
+        // Verifica se é um array de voos
+        if (Array.isArray(json)) {
           localStorage.setItem("painelVoos", JSON.stringify(json));
-          location.reload();
-        } catch (err) {
-          alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
+          location.reload();  // Recarrega a página com os dados atualizados
+        } else {
+          alert("Erro: O arquivo não contém um array de voos.");
         }
-      };
-      reader.readAsText(event.target.files[0]);
-    }
+      } catch (err) {
+        alert("Erro ao importar o backup: o arquivo não é um JSON válido.");
+      }
+    };
+    reader.readAsText(event.target.files[0]);
+  }
 
-    function salvarLocalStorage() {
-      const voos = { chegadas: [], partidas: [] };
-      document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
-        voos.chegadas.push([...tr.cells].map(td => td.innerText));
+  function salvarLocalStorage() {
+    const voos = { chegadas: [], partidas: [] };
+    document.querySelectorAll("#chegadasTabela tbody tr").forEach(tr => {
+      voos.chegadas.push([...tr.cells].map(td => td.innerText));
+    });
+    document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
+      voos.partidas.push([...tr.cells].map(td => td.innerText));
+    });
+    localStorage.setItem("painelVoos", JSON.stringify(voos));
+  }
+
+  function carregarLocalStorage() {
+    const dados = JSON.parse(localStorage.getItem("painelVoos") || "[]");
+
+    // Verifica se os dados estão em um formato adequado
+    if (Array.isArray(dados) && dados.length > 0) {
+      dados.forEach(v => {
+        // Aqui estamos assumindo que todos os voos são tanto chegadas quanto partidas
+        adicionarLinha("chegadasTabela", Object.values(v)); // Adiciona nas chegadas
+        adicionarLinha("partidasTabela", Object.values(v)); // Adiciona nas partidas
       });
-      document.querySelectorAll("#partidasTabela tbody tr").forEach(tr => {
-        voos.partidas.push([...tr.cells].map(td => td.innerText));
-      });
-      localStorage.setItem("painelVoos", JSON.stringify(voos));
+    } else {
+      alert("Nenhum dado de voo encontrado.");
     }
+  }
 
-    function carregarLocalStorage() {
-      const dados = JSON.parse(localStorage.getItem("painelVoos") || "{}");
-      if (dados.chegadas) dados.chegadas.forEach(v => adicionarLinha("chegadasTabela", v));
-      if (dados.partidas) dados.partidas.forEach(v => adicionarLinha("partidasTabela", v));
-    }
-
-    function adicionarLinha(tabelaId, valores) {
-      const tabela = document.getElementById(tabelaId).querySelector("tbody");
-      const linha = tabela.insertRow();
-      valores.forEach(valor => linha.insertCell().innerText = valor);
-    }
-
-    carregarLocalStorage();
-  </script>
-</body>
-</html>
+  carregarLocalStorage();
+</script>
