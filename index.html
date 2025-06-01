@@ -98,6 +98,19 @@
       margin-top: 10px;
       display: none;
     }
+    #topo {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00d2ff;
+      color: #111;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00d2ff;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
@@ -107,8 +120,6 @@
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
     <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
-
-  <div id="mensagem-sucesso">✅ Voo adicionado com sucesso!</div>
 
   <div class="tab-content active">
     <div id="chegadasTabela"></div>
@@ -131,7 +142,7 @@
     </div>
     <div>
       <input class="half" type="text" id="aeronave" placeholder="A/C (Ex: A320)" />
-      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 1)" />
+      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 123)" />
     </div>
     <input type="text" id="status" placeholder="Status (Ex: Confirmado)" />
     <select id="tipo">
@@ -139,12 +150,16 @@
       <option value="partida">Partida</option>
     </select>
     <button onclick="adicionarVoo()">Adicionar</button>
+    <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
   </div>
+
   <div class="tab-content">
-    <textarea id="backup" rows="10" style="width:100%; font-family:monospace;"></textarea>
-    <button onclick="carregarBackup()">Importar</button>
-    <button onclick="salvarBackup()">Exportar</button>
+    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
+    <button onclick="carregarBackup()">Importar Arquivo</button>
+    <button onclick="salvarBackup()">Exportar Dados</button>
   </div>
+
+  <button id="topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">▲ Topo</button>
 
   <script>
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
@@ -159,16 +174,8 @@
       return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
     }
 
-    function ordenarAutomaticamentePorHorario(registros) {
-      return registros.sort((a, b) => {
-        const t1 = (a.horario || '').padStart(5, '0');
-        const t2 = (b.horario || '').padStart(5, '0');
-        return t1.localeCompare(t2);
-      });
-    }
-
     function renderTabela(registros, destinoId) {
-      registros = ordenarAutomaticamentePorHorario(registros);
+      registros.sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
       let html = '<table><thead><tr>' +
         '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
         '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
@@ -226,25 +233,11 @@
       const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
       registros.push(novoRegistro);
 
-      if (companhia.toUpperCase() !== "EMIRATES AIRLINES" &&
-          !registros.some(e => e.companhia === "EMIRATES AIRLINES" && e.cidade === cidade && e.icao === icao)) {
-        registros.push({
-          companhia: "EMIRATES AIRLINES",
-          cidade,
-          icao,
-          pais,
-          voo: gerarNumeroVooAleatorio(),
-          horario: "--:--",
-          aeronave: "",
-          tps: "",
-          status: ""
-        });
-      }
-
       salvarDados();
       atualizarTabelas();
       document.querySelectorAll("input").forEach(i => i.value = "");
-      mostrarMensagemSucesso();
+      document.getElementById("mensagem-sucesso").style.display = 'block';
+      setTimeout(() => document.getElementById("mensagem-sucesso").style.display = 'none', 3000);
     }
 
     function salvarDados() {
@@ -263,21 +256,30 @@
     }
 
     function carregarBackup() {
-      try {
-        const backup = JSON.parse(document.getElementById("backup").value);
-        registrosChegadas = backup.chegadas || [];
-        registrosPartidas = backup.partidas || [];
-        salvarDados();
-        atualizarTabelas();
-        alert("Backup carregado com sucesso!");
-      } catch (e) {
-        alert("Erro ao carregar backup. Verifique o conteúdo do JSON.");
-      }
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".json";
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            const backup = JSON.parse(event.target.result);
+            registrosChegadas = backup.chegadas || [];
+            registrosPartidas = backup.partidas || [];
+            salvarDados();
+            atualizarTabelas();
+            alert("Backup carregado com sucesso!");
+          } catch (e) {
+            alert("Erro ao carregar backup. Verifique o conteúdo do JSON.");
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
     }
 
-    window.onload = () => {
-      atualizarTabelas();
-    }
+    window.onload = () => atualizarTabelas();
   </script>
 </body>
 </html>
