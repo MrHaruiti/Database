@@ -199,9 +199,9 @@
     const agora = new Date(); // Hora atual
 
     function atualizarVoo(voo) {
-      const horarioVoo = new Date();
+      const horarioVoo = new Date(); // Criar data com horário local
       const [hora, minuto] = voo.horario.split(":").map(Number);
-      horarioVoo.setHours(hora, minuto, 0, 0); // Ajusta o horário do voo para o horário local
+      horarioVoo.setHours(hora, minuto, 0, 0); // Ajusta a hora do voo para o horário local
 
       if (horarioVoo <= agora) {
         // Remove o voo da lista
