@@ -14,7 +14,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 8px; border: 1px solid #444; text-align: left; }
     th { background: #333; color: #00d2ff; }
-    input, select, button, textarea { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
+    input, select, button, textarea { margin: 5px 0; padding: 8px; box-sizing: border-box; }
+    input.half, select.half { width: 48%; display: inline-block; margin-right: 2%; }
     .remove-btn { background: #d00; color: #fff; border: none; padding: 5px 10px; cursor: pointer; }
     .logo-cell { background: white; text-align: center; }
     .logo { height: 30px; }
@@ -42,17 +43,15 @@
     <input type="text" id="icao" placeholder="Ex: LFPG" />
     <label>País:</label>
     <input type="text" id="pais" placeholder="Ex: França" />
-    <label>Voo (Flight):</label>
-    <input type="text" id="voo" placeholder="Ex: 01234" />
-    <label>Horário (Time):</label>
-    <input type="text" id="horario" placeholder="Ex: 14:35" />
-    <label>Aeronave (A/C):</label>
-    <input type="text" id="aeronave" placeholder="Ex: A320" />
-    <label>TPS:</label>
-    <input type="text" id="tps" placeholder="Ex: 123" />
-    <label>Status:</label>
-    <input type="text" id="status" placeholder="Ex: Confirmado" />
-    <label>Tipo:</label>
+    <div>
+      <input class="half" type="text" id="voo" placeholder="Flight (Ex: 01234)" />
+      <input class="half" type="text" id="horario" placeholder="Time (Ex: 14:35)" />
+    </div>
+    <div>
+      <input class="half" type="text" id="aeronave" placeholder="A/C (Ex: A320)" />
+      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 123)" />
+    </div>
+    <input type="text" id="status" placeholder="Status (Ex: Confirmado)" />
     <select id="tipo">
       <option value="chegada">Chegada</option>
       <option value="partida">Partida</option>
@@ -60,7 +59,7 @@
     <button onclick="adicionarVoo()">Adicionar</button>
   </div>
   <div class="tab-content">
-    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais."></textarea>
+    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
     <button onclick="carregarBackup()">Carregar Backup</button>
     <button onclick="salvarBackup()">Salvar Backup</button>
   </div>
@@ -111,12 +110,16 @@
       atualizarTabelas();
     }
 
+    function gerarNumeroVooAleatorio() {
+      return String(Math.floor(10000 + Math.random() * 90000));
+    }
+
     function adicionarVoo() {
       const companhia = document.getElementById("companhia").value.trim();
       const cidade = document.getElementById("cidade").value.trim();
       const icao = document.getElementById("icao").value.trim().toUpperCase();
       const pais = document.getElementById("pais").value.trim();
-      const voo = document.getElementById("voo").value.trim();
+      const voo = document.getElementById("voo").value.trim() || gerarNumeroVooAleatorio();
       const horario = document.getElementById("horario").value.trim();
       const aeronave = document.getElementById("aeronave").value.trim();
       const tps = document.getElementById("tps").value.trim();
@@ -130,26 +133,27 @@
 
       const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, tps, status };
       const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
-
       registros.push(novoRegistro);
 
       if (companhia.toUpperCase() !== "EMIRATES AIRLINES" &&
           !registros.some(e => e.companhia === "EMIRATES AIRLINES" && e.cidade === cidade && e.icao === icao)) {
-        registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
+        registros.push({
+          companhia: "EMIRATES AIRLINES",
+          cidade,
+          icao,
+          pais,
+          voo: gerarNumeroVooAleatorio(),
+          horario: "--:--",
+          aeronave: "",
+          tps: "",
+          status: ""
+        });
       }
 
       salvarDados();
       atualizarTabelas();
 
-      document.getElementById("companhia").value = "";
-      document.getElementById("cidade").value = "";
-      document.getElementById("icao").value = "";
-      document.getElementById("pais").value = "";
-      document.getElementById("voo").value = "";
-      document.getElementById("horario").value = "";
-      document.getElementById("aeronave").value = "";
-      document.getElementById("tps").value = "";
-      document.getElementById("status").value = "";
+      document.querySelectorAll("input").forEach(i => i.value = "");
     }
 
     function salvarDados() {
