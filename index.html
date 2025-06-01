@@ -153,166 +153,62 @@
 </form>
 </div>
 <script>
-    let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
-    let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
-    function ajustarDatas(registros) {
-      const hoje = new Date();
-      const amanha = new Date(hoje);
-      amanha.setDate(hoje.getDate() + 1);
-      registros.forEach(r => {
-        const [h, m] = r.horario.split(":").map(Number);
-        const horarioVoo = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), h, m);
-        const corte = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 14, 0);
-        r.data = (horarioVoo < corte) ? amanha.toISOString().split("T")[0] : hoje.toISOString().split("T")[0];
-      });
-    }
-
-    function salvarDados() {
-      localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
-      localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
-    }
-
-    function renderTabela(registros, destinoId) {
+function renderTabela(registros, destinoId) {
   const tipo = (destinoId === 'chegadasTabela') ? 'chegada' : 'partida';
-      ajustarDatas(registros);
-      registros.sort((a, b) => {
-        const dataHoraA = new Date(`${a.data}T${a.horario}:00`);
-        const dataHoraB = new Date(`${b.data}T${b.horario}:00`);
-        return dataHoraA - dataHoraB;
-      });
+  registros.sort((a, b) => {
+    const dataHoraA = new Date(`${a.data}T${a.horario || "00:00"}:00`);
+    const dataHoraB = new Date(`${b.data}T${b.horario || "00:00"}:00`);
+    return dataHoraA - dataHoraB;
+  });
 
-      let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th><th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th></tr></thead><tbody>';
-      registros.forEach((e, i) => {
-        html += `<tr>
-          <td class='logo-cell'><img class='logo' src='logos/${e.companhia.toLowerCase().replace(/[^a-z0-9]/g, "_")}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>
-          <td>${e.voo}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td>
-          <td>${e.horario}</td><td>${e.aeronave}</td><td>${e.tps}</td><td>${e.status}</td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-      document.getElementById(destinoId).innerHTML = html;
+  let html = '<table><thead><tr>' +
+    '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+    '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th>' +
+    '</tr></thead><tbody>';
 
-      registros.forEach((r, i) => {
-        if (r.status === 'Finished') {
-          setTimeout(() => {
-            const row = document.querySelectorAll(`#${destinoId} table tbody tr`)[i];
-            if (row) {
-              row.classList.add('flip-out');
-              setTimeout(() => row.remove(), 10000);
-            }
-          }, 120000); // 2 minutos
-        }
-      });
-    }
+  registros.forEach((e, index) => {
+    const logo = `<td class='logo-cell'><img class='logo' src='logos/${(e.companhia || "").toLowerCase().replace(/[^a-z0-9]/g, "_")}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+    const statusOptions = tipo === 'chegada'
+      ? ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"]
+      : ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
+    const statusSelect = `<select data-index='${index}' data-tipo='${tipo}' onchange='atualizarStatusTabela(this)'>` +
+      statusOptions.map(opt => `<option value="${opt}" ${(e.status || "").includes(opt) ? "selected" : ""}>${opt}</option>`).join("") +
+      `</select>`;
 
-    function atualizarTabelas() {
-      renderTabela(registrosChegadas, 'chegadasTabela');
-      renderTabela(registrosPartidas, 'partidasTabela');
-    }
+    html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${parseInt(e.tps) || ''}</td><td>${statusSelect}</td></tr>`;
+  });
 
-    function trocarAba(indice) {
-      const abas = document.querySelectorAll(".tab");
-      const conteudos = document.querySelectorAll(".tab-content");
-      abas.forEach((aba, i) => {
-        aba.classList.toggle("active", i === indice);
-        conteudos[i].classList.toggle("active", i === indice);
-      });
-    }
-
-    function atualizarStatusMenu() {
-      const tipo = document.getElementById('tipo').value;
-      const status = document.getElementById('status');
-      status.innerHTML = '';
-      const opcoes = tipo === 'chegada' ?
-        ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"] :
-        ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
-      opcoes.forEach(opt => {
-        const o = document.createElement("option");
-        o.value = opt;
-        o.textContent = opt.includes("Confirmed") ? "Confirmed HH:MM" : opt;
-        status.appendChild(o);
-      });
-      document.getElementById('confirmadoHorario').style.display = 'none';
-    }
-
-    function verificarStatus() {
-      const status = document.getElementById('status').value;
-      document.getElementById('confirmadoHorario').style.display = status === "Confirmed" ? 'block' : 'none';
-    }
-
-    
-function adicionarVoo() {
-  const tipo = document.getElementById('tipo').value;
-  let status = tipo === 'chegada'
-    ? document.getElementById('statusPouso').value
-    : document.getElementById('statusDecolagem').value;
-
-  if (status === "Confirmed") {
-    const horarioConfirmado = document.getElementById('confirmadoHorario').value;
-    if (horarioConfirmado) status += " " + horarioConfirmado;
-  }
-
-  const novo = {
-    companhia: document.getElementById('companhia').value,
-    voo: document.getElementById('voo').value,
-    cidade: document.getElementById('cidade').value,
-    icao: document.getElementById('icao').value,
-    pais: document.getElementById('pais').value,
-    horario: document.getElementById('horario').value,
-    aeronave: document.getElementById('aeronave').value,
-    tps: parseInt(document.getElementById('tps').value),
-    status: status
-  };
-  ajustarDatas([novo]);
-  if (tipo === 'chegada') registrosChegadas.push(novo);
-  else registrosPartidas.push(novo);
-  salvarDados();
-  atualizarTabelas();
-  document.getElementById('mensagem-sucesso').style.display = 'block';
-  setTimeout(() => document.getElementById('mensagem-sucesso').style.display = 'none', 2000);
-  document.getElementById('formularioVoo').reset();
-  atualizarStatusMenu();
-}
-function carregarBackup() { {
-  try {
-    const backup = JSON.parse(document.getElementById('backup').value);
-    registrosChegadas = backup.chegadas || [];
-    registrosPartidas = backup.partidas || [];
-    salvarDados();
-    atualizarTabelas();
-  } catch (e) {
-    alert('Erro ao importar backup. Verifique o formato JSON.');
-  }
+  html += '</tbody></table>';
+  document.getElementById(destinoId).innerHTML = html;
 }
 
-function salvarBackup() {
-  const dados = {
-    chegadas: registrosChegadas,
-    partidas: registrosPartidas
-  };
-  document.getElementById('backup').value = JSON.stringify(dados, null, 2);
-}
-
-function criarSelectStatus(valorAtual, tipo) {
-  const opcoesPouso = ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"];
-  const opcoesDecolagem = ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
-  const opcoes = (tipo === "chegada") ? opcoesPouso : opcoesDecolagem;
-  return `<select data-tipo="${tipo}" onchange="atualizarStatusTabela(this)">` + 
-         opcoes.map(opt =&gt; `<option ${valoratual.includes(opt)="" ''}="" 'selected'="" :="" ?="" value="${opt}">${opt}</option>`).join("") +
-         `</select>`;
-}
 
 function atualizarStatusTabela(selectEl) {
   const tipo = selectEl.dataset.tipo;
-  const index = [...selectEl.closest("tbody").children].indexOf(selectEl.closest("tr"));
+  const index = parseInt(selectEl.dataset.index);
   const valor = selectEl.value;
   if (tipo === "chegada") registrosChegadas[index].status = valor;
   else registrosPartidas[index].status = valor;
 
   salvarDados();
   atualizarTabelas();
+  if (valor === "Finished") {
+    setTimeout(() => {
+      const linha = selectEl.closest("tr");
+      linha.style.transition = "transform 10s ease-in-out, opacity 10s";
+      linha.style.transform = "rotateX(90deg)";
+      linha.style.opacity = "0";
+      setTimeout(() => {
+        if (tipo === "chegada") registrosChegadas.splice(index, 1);
+        else registrosPartidas.splice(index, 1);
+        salvarDados();
+        atualizarTabelas();
+      }, 10000);
+    }, 120000);
+  }
 }
+
 </script>
 function atualizarStatusMenu() {
   const tipo = document.getElementById('tipo').value;
