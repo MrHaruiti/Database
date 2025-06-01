@@ -78,38 +78,38 @@
 
   <div class="tab-content active" id="aba-chegadas">
     <label>Filtrar por Companhia Aérea:</label>
-    <select id="filter-companhia" onchange="filtrar('chegadas')">
+    <select id="filter-companhia" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por Destino:</label>
-    <select id="filter-destino" onchange="filtrar('chegadas')">
+    <select id="filter-destino" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por País:</label>
-    <select id="filter-pais" onchange="filtrar('chegadas')">
+    <select id="filter-pais" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por TPS:</label>
-    <select id="filter-tps" onchange="filtrar('chegadas')">
+    <select id="filter-tps" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <div id="chegadasTabela"></div>
   </div>
   <div class="tab-content" id="aba-partidas">
     <label>Filtrar por Companhia Aérea:</label>
-    <select id="filter-companhia-partidas" onchange="filtrar('partidas')">
+    <select id="filter-companhia-partidas" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por Destino:</label>
-    <select id="filter-destino-partidas" onchange="filtrar('partidas')">
+    <select id="filter-destino-partidas" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por País:</label>
-    <select id="filter-pais-partidas" onchange="filtrar('partidas')">
+    <select id="filter-pais-partidas" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <label>Filtrar por TPS:</label>
-    <select id="filter-tps-partidas" onchange="filtrar('partidas')">
+    <select id="filter-tps-partidas" onchange="filtrar()">
       <option value="">Selecione</option>
     </select>
     <div id="partidasTabela"></div>
@@ -218,32 +218,30 @@
       updateSelectOptions('filter-tps-partidas', ['', ...tps]);
     }
 
-    function filtrar(tipo) {
-      const filtroCompanhia = document.getElementById(`filter-companhia${tipo === 'chegadas' ? '' : '-partidas'}`).value.toLowerCase();
-      const filtroDestino = document.getElementById(`filter-destino${tipo === 'chegadas' ? '' : '-partidas'}`).value.toLowerCase();
-      const filtroPais = document.getElementById(`filter-pais${tipo === 'chegadas' ? '' : '-partidas'}`).value.toLowerCase();
-      const filtroTps = document.getElementById(`filter-tps${tipo === 'chegadas' ? '' : '-partidas'}`).value.toLowerCase();
+    function filtrar() {
+      const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
+      const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
+      const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
+      const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
 
-      let registrosFiltrados;
-      if (tipo === 'chegadas') {
-        registrosFiltrados = registrosChegadas.filter(voo =>
-          voo.companhia.toLowerCase().includes(filtroCompanhia) &&
-          voo.cidade.toLowerCase().includes(filtroDestino) &&
-          voo.pais.toLowerCase().includes(filtroPais) &&
-          voo.tps.toLowerCase().includes(filtroTps)
-        );
-        registrosFiltradosChegadas = registrosFiltrados;
-      } else {
-        registrosFiltrados = registrosPartidas.filter(voo =>
-          voo.companhia.toLowerCase().includes(filtroCompanhia) &&
-          voo.cidade.toLowerCase().includes(filtroDestino) &&
-          voo.pais.toLowerCase().includes(filtroPais) &&
-          voo.tps.toLowerCase().includes(filtroTps)
-        );
-        registrosFiltradosPartidas = registrosFiltrados;
-      }
+      // Filtrar Chegadas
+      registrosFiltradosChegadas = registrosChegadas.filter(voo =>
+        voo.companhia.toLowerCase().includes(filtroCompanhia) &&
+        voo.cidade.toLowerCase().includes(filtroDestino) &&
+        voo.pais.toLowerCase().includes(filtroPais) &&
+        voo.tps.toLowerCase().includes(filtroTps)
+      );
 
-      renderTabela(registrosFiltrados, tipo === 'chegadas' ? 'chegadasTabela' : 'partidasTabela');
+      // Filtrar Partidas
+      registrosFiltradosPartidas = registrosPartidas.filter(voo =>
+        voo.companhia.toLowerCase().includes(filtroCompanhia) &&
+        voo.cidade.toLowerCase().includes(filtroDestino) &&
+        voo.pais.toLowerCase().includes(filtroPais) &&
+        voo.tps.toLowerCase().includes(filtroTps)
+      );
+
+      renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+      renderTabela(registrosFiltradosPartidas, 'partidasTabela');
     }
 
     function removerVoo(indice, tipo) {
