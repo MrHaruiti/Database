@@ -101,6 +101,7 @@
 <div class="tab-content" id="partidasTabela"></div>
 
 <script>
+// Função para trocar entre as abas "Chegadas" e "Partidas"
 function trocarAba(indice) {
   const abas = document.querySelectorAll(".tab");
   const conteudos = document.querySelectorAll(".tab-content");
@@ -110,6 +111,7 @@ function trocarAba(indice) {
   });
 }
 
+// Função para atualizar o status da tabela (não está funcionando sem os registros definidos)
 function atualizarStatusTabela(el) {
   const row = el.closest("tr");
   const select = row.querySelector("select");
@@ -125,6 +127,7 @@ function atualizarStatusTabela(el) {
     input.style.display = "none";
   }
 
+  // **IMPORTANTE**: Certifique-se de definir 'registrosChegadas' e 'registrosPartidas' ou substitua por dados reais!
   if (tipo === "chegada") registrosChegadas[index].status = status;
   else registrosPartidas[index].status = status;
 
@@ -134,7 +137,9 @@ function atualizarStatusTabela(el) {
   if (status.startsWith("Finished")) {
     // Tocar som de placa girando
     const som = document.getElementById("placaGirandoSom");
-    som.play();  // Inicia o som da placa girando
+    if (som.paused) {
+      som.play();  // Toca o som da placa girando apenas se não estiver tocando
+    }
 
     // Começar animação de rolagem após 2 minutos
     setTimeout(() => {
@@ -154,10 +159,12 @@ function atualizarStatusTabela(el) {
   }
 }
 
+// Função para simular o salvamento de dados
 function salvarDados() {
   console.log("Dados salvos");
 }
 
+// Função para simular a atualização da tabela
 function atualizarTabelas() {
   console.log("Tabelas atualizadas");
 }
