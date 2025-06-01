@@ -5,68 +5,124 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>New Dubai International Airport - DATABASE</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #eee;
-      margin: 0;
-      padding: 0;
-      font-size: 13px;
-    }
-    .tabs { display: flex; background: #101c2c; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .tab {
-      flex: 1; text-align: center; padding: 12px; cursor: pointer;
-      color: #8ab4f8; background: #101c2c; border-bottom: 2px solid transparent;
-      transition: background 0.3s, border-bottom 0.3s;
-    }
-    .tab:hover { background: #1b2d42; }
-    .tab.active {
-      color: #fff; border-bottom: 2px solid #00d2ff; background: #172a3a;
-    }
-    .tab-content { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
-    .tab-content.active { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    input, button, textarea, select {
-      padding: 10px; margin: 5px 0; width: 100%;
-      border-radius: 6px; border: 1px solid #444;
-      background-color: #1e2a38; color: #fff;
-    }
-    button {
-      background: linear-gradient(to right, #00d2ff, #3a7bd5); color: white;
-      font-weight: bold; border: none; cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    button:hover { transform: scale(1.02); }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 15px;
-      border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-    th, td {
-      padding: 8px 10px; border: 1px solid #2a2a2a; text-align: left;
-      background: #1b1f24; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis; max-width: 300px;
-    }
-    th {
-      background: #0f141a; text-transform: uppercase;
-      font-weight: bold; color: #00d2ff;
-    }
-    .remove-btn {
-      background: #ff4e50; border: none; color: white;
-      padding: 6px 12px; border-radius: 4px; cursor: pointer;
-    }
-    .remove-btn:hover { background: #e43e3e; }
-    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
-    td.logo-cell {
-      background-color: #fff; padding: 5px; border-radius: 4px;
-      text-align: center; width: 70px; min-width: 70px; max-width: 70px;
-    }
-    td.logo-cell img {
-      width: 60px; max-height: 40px; object-fit: contain;
-    }
-  </style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #a8e6cf, #dcedc1, #ff8a80); /* Cor de fundo mais vibrante */
+    color: #333; /* Texto em cor escura */
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .tabs {
+    display: flex;
+    background: #ffeb3b; /* Amarelo mais claro para a barra de navegação */
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    cursor: pointer;
+    color: #ffffff; /* Texto das abas em branco */
+    background: #ffeb3b; /* Fundo amarelo vibrante para as abas */
+    border-bottom: 2px solid transparent;
+    transition: background 0.3s, border-bottom 0.3s;
+  }
+
+  .tab:hover {
+    background: #fbc02d; /* Cor amarela mais vibrante ao passar o mouse */
+  }
+
+  .tab.active {
+    color: #fff; /* Cor do texto em branco quando ativo */
+    border-bottom: 2px solid #00e5ff; /* Cor azul clara na parte de baixo da aba ativa */
+    background: #fbc02d; /* Fundo mais dourado para a aba ativa */
+  }
+
+  input, button, textarea, select {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #ffffff; /* Fundo branco para campos de entrada */
+    color: #333; /* Cor do texto nos campos em cinza escuro */
+  }
+
+  button {
+    background: linear-gradient(to right, #ff9800, #ff5722); /* Gradiente vibrante para o botão */
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  button:hover {
+    transform: scale(1.05); /* Efeito de aumento ao passar o mouse */
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2); /* Sombra suave ao redor da tabela */
+  }
+
+  th, td {
+    padding: 8px 10px;
+    border: 1px solid #ddd; /* Borda mais clara para as células */
+    text-align: left;
+    background: #f9fbe7; /* Fundo claro para as células da tabela */
+    color: #333; /* Cor do texto nas células */
+  }
+
+  th {
+    background: #ffeb3b; /* Cor de fundo amarela para os cabeçalhos */
+    color: #fff;
+    font-weight: bold;
+  }
+
+  .remove-btn {
+    background: #ff4e50; /* Cor vibrante para o botão de remover */
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .remove-btn:hover {
+    background: #e43e3e; /* Cor vermelha mais intensa quando o mouse passa */
+  }
+
+  img.logo {
+    height: 30px;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  td.logo-cell {
+    background-color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    text-align: center;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+
+  td.logo-cell img {
+    width: 60px;
+    max-height: 40px;
+    object-fit: contain;
+  }
+</style>
+
 </head>
 <body>
   <div class="tabs">
