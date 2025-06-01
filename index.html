@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="pt">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>New Dubai International Airport - DATABASE</title>
-<style>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>New Dubai International Airport - DATABASE</title>
+  <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
@@ -14,300 +13,232 @@
       padding: 0;
       font-size: 13px;
     }
-    .tabs {
-      display: flex;
-      background: #101c2c;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      flex-wrap: wrap;
-    }
+    .tabs { display: flex; background: #101c2c; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
     .tab {
-      flex: 1;
-      text-align: center;
-      padding: 12px;
-      cursor: pointer;
-      color: #8ab4f8;
-      background: #101c2c;
-      border-bottom: 2px solid transparent;
+      flex: 1; text-align: center; padding: 12px; cursor: pointer;
+      color: #8ab4f8; background: #101c2c; border-bottom: 2px solid transparent;
       transition: background 0.3s, border-bottom 0.3s;
     }
-    .tab:hover {
-      background: #1b2d42;
-    }
+    .tab:hover { background: #1b2d42; }
     .tab.active {
-      color: #fff;
-      border-bottom: 2px solid #00d2ff;
-      background: #172a3a;
+      color: #fff; border-bottom: 2px solid #00d2ff; background: #172a3a;
     }
-    .tab-content {
-      display: none;
-      padding: 20px;
-      animation: fadeIn 0.4s ease;
-    }
-    .tab-content.active {
-      display: block;
-    }
+    .tab-content { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
+    .tab-content.active { display: block; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
     input, button, textarea, select {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background-color: #1e2a38;
-      color: #fff;
-    }
-    input::placeholder, textarea::placeholder {
-      color: #888;
+      padding: 10px; margin: 5px 0; width: 100%;
+      border-radius: 6px; border: 1px solid #444;
+      background-color: #1e2a38; color: #fff;
     }
     button {
-      background: linear-gradient(to right, #00d2ff, #3a7bd5);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
+      background: linear-gradient(to right, #00d2ff, #3a7bd5); color: white;
+      font-weight: bold; border: none; cursor: pointer;
       transition: transform 0.2s ease;
     }
-    button:hover {
-      transform: scale(1.02);
-    }
+    button:hover { transform: scale(1.02); }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      border: 1px solid #333;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      width: 100%; border-collapse: collapse; margin-top: 15px;
+      border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
     th, td {
-      padding: 8px 10px;
-      border: 1px solid #2a2a2a;
-      text-align: left;
-      background: #1b1f24;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 300px;
+      padding: 8px 10px; border: 1px solid #2a2a2a; text-align: left;
+      background: #1b1f24; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 300px;
     }
     th {
-      background: #0f141a;
-      text-transform: uppercase;
-      font-weight: bold;
-      color: #00d2ff;
+      background: #0f141a; text-transform: uppercase;
+      font-weight: bold; color: #00d2ff;
     }
     .remove-btn {
-      background: #ff4e50;
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
+      background: #ff4e50; border: none; color: white;
+      padding: 6px 12px; border-radius: 4px; cursor: pointer;
     }
-    .remove-btn:hover {
-      background: #e43e3e;
-    }
-    img.logo {
-      height: 30px;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
+    .remove-btn:hover { background: #e43e3e; }
+    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
     td.logo-cell {
-      background-color: #fff;
-      padding: 5px;
-      border-radius: 4px;
-      text-align: center;
-      width: 70px;
-      min-width: 70px;
-      max-width: 70px;
+      background-color: #fff; padding: 5px; border-radius: 4px;
+      text-align: center; width: 70px; min-width: 70px; max-width: 70px;
     }
     td.logo-cell img {
-      width: 60px;
-      max-height: 40px;
-      object-fit: contain;
+      width: 60px; max-height: 40px; object-fit: contain;
     }
   </style>
 </head>
 <body>
-<div class="tabs">
-<div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
-<div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
-<div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
-<div class="tab" onclick="trocarAba(3)">💾 Backup</div>
-</div>
-<div class="tab-content active" id="aba-chegadas">
-<div id="chegadasTabela"></div>
-</div>
-<div class="tab-content" id="aba-partidas">
-<div id="partidasTabela"></div>
-</div>
-<div class="tab-content" id="aba-novo">
-<label>Companhia Aérea:</label>
-<input id="companhia" placeholder="Ex: AIR FRANCE" type="text"/>
-<label>Cidade (Destino):</label>
-<input id="cidade" placeholder="Ex: Paris" type="text"/>
-<label>Código ICAO:</label>
-<input id="icao" placeholder="Ex: LFPG" type="text"/>
-<label>País:</label>
-<input id="pais" placeholder="Ex: França" type="text"/>
-<label>Voo (Flight):</label>
-<input id="voo" placeholder="Ex: 01234" type="text"/>
-<label>Horário (Time):</label>
-<input id="horario" placeholder="Ex: 14:35" type="text"/>
-<label>Aeronave (A/C):</label>
-<input id="aeronave" placeholder="Ex: A320" type="text"/>
-<label>Status:</label>
-<input id="status" placeholder="Ex: Confirmado" type="text"/>
-<label>Tipo:</label>
-<select id="tipo">
-<option value="chegada">Chegada</option>
-<option value="partida">Partida</option>
-</select>
-<button onclick="adicionarVoo()">Adicionar</button>
-</div>
-<div class="tab-content" id="aba-backup">
-<button onclick="exportarBackup()">⬇️ Exportar Backup</button>
-<button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-<input accept=".json" id="importar" onchange="importarBackup(event)" style="display:none" type="file"/>
-<textarea id="output" placeholder="Exportação em formato texto"></textarea>
-</div>
-<script>
-  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
-  let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
+  <div class="tabs">
+    <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
+    <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
+    <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
+    <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
+  </div>
 
-  function trocarAba(indice) {
-    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
-  }
+  <div class="tab-content active" id="aba-chegadas">
+    <div id="chegadasTabela"></div>
+  </div>
+  <div class="tab-content" id="aba-partidas">
+    <div id="partidasTabela"></div>
+  </div>
+  <div class="tab-content" id="aba-novo">
+    <label>Companhia Aérea:</label><input id="companhia" placeholder="Ex: AIR FRANCE" type="text"/>
+    <label>Cidade (Destino):</label><input id="cidade" placeholder="Ex: Paris" type="text"/>
+    <label>Código ICAO:</label><input id="icao" placeholder="Ex: LFPG" type="text"/>
+    <label>País:</label><input id="pais" placeholder="Ex: França" type="text"/>
+    <label>Voo (Flight):</label><input id="voo" placeholder="Ex: 01234" type="text"/>
+    <label>Horário (Time):</label><input id="horario" placeholder="Ex: 14:35" type="text"/>
+    <label>Aeronave (A/C):</label><input id="aeronave" placeholder="Ex: A320" type="text"/>
+    <label>Status:</label><input id="status" placeholder="Ex: Confirmado" type="text"/>
+    <label>TPS:</label><input id="tps" placeholder="Ex: TPS1" type="text"/>
+    <label>Tipo:</label>
+    <select id="tipo">
+      <option value="chegada">Chegada</option>
+      <option value="partida">Partida</option>
+    </select>
+    <button onclick="adicionarVoo()">Adicionar</button>
+  </div>
+  <div class="tab-content" id="aba-backup">
+    <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
+    <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
+    <input accept=".json" id="importar" onchange="importarBackup(event)" style="display:none" type="file"/>
+    <textarea id="output" placeholder="Exportação em formato texto"></textarea>
+  </div>
 
-  function normalizarNome(nome) {
-    return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
-  }
+  <script>
+    let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+    let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
-  function renderTabela(registros, destinoId) {
-    // Garantir que todos os horários estejam no formato correto "HH:mm"
-    registros.forEach(voo => {
-      voo.horario = voo.horario.padStart(5, '0'); // Formata para "HH:mm"
-    });
-
-    // Ordena os voos por horário, do mais cedo para o mais tarde
-    registros.sort((a, b) => {
-      const [aHour, aMinute] = a.horario.split(':').map(Number); // Divide o horário em hora e minuto
-      const [bHour, bMinute] = b.horario.split(':').map(Number); // Divide o horário em hora e minuto
-
-      // Compara as horas primeiro, depois os minutos
-      if (aHour !== bHour) return aHour - bHour;
-      return aMinute - bMinute;
-    });
-
-    let html = '<table><thead><tr>' +
-      '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
-      '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>ACTION</th>' +
-      '</tr></thead><tbody>';
-
-    registros.forEach((e, i) => {
-      const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-      html += `<tr>
-        ${logo}
-        <td>${e.voo || ''}</td>
-        <td>${e.cidade}</td>
-        <td>${e.icao}</td>
-        <td>${e.pais}</td>
-        <td>${e.horario || ''}</td>
-        <td>${e.aeronave || ''}</td>
-        <td>${e.status || ''}</td>
-        <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
-      </tr>`;
-    });
-
-    html += '</tbody></table>';
-    document.getElementById(destinoId).innerHTML = html;
-  }
-
-  function removerVoo(indice, tipo) {
-    if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
-    else registrosPartidas.splice(indice, 1);
-    salvarDados();
-    atualizarTabelas();
-  }
-
-  function adicionarVoo() {
-    const companhia = document.getElementById("companhia").value.trim();
-    const cidade = document.getElementById("cidade").value.trim();
-    const icao = document.getElementById("icao").value.trim().toUpperCase();
-    const pais = document.getElementById("pais").value.trim();
-    const voo = document.getElementById("voo").value.trim();
-    const horario = document.getElementById("horario").value.trim();
-    const aeronave = document.getElementById("aeronave").value.trim();
-    const status = document.getElementById("status").value.trim();
-    const tipo = document.getElementById("tipo").value;
-
-    if (!companhia || !cidade || !icao || !pais) {
-      alert("Preencha todos os campos obrigatórios!");
-      return;
+    function trocarAba(indice) {
+      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+      document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
     }
 
-    const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status };
-    const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
-
-    if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
-      registros.push(novoRegistro);
+    function normalizarNome(nome) {
+      return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
     }
 
-    salvarDados();
-    atualizarTabelas();
+    function renderTabela(registros, destinoId) {
+      registros.forEach(voo => {
+        voo.horario = voo.horario.padStart(5, '0');
+      });
 
-    document.getElementById("companhia").value = "";
-    document.getElementById("cidade").value = "";
-    document.getElementById("icao").value = "";
-    document.getElementById("pais").value = "";
-    document.getElementById("voo").value = "";
-    document.getElementById("horario").value = "";
-    document.getElementById("aeronave").value = "";
-    document.getElementById("status").value = "";
-  }
+      registros.sort((a, b) => {
+        const [aHour, aMinute] = a.horario.split(':').map(Number);
+        const [bHour, bMinute] = b.horario.split(':').map(Number);
+        if (aHour !== bHour) return aHour - bHour;
+        return aMinute - bMinute;
+      });
 
-  function salvarDados() {
-    localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
-    localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
-  }
+      let html = '<table><thead><tr>' +
+        '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
+        '</tr></thead><tbody>';
 
-  function atualizarTabelas() {
-    renderTabela(registrosChegadas, 'chegadasTabela');
-    renderTabela(registrosPartidas, 'partidasTabela');
-  }
+      registros.forEach((e, i) => {
+        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+        html += `<tr>
+          ${logo}
+          <td>${e.voo || ''}</td>
+          <td>${e.cidade}</td>
+          <td>${e.icao}</td>
+          <td>${e.pais}</td>
+          <td>${e.horario || ''}</td>
+          <td>${e.aeronave || ''}</td>
+          <td>${e.tps || ''}</td>
+          <td>${e.status || ''}</td>
+          <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
+        </tr>`;
+      });
 
-  function exportarBackup() {
-    const backup = {
-      chegadas: registrosChegadas,
-      partidas: registrosPartidas
-    };
-    const texto = JSON.stringify(backup, null, 2);
-    const blob = new Blob([texto], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "backup_voos.json";
-    link.click();
-    document.getElementById("output").value = texto;
-  }
+      html += '</tbody></table>';
+      document.getElementById(destinoId).innerHTML = html;
+    }
 
-  function importarBackup(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = JSON.parse(e.target.result);
-      if (data.chegadas) registrosChegadas = data.chegadas;
-      if (data.partidas) registrosPartidas = data.partidas;
+    function removerVoo(indice, tipo) {
+      if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
+      else registrosPartidas.splice(indice, 1);
       salvarDados();
       atualizarTabelas();
-      alert("Backup importado com sucesso!");
-    };
-    reader.readAsText(file);
-  }
+    }
 
-  window.onload = () => {
-    atualizarTabelas();
-  };
-</script>
+    function adicionarVoo() {
+      const companhia = document.getElementById("companhia").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const icao = document.getElementById("icao").value.trim().toUpperCase();
+      const pais = document.getElementById("pais").value.trim();
+      const voo = document.getElementById("voo").value.trim();
+      const horario = document.getElementById("horario").value.trim();
+      const aeronave = document.getElementById("aeronave").value.trim();
+      const status = document.getElementById("status").value.trim();
+      const tps = document.getElementById("tps").value.trim();
+      const tipo = document.getElementById("tipo").value;
+
+      if (!companhia || !cidade || !icao || !pais) {
+        alert("Preencha todos os campos obrigatórios!");
+        return;
+      }
+
+      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps };
+      const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
+
+      if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
+        registros.push(novoRegistro);
+      }
+
+      salvarDados();
+      atualizarTabelas();
+
+      document.getElementById("companhia").value = "";
+      document.getElementById("cidade").value = "";
+      document.getElementById("icao").value = "";
+      document.getElementById("pais").value = "";
+      document.getElementById("voo").value = "";
+      document.getElementById("horario").value = "";
+      document.getElementById("aeronave").value = "";
+      document.getElementById("status").value = "";
+      document.getElementById("tps").value = "";
+    }
+
+    function salvarDados() {
+      localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+      localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
+    }
+
+    function atualizarTabelas() {
+      renderTabela(registrosChegadas, 'chegadasTabela');
+      renderTabela(registrosPartidas, 'partidasTabela');
+    }
+
+    function exportarBackup() {
+      const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
+      const texto = JSON.stringify(backup, null, 2);
+      const blob = new Blob([texto], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "backup_voos.json";
+      link.click();
+      document.getElementById("output").value = texto;
+    }
+
+    function importarBackup(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = JSON.parse(e.target.result);
+        if (data.chegadas) registrosChegadas = data.chegadas;
+        if (data.partidas) registrosPartidas = data.partidas;
+        salvarDados();
+        atualizarTabelas();
+        alert("Backup importado com sucesso!");
+      };
+      reader.readAsText(file);
+    }
+
+    window.onload = () => {
+      atualizarTabelas();
+    };
+  </script>
 </body>
 </html>
