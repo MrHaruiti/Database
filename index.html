@@ -125,65 +125,45 @@
     <div class="tab" onclick="trocarAba(2)">Novo Voo</div>
     <div class="tab" onclick="trocarAba(3)">Backup</div>
   </div>
-  <div class="tab-content active">
-    <div id="chegadasTabela"></div>
-  </div>
+  <div class="tab-content active"><div id="chegadasTabela"></div></div>
+  <div class="tab-content"><div id="partidasTabela"></div></div>
   <div class="tab-content">
-    <div id="partidasTabela"></div>
-  </div>
-  <div class="tab-content">
-    <label>Companhia Aérea:</label>
-    <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
-    <label>Cidade (Destino):</label>
-    <input type="text" id="cidade" placeholder="Ex: Paris" />
-    <label>Código ICAO:</label>
-    <input type="text" id="icao" placeholder="Ex: LFPG" />
-    <label>País:</label>
-    <input type="text" id="pais" placeholder="Ex: França" />
-    <div>
-      <input class="half" type="text" id="voo" placeholder="Flight (Ex: 01234)" />
-      <input class="half" type="text" id="horario" placeholder="Time (Ex: 14:35)" />
-    </div>
-    <div>
-      <input class="half" type="text" id="aeronave" placeholder="A/C (Ex: A320)" />
-      <input class="half" type="text" id="tps" placeholder="TPS (Ex: 123)" />
-    </div>
-    <input type="text" id="status" placeholder="Status (Ex: Confirmado)" />
-    <select id="tipo">
-      <option value="chegada">Chegada</option>
-      <option value="partida">Partida</option>
-    </select>
+    <label>Companhia Aérea:</label><input type="text" id="companhia" />
+    <label>Cidade (Destino):</label><input type="text" id="cidade" />
+    <label>Código ICAO:</label><input type="text" id="icao" />
+    <label>País:</label><input type="text" id="pais" />
+    <div><input class="half" type="text" id="voo" /><input class="half" type="text" id="horario" /></div>
+    <div><input class="half" type="text" id="aeronave" /><input class="half" type="text" id="tps" /></div>
+    <input type="text" id="status" />
+    <select id="tipo"><option value="chegada">Chegada</option><option value="partida">Partida</option></select>
     <button onclick="adicionarVoo()">Adicionar</button>
     <div id="mensagem-sucesso">Voo adicionado com sucesso!</div>
   </div>
   <div class="tab-content">
-    <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
+    <textarea id="backup" rows="10" style="width:100%; font-family:monospace;"></textarea>
     <button onclick="carregarBackup()">Importar Arquivo</button>
     <button onclick="salvarBackup()">Exportar Dados</button>
   </div>
   <button id="topo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">▲ Topo</button>
-  <!-- Script abaixo foi totalmente integrado -->
-  <script>
-  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+<script>
+let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
 let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
-
 function trocarAba(indice) {
   document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
   document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
 }
-
 function normalizarNome(nome) {
   return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
 }
-
 function renderTabela(registros, destinoId) {
+  const hoje = new Date().toISOString().split('T')[0];
   registros.sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
   let html = '<table><thead><tr>' +
     '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
     '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
     '</tr></thead><tbody>';
-
   registros.forEach((e, i) => {
+    if (e.data !== hoje) return;
     const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
     html += `<tr>
       ${logo}
@@ -198,66 +178,53 @@ function renderTabela(registros, destinoId) {
       <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
     </tr>`;
   });
-
   html += '</tbody></table>';
   document.getElementById(destinoId).innerHTML = html;
 }
-
 function removerVoo(indice, tipo) {
   if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
   else registrosPartidas.splice(indice, 1);
   salvarDados();
   atualizarTabelas();
 }
-
-function gerarNumeroVooAleatorio() {
-  return String(Math.floor(10000 + Math.random() * 90000));
-}
-
 function adicionarVoo() {
   const companhia = document.getElementById("companhia").value.trim();
   const cidade = document.getElementById("cidade").value.trim();
   const icao = document.getElementById("icao").value.trim().toUpperCase();
   const pais = document.getElementById("pais").value.trim();
-  const voo = document.getElementById("voo").value.trim() || gerarNumeroVooAleatorio();
+  const voo = document.getElementById("voo").value.trim() || String(Math.floor(10000 + Math.random() * 90000));
   const horario = document.getElementById("horario").value.trim();
   const aeronave = document.getElementById("aeronave").value.trim();
   const tps = document.getElementById("tps").value.trim();
   const status = document.getElementById("status").value.trim();
   const tipo = document.getElementById("tipo").value;
-
   if (!companhia || !cidade || !icao || !pais) {
     alert("Preencha todos os campos obrigatórios!");
     return;
   }
-
-  const dataRegistro = new Date().toISOString().split('T')[0];
-  const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, tps, status, data: dataRegistro };
+  const hora = parseInt(horario.split(':')[0]);
+  const data = hora < 14 ? new Date(Date.now() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, tps, status, data };
   const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
   registros.push(novoRegistro);
-
   salvarDados();
   atualizarTabelas();
   document.querySelectorAll("input").forEach(i => i.value = "");
   document.getElementById("mensagem-sucesso").style.display = 'block';
   setTimeout(() => document.getElementById("mensagem-sucesso").style.display = 'none', 3000);
 }
-
 function salvarDados() {
   localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
   localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
 }
-
 function atualizarTabelas() {
   renderTabela(registrosChegadas, 'chegadasTabela');
   renderTabela(registrosPartidas, 'partidasTabela');
 }
-
 function salvarBackup() {
   const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
   document.getElementById("backup").value = JSON.stringify(backup, null, 2);
 }
-
 function carregarBackup() {
   const input = document.createElement("input");
   input.type = "file";
@@ -281,74 +248,10 @@ function carregarBackup() {
   };
   input.click();
 }
-
-function gerarProximoVoo(voo, lista, tipo) {
-  const novoVoo = { ...voo };
-  const [hora, minuto] = voo.horario.split(":").map(Number);
-  const novaData = new Date();
-  novaData.setDate(novaData.getDate() + 1);
-  novaData.setHours(hora, minuto);
-
-  novoVoo.horario = novaData.toTimeString().substring(0,5);
-  novoVoo.status = "Estimated";
-
-  lista.push(novoVoo);
-  salvarDados();
-  atualizarTabelas();
-}
-
-function verificarStatusTempoReal() {
-  const agora = new Date();
-  const atualizar = (lista, tipo) => {
-    lista.forEach((voo, index) => {
-      if (!voo.horario || !voo.status || voo.status.includes("Landed") || voo.status === "Finished") return;
-      const [hora, minuto] = voo.horario.split(":").map(Number);
-      const horarioVoo = new Date();
-      horarioVoo.setHours(hora, minuto, 0, 0);
-      const diffMin = Math.floor((horarioVoo - agora) / 60000);
-      const diffPosMin = Math.floor((agora - horarioVoo) / 60000);
-
-      if (tipo === "chegada") {
-        if (diffMin > 300) voo.status = "Estimated";
-        else if (diffMin <= 300 && diffMin > 180) {
-          if (!voo.status.includes("Confirmed") && !voo.status.includes("Unconfirmed") && !voo.status.includes("Cancelled") && !voo.status.includes("Delayed")) {
-            voo.status = "Confirmed";
-          }
-        }
-        else if (diffMin <= 180 && diffMin > 60) {
-          voo.status = `Confirmed ${voo.horario}`;
-        }
-        else if (diffMin <= 3 && diffMin > 0) voo.status = "Landing";
-        else if (diffMin === 0) voo.status = `Landed (${voo.horario})`;
-        else if (diffPosMin > 10 && diffPosMin <= 90) voo.status = "Deplaining";
-        else if (diffPosMin > 90) {
-          voo.status = "Finished";
-          setTimeout(() => gerarProximoVoo(voo, registrosChegadas, "chegada"), 1000);
-        }
-      } else {
-        if (diffMin > 300) voo.status = "Estimated";
-        else if (diffMin <= 300 && diffMin > 180) voo.status = "Check-in Opened";
-        else if (diffMin <= 180 && diffMin > 60) voo.status = "Boarding";
-        else if (diffMin <= 60 && diffMin > 30) voo.status = "Last Call";
-        else if (diffMin <= 30 && diffMin > 0) voo.status = "Confirmed";
-        else if (diffMin === 0) voo.status = "Taking Off";
-        else if (diffPosMin >= 5 && diffPosMin < 100) voo.status = "Finished";
-        if (voo.status === "Finished") {
-          setTimeout(() => gerarProximoVoo(voo, registrosPartidas, "partida"), 1000);
-        }
-      }
-    });
-  };
-  atualizar(registrosChegadas, "chegada");
-  atualizar(registrosPartidas, "partida");
-  salvarDados();
-  atualizarTabelas();
-}
-
 window.onload = () => {
   atualizarTabelas();
-  setInterval(verificarStatusTempoReal, 60000);
+  setInterval(atualizarTabelas, 60000);
 };
-  </script>
+</script>
 </body>
 </html>
