@@ -1,173 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Painel de Voos com Flip</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Dubai International Airport - DATABASE</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #000;
-      color: #00d2ff;
-      margin: 0;
-      padding: 0;
-    }
-    .tabs {
-      display: flex;
-      background: #111;
-    }
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 12px;
-      cursor: pointer;
-      color: #ccc;
-    }
-    .tab.active {
-      color: #00d2ff;
-      border-bottom: 2px solid #00d2ff;
-      background: #1e1e1e;
-    }
-    .tab-content {
-      display: none;
-      padding: 20px;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #222;
-      text-align: center;
-      background: #111;
-    }
-    th {
-      background: #222;
-      color: #00d2ff;
-      font-size: 11px;
-    }
-    td {
-      font-size: 13px;
-      color: #eee;
-    }
-    .logo-cell {
-      background: #fff;
-      padding: 4px;
-    }
-    .logo {
-      max-height: 40px;
-      width: auto;
-    }
-    .flip-out {
-      animation: flipOut 0.7s forwards;
-    }
-    @keyframes flipOut {
-      0% { transform: rotateX(0deg); opacity: 1; }
-      100% { transform: rotateX(90deg); opacity: 0; }
-    }
-    @keyframes scrollOut {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-100px); opacity: 0; }
-    }
-    .scroll-out {
-      animation: scrollOut 2s forwards;
-    }
-    .submenu {
-      visibility: hidden;
-      position: absolute;
-      background-color: #222;
-      min-width: 150px;
-      z-index: 10;
-    }
-    .submenu.active {
-      visibility: visible;
-    }
+    body { font-family: Arial; background: #111; color: #fff; margin: 0; padding: 0; font-size: 12px; }
+    .tabs { display: flex; background: #222; flex-wrap: wrap; }
+    .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #ccc; border-bottom: 2px solid transparent; }
+    .tab.active { color: #fff; border-bottom: 2px solid #007bff; background: #111; }
+    .tab-content { display: none; padding: 15px; }
+    .tab-content.active { display: block; }
+    input, button, textarea, select { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: none; }
+    button { background: #007bff; color: white; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 6px 8px; border: 1px solid #444; text-align: left; background: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+    th { background: #222; text-transform: uppercase; font-weight: bold; }
+    .remove-btn { background: red; border: none; color: white; padding: 5px 10px; border-radius: 4px; }
+    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
+    td.logo-cell { background-color: white; padding: 5px; border-radius: 4px; text-align: center; width: 70px; min-width: 70px; max-width: 70px; }
+    td.logo-cell img { width: 60px; max-height: 40px; object-fit: contain; }
   </style>
 </head>
 <body>
-<audio id="placaGirandoSom" src="placa_girando.mp3" preload="auto" loop></audio>
 
 <div class="tabs">
-  <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
-  <div class="tab" onclick="trocarAba(1)">Partidas</div>
+  <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
+  <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
+  <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
+  <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
 </div>
 
-<div class="tab-content active" id="chegadasTabela"></div>
-<div class="tab-content" id="partidasTabela"></div>
+<div class="tab-content active" id="aba-chegadas">
+  <div id="chegadasTabela"></div>
+</div>
+
+<div class="tab-content" id="aba-partidas">
+  <div id="partidasTabela"></div>
+</div>
+
+<div class="tab-content" id="aba-novo">
+  <label>Companhia Aérea:</label>
+  <input type="text" id="companhia" placeholder="Ex: AIR FRANCE" />
+  <label>Cidade (Destino):</label>
+  <input type="text" id="cidade" placeholder="Ex: Paris" />
+  <label>Código ICAO:</label>
+  <input type="text" id="icao" placeholder="Ex: LFPG" />
+  <label>País:</label>
+  <input type="text" id="pais" placeholder="Ex: França" />
+  <label>Voo (Flight):</label>
+  <input type="text" id="voo" placeholder="Ex: AF123" />
+  <label>Horário (Time):</label>
+  <input type="text" id="horario" placeholder="Ex: 14:35" />
+  <label>Aeronave (A/C):</label>
+  <input type="text" id="aeronave" placeholder="Ex: A320" />
+  <label>Status:</label>
+  <input type="text" id="status" placeholder="Ex: Aterrissado" />
+  <label>Tipo:</label>
+  <select id="tipo">
+    <option value="chegada">Chegada</option>
+    <option value="partida">Partida</option>
+  </select>
+  <button onclick="adicionarVoo()">Adicionar</button>
+</div>
+
+<div class="tab-content" id="aba-backup">
+  <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
+  <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
+  <input type="file" id="importar" accept=".json" style="display:none" onchange="importarBackup(event)">
+  <textarea id="output" placeholder="Exportação em formato texto"></textarea>
+</div>
 
 <script>
-// Função para trocar entre as abas "Chegadas" e "Partidas"
-function trocarAba(indice) {
-  const abas = document.querySelectorAll(".tab");
-  const conteudos = document.querySelectorAll(".tab-content");
-  abas.forEach((aba, i) => {
-    aba.classList.toggle("active", i === indice);
-    conteudos[i].classList.toggle("active", i === indice);
-  });
-}
+  let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+  let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
-// Função para atualizar o status da tabela (não está funcionando sem os registros definidos)
-function atualizarStatusTabela(el) {
-  const row = el.closest("tr");
-  const select = row.querySelector("select");
-  const input = row.querySelector("input[type='time']");
-  const tipo = select.dataset.tipo;
-  const index = parseInt(select.dataset.index);
-
-  let status = select.value;
-  if (status === "Confirmed" && input.value) {
-    status += " " + input.value;
-    input.style.display = "inline-block";
-  } else {
-    input.style.display = "none";
+  function trocarAba(indice) {
+    document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
+    document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
   }
 
-  // **IMPORTANTE**: Certifique-se de definir 'registrosChegadas' e 'registrosPartidas' ou substitua por dados reais!
-  if (tipo === "chegada") registrosChegadas[index].status = status;
-  else registrosPartidas[index].status = status;
+  function normalizarNome(nome) {
+    return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
+  }
 
-  salvarDados();
-  atualizarTabelas();
+  function renderTabela(registros, destinoId) {
+    let html = '<table><thead><tr>' +
+      '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+      '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>STATUS</th><th>ACTION</th>' +
+      '</tr></thead><tbody>';
 
-  if (status.startsWith("Finished")) {
-    // Tocar som de placa girando
-    const som = document.getElementById("placaGirandoSom");
-    if (som.paused) {
-      som.play();  // Toca o som da placa girando apenas se não estiver tocando
+    registros.forEach((e, i) => {
+      const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+      html += `<tr>
+        ${logo}
+        <td>${e.voo || ''}</td>
+        <td>${e.cidade}</td>
+        <td>${e.icao}</td>
+        <td>${e.pais}</td>
+        <td>${e.horario || ''}</td>
+        <td>${e.aeronave || ''}</td>
+        <td>${e.status || ''}</td>
+        <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    document.getElementById(destinoId).innerHTML = html;
+  }
+
+  function removerVoo(indice, tipo) {
+    if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
+    else registrosPartidas.splice(indice, 1);
+    salvarDados();
+    atualizarTabelas();
+  }
+
+  function adicionarVoo() {
+    const companhia = document.getElementById("companhia").value.trim();
+    const cidade = document.getElementById("cidade").value.trim();
+    const icao = document.getElementById("icao").value.trim().toUpperCase();
+    const pais = document.getElementById("pais").value.trim();
+    const voo = document.getElementById("voo").value.trim();
+    const horario = document.getElementById("horario").value.trim();
+    const aeronave = document.getElementById("aeronave").value.trim();
+    const status = document.getElementById("status").value.trim();
+    const tipo = document.getElementById("tipo").value;
+
+    if (!companhia || !cidade || !icao || !pais) {
+      alert("Preencha todos os campos obrigatórios!");
+      return;
     }
 
-    // Começar animação de rolagem após 2 minutos
-    setTimeout(() => {
-      const linha = el.closest("tr");
-      linha.classList.add("scroll-out");  // Adiciona a classe de animação de rolagem
+    const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status };
+    const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
 
-      // Remover linha após 2 segundos de animação
-      const timeoutId = setTimeout(() => {
-        if (tipo === "chegada") registrosChegadas.splice(index, 1);
-        else registrosPartidas.splice(index, 1);
-        salvarDados();
-        atualizarTabelas();
-      }, 2000);  // Remover após animação de rolagem
+    if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
+      registros.push(novoRegistro);
+    }
 
-      el.dataset.timeoutId = timeoutId;
-    }, 120000);  // Espera 2 minutos antes de iniciar a animação
+    if (companhia.toUpperCase() !== "EMIRATES AIRLINES" &&
+        !registros.some(e => e.companhia === "EMIRATES AIRLINES" && e.cidade === cidade && e.icao === icao)) {
+      registros.push({ companhia: "EMIRATES AIRLINES", cidade, icao, pais });
+    }
+
+    salvarDados();
+    atualizarTabelas();
+
+    document.getElementById("companhia").value = "";
+    document.getElementById("cidade").value = "";
+    document.getElementById("icao").value = "";
+    document.getElementById("pais").value = "";
+    document.getElementById("voo").value = "";
+    document.getElementById("horario").value = "";
+    document.getElementById("aeronave").value = "";
+    document.getElementById("status").value = "";
   }
-}
 
-// Função para simular o salvamento de dados
-function salvarDados() {
-  console.log("Dados salvos");
-}
+  function salvarDados() {
+    localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+    localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
+  }
 
-// Função para simular a atualização da tabela
-function atualizarTabelas() {
-  console.log("Tabelas atualizadas");
-}
+  function atualizarTabelas() {
+    renderTabela(registrosChegadas, 'chegadasTabela');
+    renderTabela(registrosPartidas, 'partidasTabela');
+  }
+
+  function exportarBackup() {
+    const backup = {
+      chegadas: registrosChegadas,
+      partidas: registrosPartidas
+    };
+    const texto = JSON.stringify(backup, null, 2);
+    const blob = new Blob([texto], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "backup_voos.json";
+    link.click();
+    document.getElementById("output").value = texto;
+  }
+
+  function importarBackup(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const data = JSON.parse(e.target.result);
+      if (data.chegadas) registrosChegadas = data.chegadas;
+      if (data.partidas) registrosPartidas = data.partidas;
+      salvarDados();
+      atualizarTabelas();
+      alert("Backup importado com sucesso!");
+    };
+    reader.readAsText(file);
+  }
+
+  window.onload = () => {
+    atualizarTabelas();
+  };
 </script>
 </body>
 </html>
