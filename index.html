@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="pt">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>
    Painel de Voos com Submenu
   </title>
-  <style>
+<style>
    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #000;
@@ -94,125 +95,127 @@
       width: 100%;
     }
   </style>
- </head>
- <body>
-  <div class="tabs">
-   <div class="tab active" onclick="trocarAba(0)">
+</head>
+<body>
+<div class="tabs">
+<div class="tab active" onclick="trocarAba(0)">
     Chegadas
    </div>
-   <div class="tab" onclick="trocarAba(1)">
+<div class="tab" onclick="trocarAba(1)">
     Partidas
    </div>
-   <div class="tab" onclick="trocarAba(2)">
+<div class="tab" onclick="trocarAba(2)">
     Novo Voo
    </div>
-   <div class="tab" onclick="trocarAba(3)">
+<div class="tab" onclick="trocarAba(3)">
     Backup
    </div>
-  </div>
-  <div class="tab-content active" id="chegadasTabela">
-  </div>
-  <div class="tab-content" id="partidasTabela">
-  </div>
-  <div class="tab-content">
-   <form id="formularioVoo">
-    <input class="half" id="companhia" placeholder="Companhia" required="" type="text"/>
-    <input class="half" id="voo" placeholder="Voo" required="" type="text"/>
-    <input class="half" id="cidade" placeholder="Cidade" required="" type="text"/>
-    <input class="half" id="icao" placeholder="ICAO" required="" type="text"/>
-    <input class="half" id="pais" placeholder="País" required="" type="text"/>
-    <input class="half" id="horario" placeholder="Horário" required="" type="time"/>
-    <input class="half" id="aeronave" placeholder="Aeronave" required="" type="text"/>
-    <input class="half" id="tps" placeholder="TPS" required="" type="number"/>
-    <select class="half" id="tipo" onchange="atualizarStatusMenu()">
-     <option value="chegada">
+</div>
+<div class="tab-content active" id="chegadasTabela">
+</div>
+<div class="tab-content" id="partidasTabela">
+</div>
+<div class="tab-content">
+<form id="formularioVoo">
+<input class="half" id="companhia" placeholder="Companhia" required="" type="text"/>
+<input class="half" id="voo" placeholder="Voo" required="" type="text"/>
+<input class="half" id="cidade" placeholder="Cidade" required="" type="text"/>
+<input class="half" id="icao" placeholder="ICAO" required="" type="text"/>
+<input class="half" id="pais" placeholder="País" required="" type="text"/>
+<input class="half" id="horario" placeholder="Horário" required="" type="time"/>
+<input class="half" id="aeronave" placeholder="Aeronave" required="" type="text"/>
+<input class="half" id="tps" placeholder="TPS" required="" type="number"/>
+<select class="half" id="tipo" onchange="atualizarStatusMenu()">
+<option value="chegada">
       Chegada
      </option>
-     <option value="partida">
+<option value="partida">
       Partida
      </option>
-    </select>
-    <button onclick="adicionarVoo()" type="button">
+</select>
+<button onclick="adicionarVoo()" type="button">
      Adicionar Voo
     </button>
-    <div id="statusBlocos">
-     <div id="statusPousoBloco" style="display:none;">
-      <label for="statusPouso">
+<div id="statusBlocos">
+<div id="statusPousoBloco" style="display:none;">
+<label for="statusPouso">
        Status de Pouso:
       </label>
-      <select class="half" id="statusPouso" onchange="verificarStatusSubmenu()">
-       <option value="Estimated">
+<select class="half" id="statusPouso" onchange="verificarStatusSubmenu()">
+<option value="Estimated">
         Estimated
        </option>
-       <option value="Confirmed">
+<option value="Confirmed">
         Confirmed
        </option>
-       <option value="Landing">
+<option value="Landing">
         Landing
        </option>
-       <option value="Landed">
+<option value="Landed">
         Landed
        </option>
-       <option value="Delayed">
+<option value="Delayed">
         Delayed
        </option>
-       <option value="Cancelled">
+<option value="Cancelled">
         Cancelled
        </option>
-       <option value="Unknown">
+<option value="Unknown">
         Unknown
        </option>
-       <option value="Deplaining">
+<option value="Deplaining">
         Deplaining
        </option>
-      </select>
-     </div>
-     <div id="statusDecolagemBloco" style="display:none;">
-      <label for="statusDecolagem">
+</select>
+</div>
+<div id="statusDecolagemBloco" style="display:none;">
+<label for="statusDecolagem">
        Status de Decolagem:
       </label>
-      <select class="half" id="statusDecolagem" onchange="verificarStatusSubmenu()">
-       <option value="Estimated">
+<select class="half" id="statusDecolagem" onchange="verificarStatusSubmenu()">
+<option value="Estimated">
         Estimated
        </option>
-       <option value="Confirmed">
+<option value="Confirmed">
         Confirmed
        </option>
-       <option value="Check-in Opened">
+<option value="Check-in Opened">
         Check-in Opened
        </option>
-       <option value="Boarding Now">
+<option value="Boarding Now">
         Boarding Now
        </option>
-       <option value="Last Call">
+<option value="Last Call">
         Last Call
        </option>
-       <option value="Taking Off">
+<option value="Taking Off">
         Taking Off
        </option>
-       <option value="Finished">
+<option value="Finished">
         Finished
        </option>
-       <option value="Delayed">
+<option value="Delayed">
         Delayed
        </option>
-       <option value="Cancelled">
+<option value="Cancelled">
         Cancelled
        </option>
-       <option value="Unknown">
+<option value="Unknown">
         Unknown
        </option>
-      </select>
-     </div>
-     <input id="confirmadoHorario" placeholder="Horário Confirmado" style="display:none;" type="time"/>
-    </div>
-    <div id="mensagem-sucesso">
+</select>
+</div>
+<input id="confirmadoHorario" placeholder="Horário Confirmado" style="display:none;" type="time"/>
+</div>
+<div id="mensagem-sucesso">
      Voo adicionado com sucesso!
     </div>
-   </form>
-  </div>
-  <script>
-   let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+</form>
+</div>
+
+
+<script>
+let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
 let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
 function trocarAba(indice) {
@@ -244,62 +247,11 @@ function renderTabela(registros, destinoId) {
 
   registros.forEach((e, index) => {
     const logo = `<td class='logo-cell'><img class='logo' src='logos/${(e.companhia || "").toLowerCase().replace(/[^a-z0-9]/g, "_")}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-    const statusOptions = tipo === 'chegada'
-      ? ["Estimated", "Confirmed", "Landing", "Landed", "Delayed", "Cancelled", "Unknown", "Deplaining"]
-      : ["Estimated", "Confirmed", "Check-in Opened", "Boarding Now", "Last Call", "Taking Off", "Finished", "Delayed", "Cancelled", "Unknown"];
-    const baseStatus = (e.status || "").split(" ")[0];
-    const horarioExtra = (e.status || "").split(" ")[1] || "";
-
-    let select = `<select data-index='${index}' data-tipo='${tipo}' onchange='atualizarStatusTabela(this)'>`;
-    statusOptions.forEach(opt => {
-      select += `<option value="${opt}" ${baseStatus === opt ? "selected" : ""}>${opt}</option>`;
-    });
-    select += `</select>`;
-
-    const input = `<input type="time" class="confirmado-input" data-index="${index}" data-tipo="${tipo}" value="${baseStatus === 'Confirmed' ? horarioExtra : ''}" style="display:${baseStatus === 'Confirmed' ? 'inline-block' : 'none'};" onchange="atualizarStatusTabela(this)">`;
-
-    html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${parseInt(e.tps) || ''}</td><td>${select + input}</td></tr>`;
+    html += `<tr>${logo}<td>${e.voo || ''}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td><td>${e.horario || ''}</td><td>${e.aeronave || ''}</td><td>${parseInt(e.tps) || ''}</td><td>${e.status || ''}</td></tr>`;
   });
 
   html += '</tbody></table>';
   document.getElementById(destinoId).innerHTML = html;
-}
-
-function atualizarStatusTabela(el) {
-  const row = el.closest("tr");
-  const select = row.querySelector("select");
-  const input = row.querySelector("input[type='time']");
-  const tipo = select.dataset.tipo;
-  const index = parseInt(select.dataset.index);
-
-  let status = select.value;
-  if (status === "Confirmed" && input.value) {
-    status += " " + input.value;
-    input.style.display = "inline-block";
-  } else {
-    input.style.display = "none";
-  }
-
-  if (tipo === "chegada") registrosChegadas[index].status = status;
-  else registrosPartidas[index].status = status;
-
-  salvarDados();
-  atualizarTabelas();
-
-  if (status.startsWith("Finished")) {
-    setTimeout(() => {
-      const linha = el.closest("tr");
-      linha.style.transition = "transform 10s ease-in-out, opacity 10s";
-      linha.style.transform = "rotateX(90deg)";
-      linha.style.opacity = "0";
-      setTimeout(() => {
-        if (tipo === "chegada") registrosChegadas.splice(index, 1);
-        else registrosPartidas.splice(index, 1);
-        salvarDados();
-        atualizarTabelas();
-      }, 10000);
-    }, 120000);
-  }
 }
 
 function atualizarTabelas() {
@@ -327,11 +279,9 @@ function salvarBackup() {
   document.getElementById('backup').value = JSON.stringify(dados, null, 2);
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
   atualizarTabelas();
 });
-atualizarTabelas();
-  </script>
- </body>
+</script>
+</body>
 </html>
