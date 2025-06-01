@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Painel de Voos com Flip</title>
-<style>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Painel de Voos com Flip</title>
+  <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #000;
@@ -87,7 +87,7 @@
     .submenu.active {
       visibility: visible;
     }
-</style>
+  </style>
 </head>
 <body>
 <audio id="placaGirandoSom" src="placa_girando.mp3" preload="auto" loop></audio>
@@ -101,6 +101,15 @@
 <div class="tab-content" id="partidasTabela"></div>
 
 <script>
+function trocarAba(indice) {
+  const abas = document.querySelectorAll(".tab");
+  const conteudos = document.querySelectorAll(".tab-content");
+  abas.forEach((aba, i) => {
+    aba.classList.toggle("active", i === indice);
+    conteudos[i].classList.toggle("active", i === indice);
+  });
+}
+
 function atualizarStatusTabela(el) {
   const row = el.closest("tr");
   const select = row.querySelector("select");
@@ -143,6 +152,14 @@ function atualizarStatusTabela(el) {
       el.dataset.timeoutId = timeoutId;
     }, 120000);  // Espera 2 minutos antes de iniciar a animação
   }
+}
+
+function salvarDados() {
+  console.log("Dados salvos");
+}
+
+function atualizarTabelas() {
+  console.log("Tabelas atualizadas");
 }
 </script>
 </body>
