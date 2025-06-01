@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel de Voos com Flip</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
+      color: #00d2ff;
+      margin: 0;
+      padding: 0;
+    }
+    .tabs {
+      display: flex;
+      background: #111;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: #ccc;
+    }
+    .tab.active {
+      color: #00d2ff;
+      border-bottom: 2px solid #00d2ff;
+      background: #1e1e1e;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #222;
+      text-align: center;
+      background: #111;
+    }
+    th {
+      background: #222;
+      color: #00d2ff;
+      font-size: 11px;
+    }
+    td {
+      font-size: 13px;
+      color: #eee;
+    }
+    .logo-cell {
+      background: #fff;
+      padding: 4px;
+    }
+    .logo {
+      max-height: 20px;
+    }
+    .flip-out {
+      animation: flipOut 0.7s forwards;
+    }
+    @keyframes flipOut {
+      0% { transform: rotateX(0deg); opacity: 1; }
+      100% { transform: rotateX(90deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab active" onclick="trocarAba(0)">Chegadas</div>
+    <div class="tab" onclick="trocarAba(1)">Partidas</div>
+  </div>
+  <div class="tab-content active" id="chegadasTabela"></div>
+  <div class="tab-content" id="partidasTabela"></div>
+
+  <script>
+    let registrosChegadas = [
+      { companhia: 'EK', voo: 'EK261', cidade: 'Dubai', icao: 'DXB', pais: 'UAE', horario: '23:15', aeronave: 'B77W', tps: 2, status: 'On Time' },
+      { companhia: 'TAP', voo: 'TP2', cidade: 'Lisbon', icao: 'LIS', pais: 'Portugal', horario: '13:40', aeronave: 'A330', tps: 3, status: 'Finished' },
+      { companhia: 'AA', voo: 'AA951', cidade: 'Miami', icao: 'MIA', pais: 'USA', horario: '23:50', aeronave: 'B789', tps: 4, status: 'On Time' },
+      { companhia: 'RYANAIR', voo: 'FR1430', cidade: 'Dublin', icao: 'DUB', pais: 'Ireland', horario: '00:55', aeronave: 'B738', tps: 2, status: 'On Time' }
+    ];
+
+    function trocarAba(indice) {
+      const abas = document.querySelectorAll('.tab');
+      const conteudos = document.querySelectorAll('.tab-content');
+      abas.forEach((aba, i) => {
+        aba.classList.toggle('active', i === indice);
+        conteudos[i].classList.toggle('active', i === indice);
+      });
+    }
+
+    function renderTabela(registros, destinoId) {
+      const hoje = new Date().toISOString().split("T")[0];
+      const amanha = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+      const hojeList = registros.filter(r => r.data !== amanha && r.status !== 'Finished');
+      const amanhaList = registros.filter(r => r.data === amanha && r.status !== 'Finished');
+      hojeList.sort((a, b) => a.horario.localeCompare(b.horario));
+      amanhaList.sort((a, b) => a.horario.localeCompare(b.horario));
+      const finalList = hojeList.concat(amanhaList);
+
+      let html = '<table><thead><tr><th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th><th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th></tr></thead><tbody>';
+      finalList.forEach((e, i) => {
+        html += `<tr>
+          <td class='logo-cell'><img class='logo' src='logos/${e.companhia.toLowerCase()}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>
+          <td>${e.voo}</td><td>${e.cidade}</td><td>${e.icao}</td><td>${e.pais}</td>
+          <td>${e.horario}</td><td>${e.aeronave}</td><td>${e.tps}</td><td>${e.status}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById(destinoId).innerHTML = html;
+
+      // animar voos "Finished"
+      registros.filter(r => r.status === 'Finished').forEach((r, i) => {
+        const row = document.querySelectorAll(`#${destinoId} table tbody tr`)[i];
+        if (row) {
+          row.classList.add('flip-out');
+          setTimeout(() => {
+            row.remove();
+          }, 700);
+        }
+      });
+    }
+
+    renderTabela(registrosChegadas, 'chegadasTabela');
+    renderTabela([], 'partidasTabela');
+  </script>
+</body>
+</html>
