@@ -60,11 +60,12 @@
   </div>
   <div class="tab-content">
     <textarea id="backup" rows="10" placeholder="Cole aqui seu backup JSON ou copie os dados atuais." style="width:100%; font-family:monospace;"></textarea>
-    <input type="file" id="arquivoJson" accept="application/json">
     <br>
-    <button onclick="carregarBackup()">Carregar Backup</button>
-    <button onclick="salvarBackup()">Salvar Backup</button>
-    <button onclick="carregarDeArquivo()">Carregar JSON do Arquivo</button>
+    <input type="file" id="fileInput" accept="application/json" />
+    <br>
+    <button onclick="salvarBackup()">Exportar Backup</button>
+    <button onclick="carregarBackup()">Importar Backup</button>
+    <button onclick="carregarDeArquivo()">Importar Arquivo</button>
   </div>
 
   <script>
@@ -187,21 +188,21 @@
     }
 
     function carregarDeArquivo() {
-      const input = document.getElementById("arquivoJson");
-      const file = input.files[0];
-      if (!file) return alert("Selecione um arquivo JSON primeiro.");
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+      if (!file) return alert("Selecione um arquivo .json primeiro.");
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         try {
-          const backup = JSON.parse(e.target.result);
-          registrosChegadas = backup.chegadas || [];
-          registrosPartidas = backup.partidas || [];
+          const dados = JSON.parse(e.target.result);
+          registrosChegadas = dados.chegadas || [];
+          registrosPartidas = dados.partidas || [];
           salvarDados();
           atualizarTabelas();
-          alert("JSON carregado do arquivo com sucesso!");
-        } catch (err) {
-          alert("Erro ao ler o arquivo JSON: " + err.message);
+          alert("Backup importado com sucesso do arquivo!");
+        } catch (erro) {
+          alert("Erro ao ler o arquivo JSON.");
         }
       };
       reader.readAsText(file);
