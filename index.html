@@ -78,24 +78,40 @@
 
   <div class="tab-content active" id="aba-chegadas">
     <label>Filtrar por Companhia Aérea:</label>
-    <input id="filter-companhia" placeholder="Ex: AIR FRANCE" type="text" oninput="filtrar()"/>
+    <select id="filter-companhia" onchange="filtrar()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por Destino:</label>
-    <input id="filter-destino" placeholder="Ex: Paris" type="text" oninput="filtrar()"/>
+    <select id="filter-destino" onchange="filtrar()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por País:</label>
-    <input id="filter-pais" placeholder="Ex: França" type="text" oninput="filtrar()"/>
+    <select id="filter-pais" onchange="filtrar()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por TPS:</label>
-    <input id="filter-tps" placeholder="Ex: TPS1" type="text" oninput="filtrar()"/>
+    <select id="filter-tps" onchange="filtrar()">
+      <option value="">Selecione</option>
+    </select>
     <div id="chegadasTabela"></div>
   </div>
   <div class="tab-content" id="aba-partidas">
     <label>Filtrar por Companhia Aérea:</label>
-    <input id="filter-companhia-partidas" placeholder="Ex: AIR FRANCE" type="text" oninput="filtrar()"/>
+    <select id="filter-companhia-partidas" onchange="filtrarPartidas()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por Destino:</label>
-    <input id="filter-destino-partidas" placeholder="Ex: Paris" type="text" oninput="filtrar()"/>
+    <select id="filter-destino-partidas" onchange="filtrarPartidas()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por País:</label>
-    <input id="filter-pais-partidas" placeholder="Ex: França" type="text" oninput="filtrar()"/>
+    <select id="filter-pais-partidas" onchange="filtrarPartidas()">
+      <option value="">Selecione</option>
+    </select>
     <label>Filtrar por TPS:</label>
-    <input id="filter-tps-partidas" placeholder="Ex: TPS1" type="text" oninput="filtrar()"/>
+    <select id="filter-tps-partidas" onchange="filtrarPartidas()">
+      <option value="">Selecione</option>
+    </select>
     <div id="partidasTabela"></div>
   </div>
   <div class="tab-content" id="aba-novo">
@@ -170,6 +186,33 @@
 
       html += '</tbody></table>';
       document.getElementById(destinoId).innerHTML = html;
+    }
+
+    function popularSelects() {
+      const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))];
+      const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))];
+      const paises = [...new Set(registrosChegadas.map(voo => voo.pais))];
+      const tps = [...new Set(registrosChegadas.map(voo => voo.tps))];
+
+      const updateSelectOptions = (selectId, options) => {
+        const select = document.getElementById(selectId);
+        options.forEach(option => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option;
+          optionElement.textContent = option;
+          select.appendChild(optionElement);
+        });
+      };
+
+      updateSelectOptions('filter-companhia', ['', ...companhias]);
+      updateSelectOptions('filter-destino', ['', ...destinos]);
+      updateSelectOptions('filter-pais', ['', ...paises]);
+      updateSelectOptions('filter-tps', ['', ...tps]);
+
+      updateSelectOptions('filter-companhia-partidas', ['', ...companhias]);
+      updateSelectOptions('filter-destino-partidas', ['', ...destinos]);
+      updateSelectOptions('filter-pais-partidas', ['', ...paises]);
+      updateSelectOptions('filter-tps-partidas', ['', ...tps]);
     }
 
     function filtrar() {
@@ -285,6 +328,7 @@
     }
 
     window.onload = () => {
+      popularSelects();
       atualizarTabelas();
     };
   </script>
