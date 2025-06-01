@@ -173,7 +173,7 @@ function renderTabela(registros, destinoId) {
       <td>${e.pais}</td>
       <td>${e.horario || ''}</td>
       <td>${e.aeronave || ''}</td>
-      <td>${e.tps || ''}</td>
+      <td>${e.tps ? parseInt(e.tps) : ''}</td>
       <td>${e.status || ''}</td>
       <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
     </tr>`;
