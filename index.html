@@ -192,8 +192,7 @@
   function renderTabela(registros, destinoId) {
     // Garantir que todos os horários estejam no formato correto "HH:mm"
     registros.forEach(voo => {
-      // Adiciona um zero à esquerda para horários como 9:00, para que fique "09:00"
-      voo.horario = voo.horario.padStart(5, '0');
+      voo.horario = voo.horario.padStart(5, '0'); // Formata para "HH:mm"
     });
 
     // Ordena os voos por horário, do mais cedo para o mais tarde
