@@ -77,9 +77,25 @@
   </div>
 
   <div class="tab-content active" id="aba-chegadas">
+    <label>Filtrar por Companhia Aérea:</label>
+    <input id="filter-companhia" placeholder="Ex: AIR FRANCE" type="text" oninput="filtrar()"/>
+    <label>Filtrar por Destino:</label>
+    <input id="filter-destino" placeholder="Ex: Paris" type="text" oninput="filtrar()"/>
+    <label>Filtrar por País:</label>
+    <input id="filter-pais" placeholder="Ex: França" type="text" oninput="filtrar()"/>
+    <label>Filtrar por TPS:</label>
+    <input id="filter-tps" placeholder="Ex: TPS1" type="text" oninput="filtrar()"/>
     <div id="chegadasTabela"></div>
   </div>
   <div class="tab-content" id="aba-partidas">
+    <label>Filtrar por Companhia Aérea:</label>
+    <input id="filter-companhia-partidas" placeholder="Ex: AIR FRANCE" type="text" oninput="filtrar()"/>
+    <label>Filtrar por Destino:</label>
+    <input id="filter-destino-partidas" placeholder="Ex: Paris" type="text" oninput="filtrar()"/>
+    <label>Filtrar por País:</label>
+    <input id="filter-pais-partidas" placeholder="Ex: França" type="text" oninput="filtrar()"/>
+    <label>Filtrar por TPS:</label>
+    <input id="filter-tps-partidas" placeholder="Ex: TPS1" type="text" oninput="filtrar()"/>
     <div id="partidasTabela"></div>
   </div>
   <div class="tab-content" id="aba-novo">
@@ -154,6 +170,38 @@
 
       html += '</tbody></table>';
       document.getElementById(destinoId).innerHTML = html;
+    }
+
+    function filtrar() {
+      const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
+      const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
+      const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
+      const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
+
+      const registrosFiltrados = registrosChegadas.filter(voo =>
+        voo.companhia.toLowerCase().includes(filtroCompanhia) &&
+        voo.cidade.toLowerCase().includes(filtroDestino) &&
+        voo.pais.toLowerCase().includes(filtroPais) &&
+        voo.tps.toLowerCase().includes(filtroTps)
+      );
+
+      renderTabela(registrosFiltrados, 'chegadasTabela');
+    }
+
+    function filtrarPartidas() {
+      const filtroCompanhia = document.getElementById('filter-companhia-partidas').value.toLowerCase();
+      const filtroDestino = document.getElementById('filter-destino-partidas').value.toLowerCase();
+      const filtroPais = document.getElementById('filter-pais-partidas').value.toLowerCase();
+      const filtroTps = document.getElementById('filter-tps-partidas').value.toLowerCase();
+
+      const registrosFiltrados = registrosPartidas.filter(voo =>
+        voo.companhia.toLowerCase().includes(filtroCompanhia) &&
+        voo.cidade.toLowerCase().includes(filtroDestino) &&
+        voo.pais.toLowerCase().includes(filtroPais) &&
+        voo.tps.toLowerCase().includes(filtroTps)
+      );
+
+      renderTabela(registrosFiltrados, 'partidasTabela');
     }
 
     function removerVoo(indice, tipo) {
