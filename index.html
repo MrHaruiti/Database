@@ -5,187 +5,442 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>New Dubai International Airport - DATABASE</title>
   <style>
+    :root {
+      --primary-color: #00d2ff;
+      --background-dark: #101c2c;
+      --background-darker: #0f141a;
+      --background-light: #1b1f24;
+      --background-lighter: #1e2a38;
+      --text-color-light: #eee;
+      --text-color-muted: #8ab4f8;
+      --danger-color: #ff4e50;
+      --danger-color-hover: #e43e3e;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --border-radius: 6px;
+      --max-width-table-cell: 300px;
+      --max-width-logo-cell: 70px;
+      --transition-speed: 0.3s;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: var(--font-family);
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #eee;
+      color: var(--text-color-light);
       margin: 0;
       padding: 0;
-      font-size: 13px;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    .tabs { display: flex; background: #101c2c; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      color: var(--primary-color);
+      padding: 20px 10px 10px;
+      margin: 0;
+      user-select: none;
+    }
+    .tabs {
+      display: flex;
+      background: var(--background-dark);
+      flex-wrap: wrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      user-select: none;
+    }
     .tab {
-      flex: 1; text-align: center; padding: 12px; cursor: pointer;
-      color: #8ab4f8; background: #101c2c; border-bottom: 2px solid transparent;
-      transition: background 0.3s, border-bottom 0.3s;
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: var(--text-color-muted);
+      background: var(--background-dark);
+      border-bottom: 2px solid transparent;
+      transition: background var(--transition-speed), border-bottom var(--transition-speed), color var(--transition-speed);
+      font-weight: 600;
     }
-    .tab:hover { background: #1b2d42; }
+    .tab:hover,
+    .tab:focus-visible {
+      background: #1b2d42;
+      outline: none;
+      color: #a3c9ff;
+    }
     .tab.active {
-      color: #fff; border-bottom: 2px solid #00d2ff; background: #172a3a;
+      color: var(--text-color-light);
+      border-bottom: 2px solid var(--primary-color);
+      background: #172a3a;
+      font-weight: 700;
     }
-    .tab-content { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
-    .tab-content.active { display: block; }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
+      flex-grow: 1;
+    }
+    .tab-content.active {
+      display: block;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
     input, button, textarea, select {
-      padding: 10px; margin: 5px 0; width: 100%;
-      border-radius: 6px; border: 1px solid #444;
-      background-color: #1e2a38; color: #fff;
+      padding: 10px;
+      margin: 5px 0 10px;
+      width: 100%;
+      border-radius: var(--border-radius);
+      border: 1px solid #444;
+      background-color: var(--background-lighter);
+      color: var(--text-color-light);
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 6px var(--primary-color);
+    }
+    input.invalid, select.invalid, textarea.invalid {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 6px var(--danger-color);
+    }
+    .error-message {
+      font-size: 0.85rem;
+      color: var(--danger-color);
+      margin-top: -8px;
+      margin-bottom: 10px;
+      display: none;
     }
     button {
-      background: linear-gradient(to right, #00d2ff, #3a7bd5); color: white;
-      font-weight: bold; border: none; cursor: pointer;
-      transition: transform 0.2s ease;
+      background: linear-gradient(to right, #00d2ff, #3a7bd5);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+      user-select: none;
     }
-    button:hover { transform: scale(1.02); }
+    button:hover {
+      transform: scale(1.02);
+      background: linear-gradient(to right, #3a7bd5, #00d2ff);
+      outline: none;
+    }
+    button:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+      background: var(--background-darker);
+    }
     table {
-      width: 100%; border-collapse: collapse; margin-top: 15px;
-      border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      border: 1px solid #333;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      table-layout: fixed;
+      word-wrap: break-word;
     }
     th, td {
-      padding: 8px 10px; border: 1px solid #2a2a2a; text-align: left;
-      background: #1b1f24; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis; max-width: 300px;
+      padding: 8px 10px;
+      border: 1px solid #2a2a2a;
+      text-align: left;
+      background: var(--background-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: var(--max-width-table-cell);
+      vertical-align: middle;
     }
     th {
-      background: #0f141a; text-transform: uppercase;
-      font-weight: bold; color: #00d2ff;
+      background: var(--background-darker);
+      text-transform: uppercase;
+      font-weight: bold;
+      color: var(--primary-color);
+      user-select: none;
     }
     .remove-btn {
-      background: #ff4e50; border: none; color: white;
-      padding: 6px 12px; border-radius: 4px; cursor: pointer;
+      background: var(--danger-color);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      user-select: none;
+      font-weight: 600;
     }
-    .remove-btn:hover { background: #e43e3e; }
-    img.logo { height: 30px; vertical-align: middle; margin-right: 8px; }
+    .remove-btn:hover,
+    .remove-btn:focus-visible {
+      background: var(--danger-color-hover);
+      outline: none;
+    }
+    .remove-btn:focus-visible {
+      outline: 2px solid var(--danger-color-hover);
+      outline-offset: 2px;
+    }
+    img.logo {
+      height: 30px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
     td.logo-cell {
-      background-color: #fff; padding: 5px; border-radius: 4px;
-      text-align: center; width: 70px; min-width: 70px; max-width: 70px;
+      background-color: #fff;
+      padding: 5px;
+      border-radius: 4px;
+      text-align: center;
+      width: var(--max-width-logo-cell);
+      min-width: var(--max-width-logo-cell);
+      max-width: var(--max-width-logo-cell);
     }
     td.logo-cell img {
-      width: 60px; max-height: 40px; object-fit: contain;
+      width: 60px;
+      max-height: 40px;
+      object-fit: contain;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 24px;
+      }
+      label {
+        margin-top: 10px;
+      }
+      .tabs {
+        font-size: 0.9rem;
+      }
+      th, td {
+        white-space: normal;
+        max-width: 150px;
+        font-size: 0.85rem;
+        padding: 6px 8px;
+      }
+      td.logo-cell {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+      }
+      td.logo-cell img {
+        width: 45px;
+        max-height: 30px;
+      }
+    }
+    textarea#output {
+      height: 150px;
+      resize: vertical;
+      font-family: monospace;
+      background-color: var(--background-lighter);
+      color: var(--text-color-light);
+    }
+    .loading-indicator {
+      display: none;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1 style="text-align: center; font-size: 32px; color: #00d2ff; padding: 20px;">New Dubai International Airport</h1>
+  <h1 tabindex="0">New Dubai International Airport</h1>
 
-  <div class="tabs">
-    <div class="tab active" onclick="trocarAba(0)">🛬 Chegadas</div>
-    <div class="tab" onclick="trocarAba(1)">🛫 Partidas</div>
-    <div class="tab" onclick="trocarAba(2)">➕ Novo Voo</div>
-    <div class="tab" onclick="trocarAba(3)">💾 Backup</div>
-  </div>
+  <nav class="tabs" role="tablist" aria-label="Navegação das abas">
+    <button role="tab" aria-selected="true" aria-controls="aba-chegadas" id="tab-chegadas" class="tab active" onclick="trocarAba(0)" onkeyup="handleKey(event, 0)">🛬 Chegadas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-partidas" id="tab-partidas" class="tab" onclick="trocarAba(1)" onkeyup="handleKey(event, 1)">🛫 Partidas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-novo" id="tab-novo" class="tab" onclick="trocarAba(2)" onkeyup="handleKey(event, 2)">➕ Novo Voo</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-backup" id="tab-backup" class="tab" onclick="trocarAba(3)" onkeyup="handleKey(event, 3)">💾 Backup</button>
+  </nav>
 
-  <div class="tab-content active" id="aba-chegadas">
-    <label>Filtrar por Companhia Aérea:</label>
-    <select id="filter-companhia" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por Destino:</label>
-    <select id="filter-destino" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por País:</label>
-    <select id="filter-pais" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por TPS:</label>
-    <select id="filter-tps" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <div id="chegadasTabela"></div>
-  </div>
-  <div class="tab-content" id="aba-partidas">
-    <label>Filtrar por Companhia Aérea:</label>
-    <select id="filter-companhia-partidas" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por Destino:</label>
-    <select id="filter-destino-partidas" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por País:</label>
-    <select id="filter-pais-partidas" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <label>Filtrar por TPS:</label>
-    <select id="filter-tps-partidas" onchange="filtrar()">
-      <option value="">Selecione</option>
-    </select>
-    <div id="partidasTabela"></div>
-  </div>
-  <div class="tab-content" id="aba-novo">
-    <label>Companhia Aérea:</label><input id="companhia" placeholder="Ex: AIR FRANCE" type="text"/>
-    <label>Cidade (Destino):</label><input id="cidade" placeholder="Ex: Paris" type="text"/>
-    <label>Código ICAO:</label><input id="icao" placeholder="Ex: LFPG" type="text"/>
-    <label>País:</label><input id="pais" placeholder="Ex: França" type="text"/>
-    <label>Voo (Flight):</label><input id="voo" placeholder="Ex: 01234" type="text"/>
-    <label>Horário (Time):</label><input id="horario" placeholder="Ex: 14:35" type="text"/>
-    <label>Aeronave (A/C):</label><input id="aeronave" placeholder="Ex: A320" type="text"/>
-    <label>Status:</label><input id="status" placeholder="Ex: Confirmado" type="text"/>
-    <label>TPS:</label><input id="tps" placeholder="Ex: TPS1" type="text"/>
-    <label>Tipo:</label>
-    <select id="tipo">
-      <option value="chegada">Chegada</option>
-      <option value="partida">Partida</option>
-    </select>
-    <button onclick="adicionarVoo()">Adicionar</button>
-  </div>
-  <div class="tab-content" id="aba-backup">
-    <button onclick="exportarBackup()">⬇️ Exportar Backup</button>
-    <button onclick="document.getElementById('importar').click()">⬆️ Importar Backup</button>
-    <input accept=".json" id="importar" onchange="importarBackup(event)" style="display:none" type="file"/>
-    <textarea id="output" placeholder="Exportação em formato texto"></textarea>
-  </div>
+  <main>
+    <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
+      <label for="filter-companhia">Filtrar por Companhia Aérea:</label>
+      <select id="filter-companhia" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-destino">Filtrar por Destino:</label>
+      <select id="filter-destino" aria-label="Filtrar por Destino" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-pais">Filtrar por País:</label>
+      <select id="filter-pais" aria-label="Filtrar por País" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-tps">Filtrar por TPS:</label>
+      <select id="filter-tps" aria-label="Filtrar por TPS" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+      <div id="chegadasTabela" aria-live="polite" aria-relevant="all"></div>
+    </section>
+
+    <section class="tab-content" id="aba-partidas" role="tabpanel" aria-labelledby="tab-partidas" tabindex="0">
+      <label for="filter-companhia-partidas">Filtrar por Companhia Aérea:</label>
+      <select id="filter-companhia-partidas" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-destino-partidas">Filtrar por Destino:</label>
+      <select id="filter-destino-partidas" aria-label="Filtrar por Destino" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-pais-partidas">Filtrar por País:</label>
+      <select id="filter-pais-partidas" aria-label="Filtrar por País" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-tps-partidas">Filtrar por TPS:</label>
+      <select id="filter-tps-partidas" aria-label="Filtrar por TPS" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+      <div id="partidasTabela" aria-live="polite" aria-relevant="all"></div>
+    </section>
+
+    <section class="tab-content" id="aba-novo" role="tabpanel" aria-labelledby="tab-novo" tabindex="0" aria-live="polite">
+      <form id="formNovoVoo" novalidate>
+        <label for="companhia">Companhia Aérea: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="companhia" name="companhia" placeholder="Ex: AIR FRANCE" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-companhia"/>
+        <div id="erro-companhia" class="error-message" aria-live="assertive">Por favor, preencha a Companhia Aérea.</div>
+
+        <label for="cidade">Cidade (Destino): <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="cidade" name="cidade" placeholder="Ex: Paris" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-cidade"/>
+        <div id="erro-cidade" class="error-message" aria-live="assertive">Por favor, preencha a Cidade.</div>
+
+        <label for="icao">Código ICAO: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="icao" name="icao" placeholder="Ex: LFPG" type="text" autocomplete="off" required aria-required="true" maxlength="4" aria-describedby="erro-icao" style="text-transform: uppercase;" />
+        <div id="erro-icao" class="error-message" aria-live="assertive">Por favor, preencha um código ICAO válido (4 letras).</div>
+
+        <label for="pais">País: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="pais" name="pais" placeholder="Ex: França" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-pais"/>
+        <div id="erro-pais" class="error-message" aria-live="assertive">Por favor, preencha o País.</div>
+
+        <label for="voo">Voo (Flight):</label>
+        <input id="voo" name="voo" placeholder="Ex: 01234" type="text" autocomplete="off" aria-describedby="erro-voo"/>
+
+        <label for="horario">Horário (Time - HH:MM):</label>
+        <input id="horario" name="horario" placeholder="Ex: 14:35" type="text" autocomplete="off" aria-describedby="erro-horario" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
+        <div id="erro-horario" class="error-message" aria-live="assertive">Formato inválido. Utilize HH:MM.</div>
+
+        <label for="aeronave">Aeronave (A/C):</label>
+        <input id="aeronave" name="aeronave" placeholder="Ex: A320" type="text" autocomplete="off" />
+
+        <label for="status">Status:</label>
+        <input id="status" name="status" placeholder="Ex: Confirmado" type="text" autocomplete="off" />
+
+        <label for="tps">TPS:</label>
+        <input id="tps" name="tps" placeholder="Ex: TPS1" type="text" autocomplete="off" />
+
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo" aria-label="Tipo de voo">
+          <option value="chegada">Chegada</option>
+          <option value="partida">Partida</option>
+        </select>
+
+        <button type="submit" id="btnAdicionarVoo" aria-live="polite" disabled>Adicionar</button>
+        <div class="loading-indicator" id="loadingNovoVoo" aria-live="polite" role="status">Processando...</div>
+      </form>
+    </section>
+
+    <section class="tab-content" id="aba-backup" role="tabpanel" aria-labelledby="tab-backup" tabindex="0" aria-live="polite">
+      <button id="btnExportarBackup" aria-label="Exportar backup de voos">⬇️ Exportar Backup</button>
+      <button id="btnImportarBackup" aria-label="Selecionar arquivo para importar backup">⬆️ Importar Backup</button>
+      <input accept=".json" id="importar" aria-hidden="true" style="display:none" type="file" />
+      <textarea id="output" placeholder="Exportação em formato texto" aria-label="Área de texto para exportação de dados" readonly></textarea>
+      <div class="loading-indicator" id="loadingBackup" aria-live="polite" role="status">Processando...</div>
+    </section>
+  </main>
 
   <script>
+    // Data loaded from localStorage or empty arrays
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
-    
+
     let registrosFiltradosChegadas = registrosChegadas;
     let registrosFiltradosPartidas = registrosPartidas;
 
+    // Tab switching with ARIA support and keyboard navigation
     function trocarAba(indice) {
-      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === indice));
-      document.querySelectorAll('.tab-content').forEach((el, i) => el.classList.toggle('active', i === indice));
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabs.forEach((el, i) => {
+        const selected = i === indice;
+        el.classList.toggle('active', selected);
+        el.setAttribute('aria-selected', selected);
+        el.tabIndex = selected ? 0 : -1;
+        tabContents[i].classList.toggle('active', selected);
+      });
+      tabContents[indice].focus();
+      // Refresh selects on data change to reflect correct options
+      popularSelects();
+      filtrar();
     }
 
+    // Support keyboard arrow navigation for tabs
+    function handleKey(event, idx) {
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      if(event.key === 'ArrowRight') {
+        const next = (idx + 1) % tabs.length;
+        tabs[next].focus();
+        trocarAba(next);
+        event.preventDefault();
+      } else if(event.key === 'ArrowLeft') {
+        const prev = (idx - 1 + tabs.length) % tabs.length;
+        tabs[prev].focus();
+        trocarAba(prev);
+        event.preventDefault();
+      }
+    }
+
+    // Normalize names for logo filenames
     function normalizarNome(nome) {
       return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
     }
 
+    // Render table with sorted data and logos
     function renderTabela(registros, destinoId) {
       registros.forEach(voo => {
-        voo.horario = voo.horario.padStart(5, '0');
+        if (voo.horario && voo.horario.length < 5 && voo.horario.includes(':')) {
+          voo.horario = voo.horario.padStart(5, '0');
+        }
       });
 
       registros.sort((a, b) => {
-        const [aHour, aMinute] = a.horario.split(':').map(Number);
-        const [bHour, bMinute] = b.horario.split(':').map(Number);
+        const [aHour, aMinute] = (a.horario || "00:00").split(':').map(Number);
+        const [bHour, bMinute] = (b.horario || "00:00").split(':').map(Number);
         if (aHour !== bHour) return aHour - bHour;
         return aMinute - bMinute;
       });
 
       let html = '<table><thead><tr>' +
-        '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+        '<th aria-label="Logo da Companhia">AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
         '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
         '</tr></thead><tbody>';
 
       registros.forEach((e, i) => {
-        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
         html += `<tr>
           ${logo}
-          <td>${e.voo || ''}</td>
-          <td>${e.cidade}</td>
-          <td>${e.icao}</td>
-          <td>${e.pais}</td>
-          <td>${e.horario || ''}</td>
-          <td>${e.aeronave || ''}</td>
-          <td>${e.tps || ''}</td>
-          <td>${e.status || ''}</td>
-          <td><button class='remove-btn' onclick='removerVoo(${i}, "${destinoId}")'>✖</button></td>
+          <td>${sanitizeHTML(e.voo || '')}</td>
+          <td>${sanitizeHTML(e.cidade)}</td>
+          <td>${sanitizeHTML(e.icao)}</td>
+          <td>${sanitizeHTML(e.pais)}</td>
+          <td>${sanitizeHTML(e.horario || '')}</td>
+          <td>${sanitizeHTML(e.aeronave || '')}</td>
+          <td>${sanitizeHTML(e.tps || '')}</td>
+          <td>${sanitizeHTML(e.status || '')}</td>
+          <td><button class='remove-btn' aria-label="Remover voo ${e.voo || ''} para ${e.cidade}" onclick='confirmRemoverVoo(${i}, "${destinoId}")'>✖</button></td>
         </tr>`;
       });
 
@@ -193,14 +448,40 @@
       document.getElementById(destinoId).innerHTML = html;
     }
 
+    // Sanitization function to prevent XSS
+    function sanitizeHTML(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Populate filter selects with unique sorted options
     function popularSelects() {
-      const companhias = [...new Set(registrosChegadas.map(voo => voo.companhia))].sort();
-      const destinos = [...new Set(registrosChegadas.map(voo => voo.cidade))].sort();
-      const paises = [...new Set(registrosChegadas.map(voo => voo.pais))].sort();
-      const tps = [...new Set(registrosChegadas.map(voo => voo.tps))].sort();
+      // Clear existing options before populating to avoid duplicates
+      const selectIds = [
+        'filter-companhia', 'filter-destino', 'filter-pais', 'filter-tps',
+        'filter-companhia-partidas', 'filter-destino-partidas', 'filter-pais-partidas', 'filter-tps-partidas'
+      ];
+      selectIds.forEach(id => {
+        const select = document.getElementById(id);
+        while(select && select.options.length > 1){
+          select.removeChild(select.lastChild);
+        }
+      });
+
+      // Use Set for unique values
+      const companhias = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.companhia))].sort();
+      const destinos = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.cidade))].sort();
+      const paises = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.pais))].sort();
+      const tps = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.tps))].sort();
 
       const updateSelectOptions = (selectId, options) => {
         const select = document.getElementById(selectId);
+        if(!select) return;
         options.forEach(option => {
           const optionElement = document.createElement('option');
           optionElement.value = option;
@@ -209,128 +490,277 @@
         });
       };
 
-      updateSelectOptions('filter-companhia', ['', ...companhias]);
-      updateSelectOptions('filter-destino', ['', ...destinos]);
-      updateSelectOptions('filter-pais', ['', ...paises]);
-      updateSelectOptions('filter-tps', ['', ...tps]);
+      updateSelectOptions('filter-companhia', [''].concat(companhias));
+      updateSelectOptions('filter-destino', [''].concat(destinos));
+      updateSelectOptions('filter-pais', [''].concat(paises));
+      updateSelectOptions('filter-tps', [''].concat(tps));
 
-      updateSelectOptions('filter-companhia-partidas', ['', ...companhias]);
-      updateSelectOptions('filter-destino-partidas', ['', ...destinos]);
-      updateSelectOptions('filter-pais-partidas', ['', ...paises]);
-      updateSelectOptions('filter-tps-partidas', ['', ...tps]);
+      updateSelectOptions('filter-companhia-partidas', [''].concat(companhias));
+      updateSelectOptions('filter-destino-partidas', [''].concat(destinos));
+      updateSelectOptions('filter-pais-partidas', [''].concat(paises));
+      updateSelectOptions('filter-tps-partidas', [''].concat(tps));
     }
 
+    // Filtering function considering selects in both tabs
     function filtrar() {
-  const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
-  const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
-  const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
-  const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
+      // Filters for Chegadas
+      const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
+      const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
+      const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
+      const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
 
-  // Filtrar Chegadas
-  registrosFiltradosChegadas = registrosChegadas.filter(voo =>
-    (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
-    (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
-    (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
-    (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
-  );
+      registrosFiltradosChegadas = registrosChegadas.filter(voo =>
+        (filtroCompanhia === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhia))) &&
+        (filtroDestino === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestino))) &&
+        (filtroPais === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPais))) &&
+        (filtroTps === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTps)))
+      );
 
-  // Filtrar Partidas
-  registrosFiltradosPartidas = registrosPartidas.filter(voo =>
-    (filtroCompanhia === '' || voo.companhia.toLowerCase().includes(filtroCompanhia)) &&
-    (filtroDestino === '' || voo.cidade.toLowerCase().includes(filtroDestino)) &&
-    (filtroPais === '' || voo.pais.toLowerCase().includes(filtroPais)) &&
-    (filtroTps === '' || voo.tps.toLowerCase().includes(filtroTps))
-  );
+      // Filters for Partidas
+      const filtroCompanhiaP = document.getElementById('filter-companhia-partidas').value.toLowerCase();
+      const filtroDestinoP = document.getElementById('filter-destino-partidas').value.toLowerCase();
+      const filtroPaisP = document.getElementById('filter-pais-partidas').value.toLowerCase();
+      const filtroTpsP = document.getElementById('filter-tps-partidas').value.toLowerCase();
 
-  renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
-  renderTabela(registrosFiltradosPartidas, 'partidasTabela');
-}
+      registrosFiltradosPartidas = registrosPartidas.filter(voo =>
+        (filtroCompanhiaP === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhiaP))) &&
+        (filtroDestinoP === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestinoP))) &&
+        (filtroPaisP === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPaisP))) &&
+        (filtroTpsP === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTpsP)))
+      );
 
-
-    function removerVoo(indice, tipo) {
-      if (tipo === 'chegadasTabela') registrosChegadas.splice(indice, 1);
-      else registrosPartidas.splice(indice, 1);
-      salvarDados();
-      atualizarTabelas();
+      renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+      renderTabela(registrosFiltradosPartidas, 'partidasTabela');
     }
 
-    function adicionarVoo() {
-      const companhia = document.getElementById("companhia").value.trim();
-      const cidade = document.getElementById("cidade").value.trim();
-      const icao = document.getElementById("icao").value.trim().toUpperCase();
-      const pais = document.getElementById("pais").value.trim();
-      const voo = document.getElementById("voo").value.trim();
-      const horario = document.getElementById("horario").value.trim();
-      const aeronave = document.getElementById("aeronave").value.trim();
-      const status = document.getElementById("status").value.trim();
-      const tps = document.getElementById("tps").value.trim();
-      const tipo = document.getElementById("tipo").value;
+    // Confirm and then remove a flight from data arrays
+    function confirmRemoverVoo(indice, tipo) {
+      let voo = null;
+      if (tipo === 'chegadasTabela') {
+        voo = registrosFiltradosChegadas[indice];
+      } else {
+        voo = registrosFiltradosPartidas[indice];
+      }
+      const confirmacao = confirm(`Tem certeza que deseja remover o voo ${voo.voo || '(sem código)'} para ${voo.cidade}?`);
+      if (confirmacao) {
+        removerVoo(indice, tipo);
+      }
+    }
 
-      if (!companhia || !cidade || !icao || !pais) {
-        alert("Preencha todos os campos obrigatórios!");
+    // Remove flight and update storage/tables
+    function removerVoo(indice, tipo) {
+      if (tipo === 'chegadasTabela') {
+        const globalIndex = registrosChegadas.indexOf(registrosFiltradosChegadas[indice]);
+        if (globalIndex > -1) registrosChegadas.splice(globalIndex, 1);
+      } else {
+        const globalIndex = registrosPartidas.indexOf(registrosFiltradosPartidas[indice]);
+        if (globalIndex > -1) registrosPartidas.splice(globalIndex, 1);
+      }
+      salvarDados();
+      filtrar();
+    }
+
+    // Adding flight with validation and feedback
+    function adicionarVoo(event) {
+      event.preventDefault();
+      clearValidation();
+
+      const companhiaEl = document.getElementById("companhia");
+      const cidadeEl = document.getElementById("cidade");
+      const icaoEl = document.getElementById("icao");
+      const paisEl = document.getElementById("pais");
+      const vooEl = document.getElementById("voo");
+      const horarioEl = document.getElementById("horario");
+      const aeronaveEl = document.getElementById("aeronave");
+      const statusEl = document.getElementById("status");
+      const tpsEl = document.getElementById("tps");
+      const tipoEl = document.getElementById("tipo");
+
+      let valid = true;
+
+      // Required fields validation
+      if (!companhiaEl.value.trim()) {
+        setInvalid(companhiaEl, 'erro-companhia');
+        valid = false;
+      }
+      if (!cidadeEl.value.trim()) {
+        setInvalid(cidadeEl, 'erro-cidade');
+        valid = false;
+      }
+      if (!icaoEl.value.trim() || !/^[A-Z]{4}$/.test(icaoEl.value.trim().toUpperCase())) {
+        setInvalid(icaoEl, 'erro-icao');
+        valid = false;
+      }
+      if (!paisEl.value.trim()) {
+        setInvalid(paisEl, 'erro-pais');
+        valid = false;
+      }
+
+      if (horarioEl.value.trim()) {
+        if (!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(horarioEl.value.trim())) {
+          setInvalid(horarioEl, 'erro-horario');
+          valid = false;
+        }
+      }
+
+      if (!valid) {
         return;
       }
+
+      const companhia = companhiaEl.value.trim();
+      const cidade = cidadeEl.value.trim();
+      const icao = icaoEl.value.trim().toUpperCase();
+      const pais = paisEl.value.trim();
+      const voo = vooEl.value.trim();
+      const horario = horarioEl.value.trim();
+      const aeronave = aeronaveEl.value.trim();
+      const status = statusEl.value.trim();
+      const tps = tpsEl.value.trim();
+      const tipo = tipoEl.value;
 
       const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps };
       const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
 
+      // Check for duplicates (airline + city + ICAO)
       if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
         registros.push(novoRegistro);
+      } else {
+        alert('Este voo já está cadastrado.');
+        return;
       }
 
       salvarDados();
+      // Reset form fields
+      document.getElementById("formNovoVoo").reset();
+      document.getElementById("btnAdicionarVoo").setAttribute('disabled', 'disabled');
       atualizarTabelas();
+      popularSelects();
+      trocarAba(0); // Go back to Chegadas tab after add
 
-      document.getElementById("companhia").value = "";
-      document.getElementById("cidade").value = "";
-      document.getElementById("icao").value = "";
-      document.getElementById("pais").value = "";
-      document.getElementById("voo").value = "";
-      document.getElementById("horario").value = "";
-      document.getElementById("aeronave").value = "";
-      document.getElementById("status").value = "";
-      document.getElementById("tps").value = "";
+      alert("Voo adicionado com sucesso!");
     }
 
+    // Set invalid style and show error message
+    function setInvalid(element, errorId) {
+      element.classList.add('invalid');
+      const errorEl = document.getElementById(errorId);
+      if(errorEl) errorEl.style.display = 'block';
+    }
+
+    // Clear all validation errors
+    function clearValidation() {
+      const inputs = document.querySelectorAll('#formNovoVoo input, #formNovoVoo select');
+      inputs.forEach(input => input.classList.remove('invalid'));
+      const errorMessages = document.querySelectorAll('#formNovoVoo .error-message');
+      errorMessages.forEach(error => error.style.display = 'none');
+    }
+
+    // Enable/disable submit button based on required fields filled
+    function validarForm() {
+      const companhia = document.getElementById("companhia").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const icao = document.getElementById("icao").value.trim();
+      const pais = document.getElementById("pais").value.trim();
+
+      const btnAdicionar = document.getElementById("btnAdicionarVoo");
+
+      if (companhia && cidade && icao && pais) {
+        btnAdicionar.removeAttribute('disabled');
+      } else {
+        btnAdicionar.setAttribute('disabled', 'disabled');
+      }
+    }
+
+    // Save data to localStorage
     function salvarDados() {
       localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
       localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
     }
 
+    // Update all tables
     function atualizarTabelas() {
-      renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
-      renderTabela(registrosFiltradosPartidas, 'partidasTabela');
+      filtrar();
     }
 
+    // Export data as a JSON file and show in textarea
     function exportarBackup() {
-      const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
-      const texto = JSON.stringify(backup, null, 2);
-      const blob = new Blob([texto], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "backup_voos.json";
-      link.click();
-      document.getElementById("output").value = texto;
+      const loadingEl = document.getElementById('loadingBackup');
+      loadingEl.style.display = 'inline';
+
+      setTimeout(() => {
+        const backup = { chegadas: registrosChegadas, partidas: registrosPartidas };
+        const texto = JSON.stringify(backup, null, 2);
+        const blob = new Blob([texto], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "backup_voos.json";
+        link.click();
+        document.getElementById("output").value = texto;
+
+        loadingEl.style.display = 'none';
+        alert('Backup exportado com sucesso!');
+      }, 200);
     }
 
+    // Import data from JSON file input
     function importarBackup(event) {
+      const loadingEl = document.getElementById('loadingBackup');
+      loadingEl.style.display = 'inline';
+
       const file = event.target.files[0];
+      if (!file) {
+        loadingEl.style.display = 'none';
+        return;
+      }
       const reader = new FileReader();
       reader.onload = function(e) {
-        const data = JSON.parse(e.target.result);
-        if (data.chegadas) registrosChegadas = data.chegadas;
-        if (data.partidas) registrosPartidas = data.partidas;
-        salvarDados();
-        atualizarTabelas();
-        alert("Backup importado com sucesso!");
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.chegadas && Array.isArray(data.chegadas)) registrosChegadas = data.chegadas;
+          if (data.partidas && Array.isArray(data.partidas)) registrosPartidas = data.partidas;
+          salvarDados();
+          atualizarTabelas();
+          popularSelects();
+          alert("Backup importado com sucesso!");
+        } catch (error) {
+          alert("Arquivo inválido ou corrompido!");
+        } finally {
+          loadingEl.style.display = 'none';
+          document.getElementById('importar').value = "";
+        }
       };
       reader.readAsText(file);
     }
 
+    // Initialize form event listeners for validation and submission
+    function initFormListeners() {
+      const form = document.getElementById('formNovoVoo');
+      form.addEventListener('submit', adicionarVoo);
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      inputs.forEach(input => {
+        input.addEventListener('input', validarForm);
+      });
+      validarForm(); // Initial check
+    }
+
+    // XSS sanitizer on inputs
+    function sanitizeInput(event) {
+      // We sanitize only on form submission, so no need here currently.
+    }
+
+    // On window load, setup selects, tables, and listeners
     window.onload = () => {
       popularSelects();
       atualizarTabelas();
+      initFormListeners();
+
+      document.getElementById('btnExportarBackup').addEventListener('click', exportarBackup);
+      document.getElementById('btnImportarBackup').addEventListener('click', () => {
+        document.getElementById('importar').click();
+      });
+      document.getElementById('importar').addEventListener('change', importarBackup);
     };
   </script>
 </body>
 </html>
+
