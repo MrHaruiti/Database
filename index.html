@@ -1,3 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>New Dubai International Airport - DATABASE</title>
+  <style>
+    :root {
+      --primary-color: #00d2ff;
+      --background-dark: #101c2c;
+      --background-darker: #0f141a;
+      --background-light: #1b1f24;
+      --background-lighter: #1e2a38;
+      --text-color-light: #eee;
+      --text-color-muted: #8ab4f8;
+      --danger-color: #ff4e50;
+      --danger-color-hover: #e43e3e;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --border-radius: 6px;
+      --max-width-table-cell: 300px;
+      --max-width-logo-cell: 70px;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: var(--text-color-light);
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      color: var(--primary-color);
+      padding: 20px 10px 10px;
+      margin: 0;
+      user-select: none;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--background-dark);
+      flex-wrap: wrap;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: var(--text-color-muted);
+      background: var(--background-dark);
+      border-bottom: 2px solid transparent;
+      transition: background var(--transition-speed), border-bottom var(--transition-speed),
+        color var(--transition-speed);
+      font-weight: 600;
+    }
+
+    .tab:hover,
+    .tab:focus-visible {
+      background: #1b2d42;
+      outline: none;
+      color: #a3c9ff;
+    }
+
+    .tab.active {
+      color: var(--text-color-light);
+      border-bottom: 2px solid var(--primary-color);
+      background: #172a3a;
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
+      flex-grow: 1;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    input,
+    button,
+    textarea,
+    select {
+      padding: 10px;
+      margin: 5px 0 10px;
+      width: 100%;
+      border-radius: var(--border-radius);
+      border: 1px solid #444;
+      background-color: var(--background-lighter);
+      color: var(--text-color-light);
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 6px var(--primary-color);
+    }
+
+    input.invalid,
+    select.invalid,
+    textarea.invalid {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 6px var(--danger-color);
+    }
+
+    .error-message {
+      font-size: 0.85rem;
+      color: var(--danger-color);
+      margin-top: -8px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    button {
+      background: linear-gradient(to right, #00d2ff, #3a7bd5);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      background: linear-gradient(to right, #3a7bd5, #00d2ff);
+      outline: none;
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+      background: var(--background-darker);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      border: 1px solid #333;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border: 1px solid #2a2a2a;
+      text-align: left;
+      background: var(--background-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: var(--max-width-table-cell);
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--background-darker);
+      text-transform: uppercase;
+      font-weight: bold;
+      color: var(--primary-color);
+      user-select: none;
+    }
+
+    .remove-btn {
+      background: var(--danger-color);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      user-select: none;
+      font-weight: 600;
+    }
+
+    .remove-btn:hover,
+    .remove-btn:focus-visible {
+      background: var(--danger-color-hover);
+      outline: none;
+    }
+
+    .remove-btn:focus-visible {
+      outline: 2px solid var(--danger-color-hover);
+      outline-offset: 2px;
+    }
+
+    img.logo {
+      height: 30px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    td.logo-cell {
+      background-color: #fff;
+      padding: 5px;
+      border-radius: 4px;
+      text-align: center;
+      width: var(--max-width-logo-cell);
+      min-width: var(--max-width-logo-cell);
+      max-width: var(--max-width-logo-cell);
+    }
+
+    td.logo-cell img {
+      width: 60px;
+      max-height: 40px;
+      object-fit: contain;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+
+      h1 {
+        font-size: 24px;
+      }
+
+      label {
+        margin-top: 10px;
+      }
+
+      .tabs {
+        font-size: 0.9rem;
+      }
+
+      th,
+      td {
+        white-space: normal;
+        max-width: 150px;
+        font-size: 0.85rem;
+        padding: 6px 8px;
+      }
+
+      td.logo-cell {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+      }
+
+      td.logo-cell img {
+        width: 45px;
+        max-height: 30px;
+      }
+    }
+
+    textarea#output {
+      height: 150px;
+      resize: vertical;
+      font-family: monospace;
+      background-color: var(--background-lighter);
+      color: var(--text-color-light);
+    }
+
+    .loading-indicator {
+      display: none;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      margin-top: 10px;
+    }
+
+    /* Automation control styling */
+    #automation-control {
+      margin: 10px 0 20px;
+      text-align: center;
+    }
+
+    #automation-control button {
+      width: auto;
+      padding: 10px 20px;
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    /* Piscar vermelho e verde */
+    .red-piscante {
+      animation: blink-red 1s infinite;
+      background-color: rgba(255, 0, 0, 0.3);
+    }
+
+    .green-piscante {
+      animation: blink-green 1s infinite;
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+
+    @keyframes blink-red {
+      0%,
+      100% {
+        background-color: transparent;
+      }
+
+      50% {
+        background-color: rgba(255, 0, 0, 0.6);
+      }
+    }
+
+    @keyframes blink-green {
+      0%,
+      100% {
+        background-color: transparent;
+      }
+
+      50% {
+        background-color: rgba(0, 255, 0, 0.6);
+      }
+    }
+
+    /* Modal de confirmação */
+    #confirmModal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    #confirmModalContent {
+      background-color: var(--background-lighter);
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      width: 300px;
+      color: var(--text-color-light);
+      box-shadow: 0 0 10px rgba(0,0,0,0.9);
+      user-select: none;
+      text-align: center;
+    }
+
+    #confirmModalContent h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    #confirmModalContent button {
+      margin: 5px;
+      width: 80px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 tabindex="0">New Dubai International Airport</h1>
+
+  <nav class="tabs" role="tablist" aria-label="Navegação das abas">
+    <button role="tab" aria-selected="true" aria-controls="aba-chegadas" id="tab-chegadas" class="tab active" onclick="trocarAba(0)"
+      onkeyup="handleKey(event, 0)">🛬 Chegadas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-partidas" id="tab-partidas" class="tab" onclick="trocarAba(1)"
+      onkeyup="handleKey(event, 1)">🛫 Partidas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-novo" id="tab-novo" class="tab" onclick="trocarAba(2)"
+      onkeyup="handleKey(event, 2)">➕ Novo Voo</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-backup" id="tab-backup" class="tab" onclick="trocarAba(3)"
+      onkeyup="handleKey(event, 3)">💾 Backup</button>
+  </nav>
+
+  <main>
+    <section id="automation-control">
+      <button id="btnToggleAutomation" onclick="toggleAutomation()" aria-pressed="false"
+        aria-label="Iniciar ou parar simulação automática de operações">Iniciar Simulação Automática ✈️</button>
+    </section>
+
+    <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
+      <label for="filter-companhia">Filtrar por Companhia Aérea:</label>
+      <select id="filter-companhia" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-destino">Filtrar por Destino:</label>
+      <select id="filter-destino" aria-label="Filtrar por Destino" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-pais">Filtrar por País:</label>
+      <select id="filter-pais" aria-label="Filtrar por País" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-tps">Filtrar por TPS:</label>
+      <select id="filter-tps" aria-label="Filtrar por TPS" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+      <div id="chegadasTabela" aria-live="polite" aria-relevant="all"></div>
+    </section>
+
+    <section class="tab-content" id="aba-partidas" role="tabpanel" aria-labelledby="tab-partidas" tabindex="0">
+      <label for="filter-companhia-partidas">Filtrar por Companhia Aérea:</label>
+      <select id="filter-companhia-partidas" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-destino-partidas">Filtrar por Destino:</label>
+      <select id="filter-destino-partidas" aria-label="Filtrar por Destino" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-pais-partidas">Filtrar por País:</label>
+      <select id="filter-pais-partidas" aria-label="Filtrar por País" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+
+      <label for="filter-tps-partidas">Filtrar por TPS:</label>
+      <select id="filter-tps-partidas" aria-label="Filtrar por TPS" onchange="filtrar()">
+        <option value="">Selecione</option>
+      </select>
+      <div id="partidasTabela" aria-live="polite" aria-relevant="all"></div>
+    </section>
+
+    <section class="tab-content" id="aba-novo" role="tabpanel" aria-labelledby="tab-novo" tabindex="0" aria-live="polite">
+      <form id="formNovoVoo" novalidate>
+        <label for="companhia">Companhia Aérea: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="companhia" name="companhia" placeholder="Ex: AIR FRANCE" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-companhia" />
+        <div id="erro-companhia" class="error-message" aria-live="assertive">Por favor, preencha a Companhia Aérea.</div>
+
+        <label for="cidade">Cidade (Destino): <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="cidade" name="cidade" placeholder="Ex: Paris" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-cidade" />
+        <div id="erro-cidade" class="error-message" aria-live="assertive">Por favor, preencha a Cidade.</div>
+
+        <label for="icao">Código ICAO: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="icao" name="icao" placeholder="Ex: LFPG" type="text" autocomplete="off" required aria-required="true" maxlength="4"
+          aria-describedby="erro-icao" style="text-transform: uppercase;" />
+        <div id="erro-icao" class="error-message" aria-live="assertive">Por favor, preencha um código ICAO válido (4 letras).</div>
+
+        <label for="pais">País: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
+        <input id="pais" name="pais" placeholder="Ex: França" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-pais" />
+        <div id="erro-pais" class="error-message" aria-live="assertive">Por favor, preencha o País.</div>
+
+        <label for="voo">Voo (Flight):</label>
+        <input id="voo" name="voo" placeholder="Ex: 01234" type="text" autocomplete="off" aria-describedby="erro-voo" />
+
+        <label for="horario">Horário (Time - HH:MM):</label>
+        <input id="horario" name="horario" placeholder="Ex: 14:35" type="text" autocomplete="off" aria-describedby="erro-horario"
+          pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
+        <div id="erro-horario" class="error-message" aria-live="assertive">Formato inválido. Utilize HH:MM.</div>
+
+        <label for="aeronave">Aeronave (A/C):</label>
+        <input id="aeronave" name="aeronave" placeholder="Ex: A320" type="text" autocomplete="off" />
+
+        <label for="status">Status:</label>
+        <input id="status" name="status" placeholder="Ex: Confirmado" type="text" autocomplete="off" />
+
+        <label for="tps">TPS:</label>
+        <input id="tps" name="tps" placeholder="Ex: TPS1" type="text" autocomplete="off" />
+
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo" aria-label="Tipo de voo">
+          <option value="chegada">Chegada</option>
+          <option value="partida">Partida</option>
+        </select>
+
+        <button type="submit" id="btnAdicionarVoo" aria-live="polite" disabled>Adicionar</button>
+        <div class="loading-indicator" id="loadingNovoVoo" aria-live="polite" role="status">Processando...</div>
+      </form>
+    </section>
+
+    <section class="tab-content" id="aba-backup" role="tabpanel" aria-labelledby="tab-backup" tabindex="0" aria-live="polite">
+      <button id="btnExportarBackup" aria-label="Exportar backup de voos">⬇️ Exportar Backup</button>
+      <button id="btnImportarBackup" aria-label="Selecionar arquivo para importar backup">⬆️ Importar Backup</button>
+      <input accept=".json" id="importar" aria-hidden="true" style="display:none" type="file" />
+      <textarea id="output" placeholder="Exportação em formato texto" aria-label="Área de texto para exportação de dados" readonly></textarea>
+      <div class="loading-indicator" id="loadingBackup" aria-live="polite" role="status">Processando...</div>
+    </section>
+  </main>
+
+  <!-- Modal de confirmação -->
+  <div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div id="confirmModalContent">
+      <h2 id="modalTitle">Confirmar voo</h2>
+      <p id="modalDesc"></p>
+      <button id="confirmConfirmed">Confirmed</button>
+      <button id="confirmDelayed">Delayed</button>
+      <button id="confirmCancelled">Cancelled</button>
+    </div>
+  </div>
+
+  <script>
+    let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
+    let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
+
+    let registrosFiltradosChegadas = registrosChegadas;
+    let registrosFiltradosPartidas = registrosPartidas;
+
+    let automationActive = false;
+    let automationInterval = null;
+
+    const statusWorkflowChegadas = [
+      "Scheduled",
+      "Confirmed HH:MM",
+      "Landing",
+      "Landed",
+      "Deplaining",
+      "Finished",
+      "Delayed",
+      "Cancelled"
+    ];
+
+    const statusWorkflowPartidas = [
+      "Scheduled",
+      "Check-in Opened",
+      "Boarding Gate XXX",
+      "Boarding Now",
+      "Last Call",
+      "Taking Off",
+      "Finished",
+      "Delayed",
+      "Cancelled"
+    ];
+
+    let confirmandoVoo = null;
+    let confirmandoTipo = null;
+
+    function formatHora(date) {
+      let h = date.getHours();
+      let m = date.getMinutes();
+      return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+    }
+
+    function trocarAba(indice) {
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabs.forEach((el, i) => {
+        const selected = i === indice;
+        el.classList.toggle('active', selected);
+        el.setAttribute('aria-selected', selected);
+        el.tabIndex = selected ? 0 : -1;
+        tabContents[i].classList.toggle('active', selected);
+      });
+      tabContents[indice].focus();
+      popularSelects();
+      filtrar();
+    }
+
+    function handleKey(event, idx) {
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      if (event.key === 'ArrowRight') {
+        const next = (idx + 1) % tabs.length;
+        tabs[next].focus();
+        trocarAba(next);
+        event.preventDefault();
+      } else if (event.key === 'ArrowLeft') {
+        const prev = (idx - 1 + tabs.length) % tabs.length;
+        tabs[prev].focus();
+        trocarAba(prev);
+        event.preventDefault();
+      }
+    }
+
+    function normalizarNome(nome) {
+      return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
+    }
+
+    function sanitizeHTML(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function popularSelects() {
+      const selectIds = [
+        'filter-companhia', 'filter-destino', 'filter-pais', 'filter-tps',
+        'filter-companhia-partidas', 'filter-destino-partidas', 'filter-pais-partidas', 'filter-tps-partidas'
+      ];
+      selectIds.forEach(id => {
+        const select = document.getElementById(id);
+        while (select && select.options.length > 1) {
+          select.removeChild(select.lastChild);
+        }
+      });
+
+      const companhias = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.companhia))].sort();
+      const destinos = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.cidade))].sort();
+      const paises = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.pais))].sort();
+      const tps = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.tps))].sort();
+
+      const updateSelectOptions = (selectId, options) => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        options.forEach(option => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option;
+          optionElement.textContent = option;
+          select.appendChild(optionElement);
+        });
+      };
+
+      updateSelectOptions('filter-companhia', [''].concat(companhias));
+      updateSelectOptions('filter-destino', [''].concat(destinos));
+      updateSelectOptions('filter-pais', [''].concat(paises));
+      updateSelectOptions('filter-tps', [''].concat(tps));
+
+      updateSelectOptions('filter-companhia-partidas', [''].concat(companhias));
+      updateSelectOptions('filter-destino-partidas', [''].concat(destinos));
+      updateSelectOptions('filter-pais-partidas', [''].concat(paises));
+      updateSelectOptions('filter-tps-partidas', [''].concat(tps));
+    }
+
+    function filtrar() {
+      const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
+      const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
+      const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
+      const filtroTps = document.getElementById('filter-tps').value.toLowerCase();
+
+      registrosFiltradosChegadas = registrosChegadas.filter(voo =>
+        (filtroCompanhia === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhia))) &&
+        (filtroDestino === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestino))) &&
+        (filtroPais === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPais))) &&
+        (filtroTps === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTps)))
+      );
+
+      const filtroCompanhiaP = document.getElementById('filter-companhia-partidas').value.toLowerCase();
+      const filtroDestinoP = document.getElementById('filter-destino-partidas').value.toLowerCase();
+      const filtroPaisP = document.getElementById('filter-pais-partidas').value.toLowerCase();
+      const filtroTpsP = document.getElementById('filter-tps-partidas').value.toLowerCase();
+
+      registrosFiltradosPartidas = registrosPartidas.filter(voo =>
+        (filtroCompanhiaP === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhiaP))) &&
+        (filtroDestinoP === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestinoP))) &&
+        (filtroPaisP === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPaisP))) &&
+        (filtroTpsP === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTpsP)))
+      );
+
+      renderTabela(registrosFiltradosChegadas, 'chegadasTabela');
+      renderTabela(registrosFiltradosPartidas, 'partidasTabela');
+    }
+
+    function confirmRemoverVoo(indice, tipo) {
+      let voo = null;
+      if (tipo === 'chegadasTabela') {
+        voo = registrosFiltradosChegadas[indice];
+      } else {
+        voo = registrosFiltradosPartidas[indice];
+      }
+      const confirmacao = confirm(`Tem certeza que deseja remover o voo ${voo.voo || '(sem código)'} para ${voo.cidade}?`);
+      if (confirmacao) {
+        removerVoo(indice, tipo);
+      }
+    }
+
+    function removerVoo(indice, tipo) {
+      if (tipo === 'chegadasTabela') {
+        const globalIndex = registrosChegadas.indexOf(registrosFiltradosChegadas[indice]);
+        if (globalIndex > -1) registrosChegadas.splice(globalIndex, 1);
+      } else {
+        const globalIndex = registrosPartidas.indexOf(registrosFiltradosPartidas[indice]);
+        if (globalIndex > -1) registrosPartidas.splice(globalIndex, 1);
+      }
+      salvarDados();
+      filtrar();
+    }
+
+    function adicionarVoo(event) {
+      event.preventDefault();
+      const companhia = document.getElementById("companhia").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const icao = document.getElementById("icao").value.trim().toUpperCase();
+      const pais = document.getElementById("pais").value.trim();
+      const voo = document.getElementById("voo").value.trim();
+      const horario = document.getElementById("horario").value.trim();
+      const aeronave = document.getElementById("aeronave").value.trim();
+      const status = document.getElementById("status").value.trim() || "Scheduled";
+      const tps = document.getElementById("tps").value.trim();
+      const tipo = document.getElementById("tipo").value;
+      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps, horarioConfirmado: null, frequencia: 1 };
+
+      const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
+
+      if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
+        registros.push(novoRegistro);
+      } else {
+        alert('Este voo já está cadastrado.');
+        return;
+      }
+      salvarDados();
+      document.getElementById("formNovoVoo").reset();
+      document.getElementById("btnAdicionarVoo").setAttribute('disabled', 'disabled');
+      atualizarTabelas();
+      popularSelects();
+      trocarAba(0);
+      alert("Voo adicionado com sucesso!");
+    }
+
+    function salvarDados() {
+      localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
+      localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
+    }
+
+    function atualizarTabelas() {
+      filtrar();
+    }
+
+    // Modal confirmação
+    const modal = document.getElementById('confirmModal');
+    const modalDesc = document.getElementById('modalDesc');
+    const btnConfirmed = document.getElementById('confirmConfirmed');
+    const btnDelayed = document.getElementById('confirmDelayed');
+    const btnCancelled = document.getElementById('confirmCancelled');
+
+    function abrirModalConfirma(voo, tipo) {
+      confirmandoVoo = voo;
+      confirmandoTipo = tipo;
+      modalDesc.textContent = `O voo ${voo.voo || ''} rumo à ${voo.cidade} está a 3 horas do horário previsto. Confirme o status do voo:`;
+      modal.style.display = 'block';
+      pauseAutomation();
+    }
+
+    function fecharModalConfirma() {
+      modal.style.display = 'none';
+      confirmandoVoo = null;
+      confirmandoTipo = null;
+      resumeAutomation();
+    }
+
+    btnConfirmed.onclick = () => {
+      if (confirmandoVoo) {
+        confirmandoVoo.status = "Confirmed HH:MM";
+        salvarDados();
+        atualizarTabelas();
+      }
+      fecharModalConfirma();
+    }
+    btnDelayed.onclick = () => {
+      if (confirmandoVoo) {
+        confirmandoVoo.status = "Delayed";
+        salvarDados();
+        atualizarTabelas();
+      }
+      fecharModalConfirma();
+    }
+    btnCancelled.onclick = () => {
+      if (confirmandoVoo) {
+        confirmandoVoo.status = "Cancelled";
+        salvarDados();
+        atualizarTabelas();
+      }
+      fecharModalConfirma();
+    }
+
+    window.onclick = function (event) {
+      if (event.target === modal) {
+        fecharModalConfirma();
+      }
+    }
+
+    // Automação
+    function toggleAutomation() {
+      automationActive = !automationActive;
+      const btn = document.getElementById('btnToggleAutomation');
+      btn.setAttribute('aria-pressed', automationActive);
+      btn.textContent = automationActive ? 'Parar Simulação Automática ✈️' : 'Iniciar Simulação Automática ✈️';
+
+      if (automationActive) {
+        startAutomation();
+      } else {
+        clearInterval(automationInterval);
+      }
+    }
+
+    function pauseAutomation() {
+      clearInterval(automationInterval);
+    }
+
+    function resumeAutomation() {
+      if (automationActive && !automationInterval) {
+        startAutomation();
+      }
+    }
+
+    function startAutomation() {
+      automationInterval = setInterval(() => {
+        if (confirmandoVoo) {
+          // Aguarda decisão do usuário
+          return;
+        }
+        updateFlightStatuses();
+        removeOldFlights();
+        salvarDados();
+        atualizarTabelas();
+        popularSelects();
+      }, 5000); // a cada 5 segundos
+    }
+
+    function verificarConfirmacoesPendentes(registros, tipo) {
+      if (confirmandoVoo) return; // já existe confirmação pendente
+
+      const agora = new Date();
+
+      for (const voo of registros) {
+        if (voo.status === "Scheduled" && voo.horario) {
+          const partes = voo.horario.split(":");
+          let dataVoo = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), parseInt(partes[0]), parseInt(partes[1]), 0, 0);
+          let diffMinutos = (dataVoo - agora) / (1000 * 60);
+
+          if (diffMinutos <= 180 && diffMinutos > 0) {
+            abrirModalConfirma(voo, tipo);
+            break;
+          }
+        }
+      }
+    }
+
+    function updateFlightStatuses() {
+      verificarConfirmacoesPendentes(registrosChegadas, "chegada");
+      verificarConfirmacoesPendentes(registrosPartidas, "partida");
+
+      if (confirmandoVoo) return;
+
+      registrosChegadas.forEach(voo => {
+        advanceStatus(voo, statusWorkflowChegadas);
+        voo.piscante = null;
+        if (voo.status === "Delayed" || voo.status === "Cancelled") voo.piscante = "red";
+        else if ([
+          "Confirmed HH:MM",
+          "Check-in Opened",
+          "Boarding Gate XXX",
+          "Boarding Now",
+          "Last Call",
+          "Taking Off",
+          "Landing",
+          "Landed",
+          "Deplaining"].includes(voo.status))
+          voo.piscante = "green";
+      });
+
+      registrosPartidas.forEach(voo => {
+        advanceStatus(voo, statusWorkflowPartidas);
+        voo.piscante = null;
+        if (voo.status === "Delayed" || voo.status === "Cancelled") voo.piscante = "red";
+        else if ([
+          "Confirmed HH:MM",
+          "Check-in Opened",
+          "Boarding Gate XXX",
+          "Boarding Now",
+          "Last Call",
+          "Taking Off",
+          "Landing",
+          "Landed",
+          "Deplaining"].includes(voo.status))
+          voo.piscante = "green";
+      });
+    }
+
+    function advanceStatus(voo, workflow) {
+      const currentIndex = workflow.indexOf(voo.status);
+      if (currentIndex === -1) voo.status = workflow[0];
+      else if (currentIndex < workflow.length - 1) {
+        const nextStatus = workflow[currentIndex + 1];
+        if (nextStatus === "Confirmed HH:MM") {
+          if (!voo.horarioConfirmado) {
+            const partes = voo.horario?.split(":") || ["00", "00"];
+            let hora = parseInt(partes[0]);
+            let minuto = parseInt(partes[1]);
+            const incremento = 5 + Math.floor(Math.random() * 11);
+            minuto += incremento;
+            if (minuto >= 60) {
+              minuto -= 60;
+              hora = (hora + 1) % 24;
+            }
+            voo.horarioConfirmado = (hora < 10 ? "0" + hora : hora) + ":" + (minuto < 10 ? "0" + minuto : minuto);
+          }
+          voo.status = nextStatus;
+        } else {
+          if (voo.status === "Confirmed HH:MM" && nextStatus !== "Confirmed HH:MM")
+            voo.horarioConfirmado = null;
+          voo.status = nextStatus;
+        }
+      }
+    }
+
+    function removeOldFlights() {
+      registrosChegadas = registrosChegadas.filter(voo => {
+        if (voo.status === "Finished" || voo.status === "Cancelled") {
+          const novo = { ...voo, status: "Scheduled", horarioConfirmado: null, piscante: null };
+          registrosChegadas.push(novo);
+          return false;
+        }
+        return true;
+      });
+      registrosPartidas = registrosPartidas.filter(voo => {
+        if (voo.status === "Finished" || voo.status === "Cancelled") {
+          const novo = { ...voo, status: "Scheduled", horarioConfirmado: null, piscante: null };
+          registrosPartidas.push(novo);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function renderTabela(registros, destinoId) {
+      registros.forEach(voo => {
+        if (voo.horario && voo.horario.length < 5 && voo.horario.includes(':')) {
+          voo.horario = voo.horario.padStart(5, '0');
+        }
+      });
+
+      registros.sort((a, b) => {
+        const [aHour, aMinute] = (a.horario || "00:00").split(':').map(Number);
+        const [bHour, bMinute] = (b.horario || "00:00").split(':').map(Number);
+        if (aHour !== bHour) return aHour - bHour;
+        return aMinute - bMinute;
+      });
+
+      let html = '<table><thead><tr>' +
+        '<th aria-label="Logo da Companhia">AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
+        '</tr></thead><tbody>';
+
+      registros.forEach((e, i) => {
+        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+
+        let statusExibido = e.status || "";
+
+        if (statusExibido === "Confirmed HH:MM" && e.horarioConfirmado) {
+          statusExibido = "Confirmed " + e.horarioConfirmado;
+        } else if (statusExibido.toLowerCase() === "estimated") {
+          statusExibido = "Scheduled";
+        }
+
+        const statusClass = e.piscante ? `${e.piscante}-piscante` : "";
+
+        html += `<tr>
+          ${logo}
+          <td>${sanitizeHTML(e.voo || '')}</td>
           <td>${sanitizeHTML(e.cidade)}</td>
           <td>${sanitizeHTML(e.icao)}</td>
           <td>${sanitizeHTML(e.pais)}</td>
@@ -8,13 +986,16 @@
           <td><button class='remove-btn' aria-label="Remover voo ${e.voo || ''} para ${e.cidade}" onclick='confirmRemoverVoo(${i}, "${destinoId}")'>✖</button></td>
         </tr>`;
       });
+
       html += '</tbody></table>';
       document.getElementById(destinoId).innerHTML = html;
     }
+
     window.onload = () => {
       popularSelects();
       atualizarTabelas();
       initFormListeners();
+
       document.getElementById('btnExportarBackup').addEventListener('click', exportarBackup);
       document.getElementById('btnImportarBackup').addEventListener('click', () => {
         document.getElementById('importar').click();
@@ -23,4 +1004,6 @@
     };
   </script>
 </body>
+
 </html>
+
