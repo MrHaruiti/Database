@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>New Dubai International Airport - DATABASE</title>
   <style>
     :root {
@@ -21,9 +22,11 @@
       --max-width-logo-cell: 70px;
       --transition-speed: 0.3s;
     }
+
     * {
       box-sizing: border-box;
     }
+
     body {
       font-family: var(--font-family);
       background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
@@ -35,6 +38,7 @@
       display: flex;
       flex-direction: column;
     }
+
     h1 {
       text-align: center;
       font-size: 32px;
@@ -43,13 +47,15 @@
       margin: 0;
       user-select: none;
     }
+
     .tabs {
       display: flex;
       background: var(--background-dark);
       flex-wrap: wrap;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
       user-select: none;
     }
+
     .tab {
       flex: 1;
       text-align: center;
@@ -58,41 +64,59 @@
       color: var(--text-color-muted);
       background: var(--background-dark);
       border-bottom: 2px solid transparent;
-      transition: background var(--transition-speed), border-bottom var(--transition-speed), color var(--transition-speed);
+      transition: background var(--transition-speed), border-bottom var(--transition-speed),
+        color var(--transition-speed);
       font-weight: 600;
     }
+
     .tab:hover,
     .tab:focus-visible {
       background: #1b2d42;
       outline: none;
       color: #a3c9ff;
     }
+
     .tab.active {
       color: var(--text-color-light);
       border-bottom: 2px solid var(--primary-color);
       background: #172a3a;
       font-weight: 700;
     }
+
     .tab-content {
       display: none;
       padding: 20px;
       animation: fadeIn 0.4s ease;
       flex-grow: 1;
     }
+
     .tab-content.active {
       display: block;
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     label {
       display: block;
       margin-top: 15px;
       font-weight: 600;
       color: var(--primary-color);
     }
-    input, button, textarea, select {
+
+    input,
+    button,
+    textarea,
+    select {
       padding: 10px;
       margin: 5px 0 10px;
       width: 100%;
@@ -103,15 +127,22 @@
       font-size: 1rem;
       transition: border-color 0.3s ease;
     }
-    input:focus, select:focus, textarea:focus {
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: var(--primary-color);
       outline: none;
       box-shadow: 0 0 6px var(--primary-color);
     }
-    input.invalid, select.invalid, textarea.invalid {
+
+    input.invalid,
+    select.invalid,
+    textarea.invalid {
       border-color: var(--danger-color);
       box-shadow: 0 0 6px var(--danger-color);
     }
+
     .error-message {
       font-size: 0.85rem;
       color: var(--danger-color);
@@ -119,6 +150,7 @@
       margin-bottom: 10px;
       display: none;
     }
+
     button {
       background: linear-gradient(to right, #00d2ff, #3a7bd5);
       color: white;
@@ -128,31 +160,37 @@
       transition: transform 0.2s ease, background 0.3s ease;
       user-select: none;
     }
+
     button:hover {
       transform: scale(1.02);
       background: linear-gradient(to right, #3a7bd5, #00d2ff);
       outline: none;
     }
+
     button:focus-visible {
       outline: 2px solid var(--primary-color);
       outline-offset: 2px;
     }
+
     button:disabled {
       cursor: not-allowed;
       opacity: 0.5;
       transform: none;
       background: var(--background-darker);
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
       border: 1px solid #333;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
       table-layout: fixed;
       word-wrap: break-word;
     }
-    th, td {
+
+    th,
+    td {
       padding: 8px 10px;
       border: 1px solid #2a2a2a;
       text-align: left;
@@ -163,6 +201,7 @@
       max-width: var(--max-width-table-cell);
       vertical-align: middle;
     }
+
     th {
       background: var(--background-darker);
       text-transform: uppercase;
@@ -170,6 +209,7 @@
       color: var(--primary-color);
       user-select: none;
     }
+
     .remove-btn {
       background: var(--danger-color);
       border: none;
@@ -181,20 +221,24 @@
       user-select: none;
       font-weight: 600;
     }
+
     .remove-btn:hover,
     .remove-btn:focus-visible {
       background: var(--danger-color-hover);
       outline: none;
     }
+
     .remove-btn:focus-visible {
       outline: 2px solid var(--danger-color-hover);
       outline-offset: 2px;
     }
+
     img.logo {
       height: 30px;
       vertical-align: middle;
       margin-right: 8px;
     }
+
     td.logo-cell {
       background-color: #fff;
       padding: 5px;
@@ -204,38 +248,47 @@
       min-width: var(--max-width-logo-cell);
       max-width: var(--max-width-logo-cell);
     }
+
     td.logo-cell img {
       width: 60px;
       max-height: 40px;
       object-fit: contain;
     }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
       h1 {
         font-size: 24px;
       }
+
       label {
         margin-top: 10px;
       }
+
       .tabs {
         font-size: 0.9rem;
       }
-      th, td {
+
+      th,
+      td {
         white-space: normal;
         max-width: 150px;
         font-size: 0.85rem;
         padding: 6px 8px;
       }
+
       td.logo-cell {
         width: 50px;
         min-width: 50px;
         max-width: 50px;
       }
+
       td.logo-cell img {
         width: 45px;
         max-height: 30px;
       }
     }
+
     textarea#output {
       height: 150px;
       resize: vertical;
@@ -243,55 +296,80 @@
       background-color: var(--background-lighter);
       color: var(--text-color-light);
     }
+
     .loading-indicator {
       display: none;
       font-size: 0.9rem;
       color: var(--primary-color);
       margin-top: 10px;
     }
+
     /* Automation control styling */
     #automation-control {
       margin: 10px 0 20px;
       text-align: center;
     }
+
     #automation-control button {
       width: auto;
       padding: 10px 20px;
       font-size: 1rem;
       user-select: none;
     }
+
     /* Piscar vermelho e verde */
     .red-piscante {
       animation: blink-red 1s infinite;
       background-color: rgba(255, 0, 0, 0.3);
     }
+
     .green-piscante {
       animation: blink-green 1s infinite;
       background-color: rgba(0, 255, 0, 0.3);
     }
+
     @keyframes blink-red {
-      0%, 100% { background-color: transparent; }
-      50% { background-color: rgba(255, 0, 0, 0.6); }
+      0%,
+      100% {
+        background-color: transparent;
+      }
+
+      50% {
+        background-color: rgba(255, 0, 0, 0.6);
+      }
     }
+
     @keyframes blink-green {
-      0%, 100% { background-color: transparent; }
-      50% { background-color: rgba(0, 255, 0, 0.6); }
+      0%,
+      100% {
+        background-color: transparent;
+      }
+
+      50% {
+        background-color: rgba(0, 255, 0, 0.6);
+      }
     }
   </style>
 </head>
+
 <body>
   <h1 tabindex="0">New Dubai International Airport</h1>
 
   <nav class="tabs" role="tablist" aria-label="Navegação das abas">
-    <button role="tab" aria-selected="true" aria-controls="aba-chegadas" id="tab-chegadas" class="tab active" onclick="trocarAba(0)" onkeyup="handleKey(event, 0)">🛬 Chegadas</button>
-    <button role="tab" aria-selected="false" aria-controls="aba-partidas" id="tab-partidas" class="tab" onclick="trocarAba(1)" onkeyup="handleKey(event, 1)">🛫 Partidas</button>
-    <button role="tab" aria-selected="false" aria-controls="aba-novo" id="tab-novo" class="tab" onclick="trocarAba(2)" onkeyup="handleKey(event, 2)">➕ Novo Voo</button>
-    <button role="tab" aria-selected="false" aria-controls="aba-backup" id="tab-backup" class="tab" onclick="trocarAba(3)" onkeyup="handleKey(event, 3)">💾 Backup</button>
+    <button role="tab" aria-selected="true" aria-controls="aba-chegadas" id="tab-chegadas" class="tab active" onclick="trocarAba(0)"
+      onkeyup="handleKey(event, 0)">🛬 Chegadas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-partidas" id="tab-partidas" class="tab" onclick="trocarAba(1)"
+      onkeyup="handleKey(event, 1)">🛫 Partidas</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-novo" id="tab-novo" class="tab" onclick="trocarAba(2)"
+      onkeyup="handleKey(event, 2)">➕ Novo Voo</button>
+    <button role="tab" aria-selected="false" aria-controls="aba-backup" id="tab-backup" class="tab" onclick="trocarAba(3)"
+      onkeyup="handleKey(event, 3)">💾 Backup</button>
   </nav>
 
   <main>
     <section id="automation-control">
-      <button id="btnToggleAutomation" onclick="toggleAutomation()" aria-pressed="false" aria-label="Iniciar ou parar simulação automática de operações">Iniciar Simulação Automática ✈️</button>
+      <button id="btnToggleAutomation" onclick="toggleAutomation()" aria-pressed="false"
+        aria-label="Iniciar ou parar simulação automática de operações">Iniciar Simulação Automática ✈️</button>
     </section>
 
     <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
@@ -343,26 +421,31 @@
     <section class="tab-content" id="aba-novo" role="tabpanel" aria-labelledby="tab-novo" tabindex="0" aria-live="polite">
       <form id="formNovoVoo" novalidate>
         <label for="companhia">Companhia Aérea: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
-        <input id="companhia" name="companhia" placeholder="Ex: AIR FRANCE" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-companhia"/>
+        <input id="companhia" name="companhia" placeholder="Ex: AIR FRANCE" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-companhia" />
         <div id="erro-companhia" class="error-message" aria-live="assertive">Por favor, preencha a Companhia Aérea.</div>
 
         <label for="cidade">Cidade (Destino): <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
-        <input id="cidade" name="cidade" placeholder="Ex: Paris" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-cidade"/>
+        <input id="cidade" name="cidade" placeholder="Ex: Paris" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-cidade" />
         <div id="erro-cidade" class="error-message" aria-live="assertive">Por favor, preencha a Cidade.</div>
 
         <label for="icao">Código ICAO: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
-        <input id="icao" name="icao" placeholder="Ex: LFPG" type="text" autocomplete="off" required aria-required="true" maxlength="4" aria-describedby="erro-icao" style="text-transform: uppercase;" />
+        <input id="icao" name="icao" placeholder="Ex: LFPG" type="text" autocomplete="off" required aria-required="true" maxlength="4"
+          aria-describedby="erro-icao" style="text-transform: uppercase;" />
         <div id="erro-icao" class="error-message" aria-live="assertive">Por favor, preencha um código ICAO válido (4 letras).</div>
 
         <label for="pais">País: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
-        <input id="pais" name="pais" placeholder="Ex: França" type="text" autocomplete="off" required aria-required="true" aria-describedby="erro-pais"/>
+        <input id="pais" name="pais" placeholder="Ex: França" type="text" autocomplete="off" required aria-required="true"
+          aria-describedby="erro-pais" />
         <div id="erro-pais" class="error-message" aria-live="assertive">Por favor, preencha o País.</div>
 
         <label for="voo">Voo (Flight):</label>
-        <input id="voo" name="voo" placeholder="Ex: 01234" type="text" autocomplete="off" aria-describedby="erro-voo"/>
+        <input id="voo" name="voo" placeholder="Ex: 01234" type="text" autocomplete="off" aria-describedby="erro-voo" />
 
         <label for="horario">Horário (Time - HH:MM):</label>
-        <input id="horario" name="horario" placeholder="Ex: 14:35" type="text" autocomplete="off" aria-describedby="erro-horario" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
+        <input id="horario" name="horario" placeholder="Ex: 14:35" type="text" autocomplete="off" aria-describedby="erro-horario"
+          pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
         <div id="erro-horario" class="error-message" aria-live="assertive">Formato inválido. Utilize HH:MM.</div>
 
         <label for="aeronave">Aeronave (A/C):</label>
@@ -427,6 +510,13 @@
       "Delayed",
       "Cancelled"
     ];
+
+    // Helper para formatar hora 'HH:MM'
+    function formatHora(date) {
+      let h = date.getHours();
+      let m = date.getMinutes();
+      return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+    }
 
     // Tab switching and keyboard navigation
     function trocarAba(indice) {
@@ -622,7 +712,8 @@
       const tps = tpsEl.value.trim();
       const tipo = tipoEl.value;
 
-      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps, frequencia: 1 };
+      // Criar voo com propriedade horarioConfirmado inicial vazia
+      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps, horarioConfirmado: null, frequencia: 1 };
       const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
 
       if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
@@ -763,77 +854,60 @@
     }
 
     // Avançar o status do voo conforme workflow definido
-    function advanceStatus(voo, workflow){
+    function advanceStatus(voo, workflow) {
       const currentIndex = workflow.indexOf(voo.status);
-      if(currentIndex === -1) {
-        // Se status desconhecido, definir Scheduled
+      if (currentIndex === -1) {
         voo.status = workflow[0];
         return;
       }
-      // Avança para próximo status, exceto no último
-      if(currentIndex < workflow.length -1){
-        // Algumas transições podem demorar mais, aqui simplificamos para avançar sempre
-        voo.status = workflow[currentIndex + 1];
-      }
-    }
+      if (currentIndex < workflow.length - 1) {
+        const nextStatus = workflow[currentIndex + 1];
 
-    function updateFlightStatuses(){
-      // Atualiza status Chegadas
-      registrosChegadas.forEach(voo => {
-        advanceStatus(voo, statusWorkflowChegadas);
-        // Define piscante verde para status específicos
-        voo.piscante = null;
-        const statusLower = voo.status.toLowerCase();
-        if(voo.status==="Delayed" || voo.status==="Cancelled"){
-          voo.piscante = "red";
-        } else if([
-          "Confirmed HH:MM",
-          "Check-in Opened",
-          "Boarding Gate XXX",
-          "Boarding Now",
-          "Last Call",
-          "Taking Off",
-          "Landing",
-          "Landed",
-          "Deplaining"
-        ].some(s => s.toLowerCase() === statusLower)){
-          voo.piscante = "green";
+        // Se o próximo status for 'Confirmed HH:MM', devemos definir horarioConfirmado para o voo
+        if (nextStatus === "Confirmed HH:MM") {
+          // Definir horário confirmado - por exemplo, adicionar entre 5 e 15 minutos ao horário original do voo
+          let horarioOriginal = voo.horario;
+          if (!horarioOriginal) {
+            // Se não tiver horário original, define para horário atual
+            let agora = new Date();
+            horarioOriginal = formatHora(agora);
+          }
+          const partes = horarioOriginal.split(":");
+          let hora = parseInt(partes[0], 10);
+          let minuto = parseInt(partes[1], 10);
+          // Incrementar entre 5 a 15 minutos
+          const incremento = 5 + Math.floor(Math.random() * 11);
+          minuto += incremento;
+          if (minuto >= 60) {
+            minuto -= 60;
+            hora += 1;
+            if (hora >= 24) hora = 0;
+          }
+          const horarioConfirmado = (hora < 10 ? "0" + hora : hora) + ":" + (minuto < 10 ? "0" + minuto : minuto);
+          voo.horarioConfirmado = horarioConfirmado;
+          voo.status = nextStatus;
+          return;
         }
-      });
-      // Atualiza status Partidas
-      registrosPartidas.forEach(voo => {
-        advanceStatus(voo, statusWorkflowPartidas);
-        voo.piscante = null;
-        const statusLower = voo.status.toLowerCase();
-        if(voo.status==="Delayed" || voo.status==="Cancelled"){
-          voo.piscante = "red";
-        } else if([
-          "Confirmed HH:MM",
-          "Check-in Opened",
-          "Boarding Gate XXX",
-          "Boarding Now",
-          "Last Call",
-          "Taking Off",
-          "Landing",
-          "Landed",
-          "Deplaining"
-        ].some(s => s.toLowerCase() === statusLower)){
-          voo.piscante = "green";
+
+        // Para outros status, limpa horarioConfirmado se existir e atualiza o status
+        if(voo.status === "Confirmed HH:MM" && nextStatus !== "Confirmed HH:MM") {
+          voo.horarioConfirmado = null;
         }
-      });
+
+        voo.status = nextStatus;
+      }
     }
 
     // Remove voos finalizados e reinsere baseado na frequencia (dias)
     function removeOldFlights() {
       const registrosChegadasNovos = [];
       registrosChegadas.forEach(voo => {
-        if(voo.status === "Finished" || voo.status === "Cancelled"){
-          // Reinsere voo com status Scheduled (assume frequencia em dias, default 1)
+        if (voo.status === "Finished" || voo.status === "Cancelled") {
           const freqDias = voo.frequencia || 1;
-          // Aqui poderíamos calcular datas, mas para simplicidade, só reseta status
-          const novoVoo = {...voo};
+          const novoVoo = { ...voo };
           novoVoo.status = "Scheduled";
           novoVoo.piscante = null;
+          novoVoo.horarioConfirmado = null;
           registrosChegadasNovos.push(novoVoo);
         } else {
           registrosChegadasNovos.push(voo);
@@ -843,11 +917,12 @@
 
       const registrosPartidasNovos = [];
       registrosPartidas.forEach(voo => {
-        if(voo.status === "Finished" || voo.status === "Cancelled"){
+        if (voo.status === "Finished" || voo.status === "Cancelled") {
           const freqDias = voo.frequencia || 1;
-          const novoVoo = {...voo};
+          const novoVoo = { ...voo };
           novoVoo.status = "Scheduled";
           novoVoo.piscante = null;
+          novoVoo.horarioConfirmado = null;
           registrosPartidasNovos.push(novoVoo);
         } else {
           registrosPartidasNovos.push(voo);
@@ -880,9 +955,14 @@
         const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
 
         let statusExibido = e.status ? e.status : "";
-        if(statusExibido.toLowerCase() === "estimated") {
+
+        // Se estiver no status Confirmed HH:MM, exibir "Confirmed HH:MM" + horário confirmado
+        if (statusExibido === "Confirmed HH:MM" && e.horarioConfirmado) {
+          statusExibido = "Confirmed " + e.horarioConfirmado;
+        } else if (statusExibido.toLowerCase() === "estimated") {
           statusExibido = "Scheduled";
         }
+
         // Classe piscante para status
         const statusClass = e.piscante ? `${e.piscante}-piscante` : "";
 
@@ -915,17 +995,7 @@
       });
       document.getElementById('importar').addEventListener('change', importarBackup);
     };
-
-    function initFormListeners() {
-      const form = document.getElementById('formNovoVoo');
-      form.addEventListener('submit', adicionarVoo);
-      const inputs = form.querySelectorAll('input[required], select[required]');
-      inputs.forEach(input => {
-        input.addEventListener('input', validarForm);
-      });
-      validarForm();
-    }
   </script>
 </body>
-</html>
 
+</html>
