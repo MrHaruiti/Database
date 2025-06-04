@@ -249,6 +249,34 @@
       color: var(--primary-color);
       margin-top: 10px;
     }
+    /* Automation control styling */
+    #automation-control {
+      margin: 10px 0 20px;
+      text-align: center;
+    }
+    #automation-control button {
+      width: auto;
+      padding: 10px 20px;
+      font-size: 1rem;
+      user-select: none;
+    }
+    /* Piscar vermelho e verde */
+    .red-piscante {
+      animation: blink-red 1s infinite;
+      background-color: rgba(255, 0, 0, 0.3);
+    }
+    .green-piscante {
+      animation: blink-green 1s infinite;
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+    @keyframes blink-red {
+      0%, 100% { background-color: transparent; }
+      50% { background-color: rgba(255, 0, 0, 0.6); }
+    }
+    @keyframes blink-green {
+      0%, 100% { background-color: transparent; }
+      50% { background-color: rgba(0, 255, 0, 0.6); }
+    }
   </style>
 </head>
 <body>
@@ -262,6 +290,10 @@
   </nav>
 
   <main>
+    <section id="automation-control">
+      <button id="btnToggleAutomation" onclick="toggleAutomation()" aria-pressed="false" aria-label="Iniciar ou parar simulação automática de operações">Iniciar Simulação Automática ✈️</button>
+    </section>
+
     <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
       <label for="filter-companhia">Filtrar por Companhia Aérea:</label>
       <select id="filter-companhia" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
@@ -363,14 +395,40 @@
   </main>
 
   <script>
-    // Data loaded from localStorage or empty arrays
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
     let registrosFiltradosChegadas = registrosChegadas;
     let registrosFiltradosPartidas = registrosPartidas;
 
-    // Tab switching with ARIA support and keyboard navigation
+    let automationActive = false;
+    let automationInterval = null;
+
+    // Status workflow mappings
+    const statusWorkflowChegadas = [
+      "Scheduled",
+      "Confirmed HH:MM",
+      "Landing",
+      "Landed",
+      "Deplaining",
+      "Finished",
+      "Delayed",
+      "Cancelled"
+    ];
+
+    const statusWorkflowPartidas = [
+      "Scheduled",
+      "Check-in Opened",
+      "Boarding Gate XXX",
+      "Boarding Now",
+      "Last Call",
+      "Taking Off",
+      "Finished",
+      "Delayed",
+      "Cancelled"
+    ];
+
+    // Tab switching and keyboard navigation
     function trocarAba(indice) {
       const tabs = document.querySelectorAll('.tab');
       const tabContents = document.querySelectorAll('.tab-content');
@@ -382,12 +440,10 @@
         tabContents[i].classList.toggle('active', selected);
       });
       tabContents[indice].focus();
-      // Refresh selects on data change to reflect correct options
       popularSelects();
       filtrar();
     }
 
-    // Support keyboard arrow navigation for tabs
     function handleKey(event, idx) {
       const tabs = Array.from(document.querySelectorAll('.tab'));
       if(event.key === 'ArrowRight') {
@@ -403,52 +459,10 @@
       }
     }
 
-    // Normalize names for logo filenames
     function normalizarNome(nome) {
       return nome.toLowerCase().replace(/[^a-z0-9]/g, "_");
     }
 
-    // Render table with sorted data and logos
-    function renderTabela(registros, destinoId) {
-      registros.forEach(voo => {
-        if (voo.horario && voo.horario.length < 5 && voo.horario.includes(':')) {
-          voo.horario = voo.horario.padStart(5, '0');
-        }
-      });
-
-      registros.sort((a, b) => {
-        const [aHour, aMinute] = (a.horario || "00:00").split(':').map(Number);
-        const [bHour, bMinute] = (b.horario || "00:00").split(':').map(Number);
-        if (aHour !== bHour) return aHour - bHour;
-        return aMinute - bMinute;
-      });
-
-      let html = '<table><thead><tr>' +
-        '<th aria-label="Logo da Companhia">AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
-        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
-        '</tr></thead><tbody>';
-
-      registros.forEach((e, i) => {
-        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
-        html += `<tr>
-          ${logo}
-          <td>${sanitizeHTML(e.voo || '')}</td>
-          <td>${sanitizeHTML(e.cidade)}</td>
-          <td>${sanitizeHTML(e.icao)}</td>
-          <td>${sanitizeHTML(e.pais)}</td>
-          <td>${sanitizeHTML(e.horario || '')}</td>
-          <td>${sanitizeHTML(e.aeronave || '')}</td>
-          <td>${sanitizeHTML(e.tps || '')}</td>
-          <td>${sanitizeHTML(e.status || '')}</td>
-          <td><button class='remove-btn' aria-label="Remover voo ${e.voo || ''} para ${e.cidade}" onclick='confirmRemoverVoo(${i}, "${destinoId}")'>✖</button></td>
-        </tr>`;
-      });
-
-      html += '</tbody></table>';
-      document.getElementById(destinoId).innerHTML = html;
-    }
-
-    // Sanitization function to prevent XSS
     function sanitizeHTML(str) {
       if (!str) return '';
       return str.toString()
@@ -459,9 +473,7 @@
         .replace(/'/g, '&#39;');
     }
 
-    // Populate filter selects with unique sorted options
     function popularSelects() {
-      // Clear existing options before populating to avoid duplicates
       const selectIds = [
         'filter-companhia', 'filter-destino', 'filter-pais', 'filter-tps',
         'filter-companhia-partidas', 'filter-destino-partidas', 'filter-pais-partidas', 'filter-tps-partidas'
@@ -473,7 +485,6 @@
         }
       });
 
-      // Use Set for unique values
       const companhias = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.companhia))].sort();
       const destinos = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.cidade))].sort();
       const paises = [...new Set([...registrosChegadas, ...registrosPartidas].map(voo => voo.pais))].sort();
@@ -501,9 +512,7 @@
       updateSelectOptions('filter-tps-partidas', [''].concat(tps));
     }
 
-    // Filtering function considering selects in both tabs
     function filtrar() {
-      // Filters for Chegadas
       const filtroCompanhia = document.getElementById('filter-companhia').value.toLowerCase();
       const filtroDestino = document.getElementById('filter-destino').value.toLowerCase();
       const filtroPais = document.getElementById('filter-pais').value.toLowerCase();
@@ -516,7 +525,6 @@
         (filtroTps === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTps)))
       );
 
-      // Filters for Partidas
       const filtroCompanhiaP = document.getElementById('filter-companhia-partidas').value.toLowerCase();
       const filtroDestinoP = document.getElementById('filter-destino-partidas').value.toLowerCase();
       const filtroPaisP = document.getElementById('filter-pais-partidas').value.toLowerCase();
@@ -533,7 +541,6 @@
       renderTabela(registrosFiltradosPartidas, 'partidasTabela');
     }
 
-    // Confirm and then remove a flight from data arrays
     function confirmRemoverVoo(indice, tipo) {
       let voo = null;
       if (tipo === 'chegadasTabela') {
@@ -547,7 +554,6 @@
       }
     }
 
-    // Remove flight and update storage/tables
     function removerVoo(indice, tipo) {
       if (tipo === 'chegadasTabela') {
         const globalIndex = registrosChegadas.indexOf(registrosFiltradosChegadas[indice]);
@@ -560,7 +566,6 @@
       filtrar();
     }
 
-    // Adding flight with validation and feedback
     function adicionarVoo(event) {
       event.preventDefault();
       clearValidation();
@@ -578,7 +583,6 @@
 
       let valid = true;
 
-      // Required fields validation
       if (!companhiaEl.value.trim()) {
         setInvalid(companhiaEl, 'erro-companhia');
         valid = false;
@@ -614,14 +618,13 @@
       const voo = vooEl.value.trim();
       const horario = horarioEl.value.trim();
       const aeronave = aeronaveEl.value.trim();
-      const status = statusEl.value.trim();
+      const status = statusEl.value.trim() || "Scheduled";
       const tps = tpsEl.value.trim();
       const tipo = tipoEl.value;
 
-      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps };
+      const novoRegistro = { companhia, cidade, icao, pais, voo, horario, aeronave, status, tps, frequencia: 1 };
       const registros = tipo === "chegada" ? registrosChegadas : registrosPartidas;
 
-      // Check for duplicates (airline + city + ICAO)
       if (!registros.some(e => e.companhia === companhia && e.cidade === cidade && e.icao === icao)) {
         registros.push(novoRegistro);
       } else {
@@ -630,24 +633,21 @@
       }
 
       salvarDados();
-      // Reset form fields
       document.getElementById("formNovoVoo").reset();
       document.getElementById("btnAdicionarVoo").setAttribute('disabled', 'disabled');
       atualizarTabelas();
       popularSelects();
-      trocarAba(0); // Go back to Chegadas tab after add
+      trocarAba(0);
 
       alert("Voo adicionado com sucesso!");
     }
 
-    // Set invalid style and show error message
     function setInvalid(element, errorId) {
       element.classList.add('invalid');
       const errorEl = document.getElementById(errorId);
       if(errorEl) errorEl.style.display = 'block';
     }
 
-    // Clear all validation errors
     function clearValidation() {
       const inputs = document.querySelectorAll('#formNovoVoo input, #formNovoVoo select');
       inputs.forEach(input => input.classList.remove('invalid'));
@@ -655,7 +655,6 @@
       errorMessages.forEach(error => error.style.display = 'none');
     }
 
-    // Enable/disable submit button based on required fields filled
     function validarForm() {
       const companhia = document.getElementById("companhia").value.trim();
       const cidade = document.getElementById("cidade").value.trim();
@@ -671,18 +670,15 @@
       }
     }
 
-    // Save data to localStorage
     function salvarDados() {
       localStorage.setItem('registrosChegadas', JSON.stringify(registrosChegadas));
       localStorage.setItem('registrosPartidas', JSON.stringify(registrosPartidas));
     }
 
-    // Update all tables
     function atualizarTabelas() {
       filtrar();
     }
 
-    // Export data as a JSON file and show in textarea
     function exportarBackup() {
       const loadingEl = document.getElementById('loadingBackup');
       loadingEl.style.display = 'inline';
@@ -702,7 +698,6 @@
       }, 200);
     }
 
-    // Import data from JSON file input
     function importarBackup(event) {
       const loadingEl = document.getElementById('loadingBackup');
       loadingEl.style.display = 'inline';
@@ -732,7 +727,6 @@
       reader.readAsText(file);
     }
 
-    // Initialize form event listeners for validation and submission
     function initFormListeners() {
       const form = document.getElementById('formNovoVoo');
       form.addEventListener('submit', adicionarVoo);
@@ -740,15 +734,176 @@
       inputs.forEach(input => {
         input.addEventListener('input', validarForm);
       });
-      validarForm(); // Initial check
+      validarForm();
     }
 
-    // XSS sanitizer on inputs
-    function sanitizeInput(event) {
-      // We sanitize only on form submission, so no need here currently.
+    // Automação
+
+    function toggleAutomation() {
+      automationActive = !automationActive;
+      const btn = document.getElementById('btnToggleAutomation');
+      btn.setAttribute('aria-pressed', automationActive);
+      btn.textContent = automationActive ? 'Parar Simulação Automática ✈️' : 'Iniciar Simulação Automática ✈️';
+
+      if (automationActive) {
+        startAutomation();
+      } else {
+        clearInterval(automationInterval);
+      }
     }
 
-    // On window load, setup selects, tables, and listeners
+    function startAutomation() {
+      automationInterval = setInterval(() => {
+        updateFlightStatuses();
+        removeOldFlights();
+        salvarDados();
+        atualizarTabelas();
+        popularSelects();
+      }, 5000); // a cada 5 segundos
+    }
+
+    // Avançar o status do voo conforme workflow definido
+    function advanceStatus(voo, workflow){
+      const currentIndex = workflow.indexOf(voo.status);
+      if(currentIndex === -1) {
+        // Se status desconhecido, definir Scheduled
+        voo.status = workflow[0];
+        return;
+      }
+      // Avança para próximo status, exceto no último
+      if(currentIndex < workflow.length -1){
+        // Algumas transições podem demorar mais, aqui simplificamos para avançar sempre
+        voo.status = workflow[currentIndex + 1];
+      }
+    }
+
+    function updateFlightStatuses(){
+      // Atualiza status Chegadas
+      registrosChegadas.forEach(voo => {
+        advanceStatus(voo, statusWorkflowChegadas);
+        // Define piscante verde para status específicos
+        voo.piscante = null;
+        const statusLower = voo.status.toLowerCase();
+        if(voo.status==="Delayed" || voo.status==="Cancelled"){
+          voo.piscante = "red";
+        } else if([
+          "Confirmed HH:MM",
+          "Check-in Opened",
+          "Boarding Gate XXX",
+          "Boarding Now",
+          "Last Call",
+          "Taking Off",
+          "Landing",
+          "Landed",
+          "Deplaining"
+        ].some(s => s.toLowerCase() === statusLower)){
+          voo.piscante = "green";
+        }
+      });
+      // Atualiza status Partidas
+      registrosPartidas.forEach(voo => {
+        advanceStatus(voo, statusWorkflowPartidas);
+        voo.piscante = null;
+        const statusLower = voo.status.toLowerCase();
+        if(voo.status==="Delayed" || voo.status==="Cancelled"){
+          voo.piscante = "red";
+        } else if([
+          "Confirmed HH:MM",
+          "Check-in Opened",
+          "Boarding Gate XXX",
+          "Boarding Now",
+          "Last Call",
+          "Taking Off",
+          "Landing",
+          "Landed",
+          "Deplaining"
+        ].some(s => s.toLowerCase() === statusLower)){
+          voo.piscante = "green";
+        }
+      });
+    }
+
+    // Remove voos finalizados e reinsere baseado na frequencia (dias)
+    function removeOldFlights() {
+      const registrosChegadasNovos = [];
+      registrosChegadas.forEach(voo => {
+        if(voo.status === "Finished" || voo.status === "Cancelled"){
+          // Reinsere voo com status Scheduled (assume frequencia em dias, default 1)
+          const freqDias = voo.frequencia || 1;
+          // Aqui poderíamos calcular datas, mas para simplicidade, só reseta status
+          const novoVoo = {...voo};
+          novoVoo.status = "Scheduled";
+          novoVoo.piscante = null;
+          registrosChegadasNovos.push(novoVoo);
+        } else {
+          registrosChegadasNovos.push(voo);
+        }
+      });
+      registrosChegadas = registrosChegadasNovos;
+
+      const registrosPartidasNovos = [];
+      registrosPartidas.forEach(voo => {
+        if(voo.status === "Finished" || voo.status === "Cancelled"){
+          const freqDias = voo.frequencia || 1;
+          const novoVoo = {...voo};
+          novoVoo.status = "Scheduled";
+          novoVoo.piscante = null;
+          registrosPartidasNovos.push(novoVoo);
+        } else {
+          registrosPartidasNovos.push(voo);
+        }
+      });
+      registrosPartidas = registrosPartidasNovos;
+    }
+
+    // Renderiza tabelas com indicação do status piscante
+    function renderTabela(registros, destinoId) {
+      registros.forEach(voo => {
+        if (voo.horario && voo.horario.length < 5 && voo.horario.includes(':')) {
+          voo.horario = voo.horario.padStart(5, '0');
+        }
+      });
+
+      registros.sort((a, b) => {
+        const [aHour, aMinute] = (a.horario || "00:00").split(':').map(Number);
+        const [bHour, bMinute] = (b.horario || "00:00").split(':').map(Number);
+        if (aHour !== bHour) return aHour - bHour;
+        return aMinute - bMinute;
+      });
+
+      let html = '<table><thead><tr>' +
+        '<th aria-label="Logo da Companhia">AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
+        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
+        '</tr></thead><tbody>';
+
+      registros.forEach((e, i) => {
+        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+
+        let statusExibido = e.status ? e.status : "";
+        if(statusExibido.toLowerCase() === "estimated") {
+          statusExibido = "Scheduled";
+        }
+        // Classe piscante para status
+        const statusClass = e.piscante ? `${e.piscante}-piscante` : "";
+
+        html += `<tr>
+          ${logo}
+          <td>${sanitizeHTML(e.voo || '')}</td>
+          <td>${sanitizeHTML(e.cidade)}</td>
+          <td>${sanitizeHTML(e.icao)}</td>
+          <td>${sanitizeHTML(e.pais)}</td>
+          <td>${sanitizeHTML(e.horario || '')}</td>
+          <td>${sanitizeHTML(e.aeronave || '')}</td>
+          <td>${sanitizeHTML(e.tps || '')}</td>
+          <td class="${statusClass}">${sanitizeHTML(statusExibido)}</td>
+          <td><button class='remove-btn' aria-label="Remover voo ${e.voo || ''} para ${e.cidade}" onclick='confirmRemoverVoo(${i}, "${destinoId}")'>✖</button></td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      document.getElementById(destinoId).innerHTML = html;
+    }
+
     window.onload = () => {
       popularSelects();
       atualizarTabelas();
@@ -760,6 +915,16 @@
       });
       document.getElementById('importar').addEventListener('change', importarBackup);
     };
+
+    function initFormListeners() {
+      const form = document.getElementById('formNovoVoo');
+      form.addEventListener('submit', adicionarVoo);
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      inputs.forEach(input => {
+        input.addEventListener('input', validarForm);
+      });
+      validarForm();
+    }
   </script>
 </body>
 </html>
