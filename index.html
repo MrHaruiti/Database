@@ -508,6 +508,192 @@
   </div>
 
   <script>
+    // Mapeamento nome país para emoji bandeira unicode
+    const bandeiras = {
+      "afeganistão": "🇦🇫",
+      "áfrica do sul": "🇿🇦",
+      "albânia": "🇦🇱",
+      "alemanha": "🇩🇪",
+      "andorra": "🇦🇩",
+      "angola": "🇦🇴",
+      "antígua e barbuda": "🇦🇬",
+      "arábia saudita": "🇸🇦",
+      "argélia": "🇩🇿",
+      "argentina": "🇦🇷",
+      "armênia": "🇦🇲",
+      "austrália": "🇦🇺",
+      "áustria": "🇦🇹",
+      "azerbaijão": "🇦🇿",
+      "bahamas": "🇧🇸",
+      "bahrein": "🇧🇭",
+      "bangladesh": "🇧🇩",
+      "barbados": "🇧🇧",
+      "bélgica": "🇧🇪",
+      "belize": "🇧🇿",
+      "benin": "🇧🇯",
+      "bielorrússia": "🇧🇾",
+      "bolívia": "🇧🇴",
+      "bósnia e herzegovina": "🇧🇦",
+      "botswana": "🇧🇼",
+      "brasil": "🇧🇷",
+      "brunei": "🇧🇳",
+      "bulgária": "🇧🇬",
+      "burkina faso": "🇧🇫",
+      "burundi": "🇧🇮",
+      "butão": "🇧🇹",
+      "cabo verde": "🇨🇻",
+      "camboja": "🇰🇭",
+      "camarões": "🇨🇲",
+      "canadá": "🇨🇦",
+      "catar": "🇶🇦",
+      "cazaquistão": "🇰🇿",
+      "chade": "🇹🇩",
+      "chile": "🇨🇱",
+      "china": "🇨🇳",
+      "chipre": "🇨🇾",
+      "colômbia": "🇨🇴",
+      "comores": "🇰🇲",
+      "congo": "🇨🇬",
+      "coreia do sul": "🇰🇷",
+      "coreia do norte": "🇰🇵",
+      "cosovo": "🇽🇰",
+      "costa do marfim": "🇨🇮",
+      "costa rica": "🇨🇷",
+      "croácia": "🇭🇷",
+      "cuba": "🇨🇺",
+      "dinamarca": "🇩🇰",
+      "djibuti": "🇩🇯",
+      "dominica": "🇩🇲",
+      "egito": "🇪🇬",
+      "el salvador": "🇸🇻",
+      "emirados árabes unidos": "🇦🇪",
+      "equador": "🇪🇨",
+      "eritreia": "🇪🇷",
+      "eslováquia": "🇸🇰",
+      "eslovênia": "🇸🇮",
+      "espanha": "🇪🇸",
+      "estados unidos": "🇺🇸",
+      "estônia": "🇪🇪",
+      "etiópia": "🇪🇹",
+      "fiji": "🇫🇯",
+      "filipinas": "🇵🇭",
+      "finlândia": "🇫🇮",
+      "frança": "🇫🇷",
+      "gâmbia": "🇬🇲",
+      "gana": "🇬🇭",
+      "geórgia": "🇬🇪",
+      "granada": "🇬🇩",
+      "grécia": "🇬🇷",
+      "guatemala": "🇬🇹",
+      "guiana": "🇬🇾",
+      "guiné": "🇬🇳",
+      "guiné-bissau": "🇬🇼",
+      "guiné equatorial": "🇬🇶",
+      "haiti": "🇭🇹",
+      "holanda": "🇳🇱",
+      "honduras": "🇭🇳",
+      "hungria": "🇭🇺",
+      "iraque": "🇮🇶",
+      "irã": "🇮🇷",
+      "irlanda": "🇮🇪",
+      "islandia": "🇮🇸",
+      "israel": "🇮🇱",
+      "italia": "🇮🇹",
+      "jamaica": "🇯🇲",
+      "japão": "🇯🇵",
+      "jordânia": "🇯🇴",
+      "kiribati": "🇰🇮",
+      "kosovo": "🇽🇰",
+      "kuwait": "🇰🇼",
+      "laos": "🇱🇦",
+      "lesoto": "🇱🇸",
+      "letônia": "🇱🇻",
+      "líbano": "🇱🇧",
+      "libéria": "🇱🇷",
+      "líbia": "🇱🇾",
+      "liechtenstein": "🇱🇮",
+      "lituânia": "🇱🇹",
+      "luxemburgo": "🇱🇺",
+      "madagascar": "🇲🇬",
+      "malasia": "🇲🇾",
+      "malawi": "🇲🇼",
+      "maldivas": "🇲🇻",
+      "mali": "🇲🇱",
+      "malta": "🇲🇹",
+      "marrocos": "🇲🇦",
+      "marshall": "🇲🇭",
+      "maurício": "🇲🇺",
+      "mauritânia": "🇲🇷",
+      "mexico": "🇲🇽",
+      "micronésia": "🇫🇲",
+      "moldávia": "🇲🇩",
+      "mônaco": "🇲🇨",
+      "mongólia": "🇲🇳",
+      "montenegro": "🇲🇪",
+      "mozambique": "🇲🇿",
+      "namibia": "🇳🇦",
+      "nauru": "🇳🇷",
+      "nepal": "🇳🇵",
+      "nicarágua": "🇳🇮",
+      "níger": "🇳🇪",
+      "nigeria": "🇳🇬",
+      "noruega": "🇳🇴",
+      "nova zelândia": "🇳🇿",
+      "omã": "🇴🇲",
+      "países baixos": "🇳🇱",
+      "pakistão": "🇵🇰",
+      "palau": "🇵🇼",
+      "panamá": "🇵🇦",
+      "papua nova guiné": "🇵🇬",
+      "paraguai": "🇵🇾",
+      "peru": "🇵🇪",
+      "polônia": "🇵🇱",
+      "portugal": "🇵🇹",
+      "qatar": "🇶🇦",
+      "romênia": "🇷🇴",
+      "ruanda": "🇷🇼",
+      "russia": "🇷🇺",
+      "samoa": "🇼🇸",
+      "san marino": "🇸🇲",
+      "são cristóvão e nevis": "🇰🇳",
+      "são vicente e granadinas": "🇻🇨",
+      "santa lucia": "🇱🇨",
+      "senegal": "🇸🇳",
+      "serbia": "🇷🇸",
+      "seychelles": "🇸🇨",
+      "sierra leone": "🇸🇱",
+      "singapura": "🇸🇬",
+      "síria": "🇸🇾",
+      "somália": "🇸🇴",
+      "sri lanka": "🇱🇰",
+      "suécia": "🇸🇪",
+      "suíça": "🇨🇭",
+      "sudão": "🇸🇩",
+      "sudão do sul": "🇸🇸",
+      "suriname": "🇸🇷",
+      "tailândia": "🇹🇭",
+      "taiwan": "🇹🇼",
+      "tanzânia": "🇹🇿",
+      "togo": "🇹🇬",
+      "tonga": "🇹🇴",
+      "trinidad e tobago": "🇹🇹",
+      "tunísia": "🇹🇳",
+      "turcomenistão": "🇹🇲",
+      "turquia": "🇹🇷",
+      "tuvalu": "🇹🇻",
+      "ucrânia": "🇺🇦",
+      "uganda": "🇺🇬",
+      "união europeia": "🇪🇺",
+      "uruguai": "🇺🇾",
+      "uzbequistão": "🇺🇿",
+      "vanuatu": "🇻🇺",
+      "vaticano": "🇻🇦",
+      "venezuela": "🇻🇪",
+      "vietnã": "🇻🇳",
+      "zâmbia": "🇿🇲",
+      "zimbábue": "🇿🇼"
+    };
+
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
 
@@ -745,6 +931,13 @@
       registros.forEach((e, i) => {
         const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
 
+        // Obter bandeira e título tooltip para o país
+        const paisLower = e.pais ? e.pais.toLowerCase().trim() : "";
+        const flag = bandeiras[paisLower] || "";
+        const paisFlagHtml = flag ? 
+          \`<span role="img" aria-label="\${sanitizeHTML(e.pais)}" title="\${sanitizeHTML(e.pais)}" style="font-size: 1.4em; user-select:none;">\${flag}</span>\` 
+          : sanitizeHTML(e.pais || "");
+
         let statusExibido = e.status || "";
 
         if (statusExibido === "Confirmed HH:MM" && e.horarioConfirmado) {
@@ -753,20 +946,20 @@
           statusExibido = "Scheduled";
         }
 
-        const statusClass = e.piscante ? `${e.piscante}-piscante` : "";
+        const statusClass = e.piscante ? \`\${e.piscante}-piscante\` : "";
 
-        html += `<tr>
-          ${logo}
-          <td>${sanitizeHTML(e.voo || '')}</td>
-          <td>${sanitizeHTML(e.cidade)}</td>
-          <td>${sanitizeHTML(e.icao)}</td>
-          <td>${sanitizeHTML(e.pais)}</td>
-          <td>${sanitizeHTML(e.horario || '')}</td>
-          <td>${sanitizeHTML(e.aeronave || '')}</td>
-          <td>${sanitizeHTML(e.tps || '')}</td>
-          <td class="${statusClass}">${sanitizeHTML(statusExibido)}</td>
-          <td><button class='remove-btn' aria-label="Remover voo ${e.voo || ''} para ${e.cidade}" onclick='confirmRemoverVoo(${i}, "${destinoId}")'>✖</button></td>
-        </tr>`;
+        html += \`<tr>
+          \${logo}
+          <td>\${sanitizeHTML(e.voo || '')}</td>
+          <td>\${sanitizeHTML(e.cidade)}</td>
+          <td>\${sanitizeHTML(e.icao)}</td>
+          <td>\${paisFlagHtml}</td>
+          <td>\${sanitizeHTML(e.horario || '')}</td>
+          <td>\${sanitizeHTML(e.aeronave || '')}</td>
+          <td>\${sanitizeHTML(e.tps || '')}</td>
+          <td class="\${statusClass}">\${sanitizeHTML(statusExibido)}</td>
+          <td><button class='remove-btn' aria-label="Remover voo \${e.voo || ''} para \${e.cidade}" onclick='confirmRemoverVoo(\${i}, "\${destinoId}")'>✖</button></td>
+        </tr>\`;
       });
 
       html += '</tbody></table>';
