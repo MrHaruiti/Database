@@ -455,7 +455,7 @@
         <div id="erro-icao" class="error-message" aria-live="assertive">Por favor, preencha um código ICAO válido (4 letras).</div>
 
         <label for="pais">País: <span aria-hidden="true" style="color:#ff4e50;">*</span></label>
-        <input id="pais" name="pais" placeholder="Ex: França" type="text" autocomplete="off" required aria-required="true"
+        <input id="pais" name="pais" placeholder="Ex: France" type="text" autocomplete="off" required aria-required="true"
           aria-describedby="erro-pais" />
         <div id="erro-pais" class="error-message" aria-live="assertive">Por favor, preencha o País.</div>
 
@@ -471,7 +471,7 @@
         <input id="aeronave" name="aeronave" placeholder="Ex: A320" type="text" autocomplete="off" />
 
         <label for="status">Status:</label>
-        <input id="status" name="status" placeholder="Ex: Confirmado" type="text" autocomplete="off" />
+        <input id="status" name="status" placeholder="Ex: Confirmed" type="text" autocomplete="off" />
 
         <label for="tps">TPS:</label>
         <input id="tps" name="tps" placeholder="Ex: TPS1" type="text" autocomplete="off" />
@@ -508,190 +508,189 @@
   </div>
 
   <script>
-    // Mapeamento nome país para emoji bandeira unicode
+    // Map English country names to emoji flags
     const bandeiras = {
-      "afeganistão": "🇦🇫",
-      "áfrica do sul": "🇿🇦",
-      "albânia": "🇦🇱",
-      "alemanha": "🇩🇪",
+      "afghanistan": "🇦🇫",
+      "south africa": "🇿🇦",
+      "albania": "🇦🇱",
+      "germany": "🇩🇪",
       "andorra": "🇦🇩",
       "angola": "🇦🇴",
-      "antígua e barbuda": "🇦🇬",
-      "arábia saudita": "🇸🇦",
-      "argélia": "🇩🇿",
+      "antigua and barbuda": "🇦🇬",
+      "saudi arabia": "🇸🇦",
+      "algeria": "🇩🇿",
       "argentina": "🇦🇷",
-      "armênia": "🇦🇲",
-      "austrália": "🇦🇺",
-      "áustria": "🇦🇹",
-      "azerbaijão": "🇦🇿",
-      "bahamas": "🇧🇸",
-      "bahrein": "🇧🇭",
+      "armenia": "🇦🇲",
+      "australia": "🇦🇺",
+      "austria": "🇦🇹",
+      "azerbaijan": "🇦🇿",
+      "the bahamas": "🇧🇸",
+      "bahrain": "🇧🇭",
       "bangladesh": "🇧🇩",
       "barbados": "🇧🇧",
-      "bélgica": "🇧🇪",
+      "belgium": "🇧🇪",
       "belize": "🇧🇿",
       "benin": "🇧🇯",
-      "bielorrússia": "🇧🇾",
-      "bolívia": "🇧🇴",
-      "bósnia e herzegovina": "🇧🇦",
+      "belarus": "🇧🇾",
+      "bolivia": "🇧🇴",
+      "bosnia and herzegovina": "🇧🇦",
       "botswana": "🇧🇼",
-      "brasil": "🇧🇷",
+      "brazil": "🇧🇷",
       "brunei": "🇧🇳",
-      "bulgária": "🇧🇬",
+      "bulgaria": "🇧🇬",
       "burkina faso": "🇧🇫",
       "burundi": "🇧🇮",
-      "butão": "🇧🇹",
-      "cabo verde": "🇨🇻",
-      "camboja": "🇰🇭",
-      "camarões": "🇨🇲",
-      "canadá": "🇨🇦",
-      "catar": "🇶🇦",
-      "cazaquistão": "🇰🇿",
-      "chade": "🇹🇩",
+      "bhutan": "🇧🇹",
+      "cape verde": "🇨🇻",
+      "cambodia": "🇰🇭",
+      "cameroon": "🇨🇲",
+      "canada": "🇨🇦",
+      "qatar": "🇶🇦",
+      "kazakhstan": "🇰🇿",
+      "chad": "🇹🇩",
       "chile": "🇨🇱",
       "china": "🇨🇳",
-      "chipre": "🇨🇾",
-      "colômbia": "🇨🇴",
-      "comores": "🇰🇲",
+      "cyprus": "🇨🇾",
+      "colombia": "🇨🇴",
+      "comoros": "🇰🇲",
       "congo": "🇨🇬",
-      "coreia do sul": "🇰🇷",
-      "coreia do norte": "🇰🇵",
-      "cosovo": "🇽🇰",
-      "costa do marfim": "🇨🇮",
-      "costa rica": "🇨🇷",
-      "croácia": "🇭🇷",
-      "cuba": "🇨🇺",
-      "dinamarca": "🇩🇰",
-      "djibuti": "🇩🇯",
-      "dominica": "🇩🇲",
-      "egito": "🇪🇬",
-      "el salvador": "🇸🇻",
-      "emirados árabes unidos": "🇦🇪",
-      "equador": "🇪🇨",
-      "eritreia": "🇪🇷",
-      "eslováquia": "🇸🇰",
-      "eslovênia": "🇸🇮",
-      "espanha": "🇪🇸",
-      "estados unidos": "🇺🇸",
-      "estônia": "🇪🇪",
-      "etiópia": "🇪🇹",
-      "fiji": "🇫🇯",
-      "filipinas": "🇵🇭",
-      "finlândia": "🇫🇮",
-      "frança": "🇫🇷",
-      "gâmbia": "🇬🇲",
-      "gana": "🇬🇭",
-      "geórgia": "🇬🇪",
-      "granada": "🇬🇩",
-      "grécia": "🇬🇷",
-      "guatemala": "🇬🇹",
-      "guiana": "🇬🇾",
-      "guiné": "🇬🇳",
-      "guiné-bissau": "🇬🇼",
-      "guiné equatorial": "🇬🇶",
-      "haiti": "🇭🇹",
-      "holanda": "🇳🇱",
-      "honduras": "🇭🇳",
-      "hungria": "🇭🇺",
-      "iraque": "🇮🇶",
-      "irã": "🇮🇷",
-      "irlanda": "🇮🇪",
-      "islandia": "🇮🇸",
-      "israel": "🇮🇱",
-      "italia": "🇮🇹",
-      "jamaica": "🇯🇲",
-      "japão": "🇯🇵",
-      "jordânia": "🇯🇴",
-      "kiribati": "🇰🇮",
+      "south korea": "🇰🇷",
+      "north korea": "🇰🇵",
       "kosovo": "🇽🇰",
+      "ivory coast": "🇨🇮",
+      "costa rica": "🇨🇷",
+      "croatia": "🇭🇷",
+      "cuba": "🇨🇺",
+      "denmark": "🇩🇰",
+      "djibouti": "🇩🇯",
+      "dominica": "🇩🇲",
+      "egypt": "🇪🇬",
+      "el salvador": "🇸🇻",
+      "united arab emirates": "🇦🇪",
+      "ecuador": "🇪🇨",
+      "eritrea": "🇪🇷",
+      "slovakia": "🇸🇰",
+      "slovenia": "🇸🇮",
+      "spain": "🇪🇸",
+      "united states": "🇺🇸",
+      "estonia": "🇪🇪",
+      "ethiopia": "🇪🇹",
+      "fiji": "🇫🇯",
+      "philippines": "🇵🇭",
+      "finland": "🇫🇮",
+      "france": "🇫🇷",
+      "gambia": "🇬🇲",
+      "ghana": "🇬🇭",
+      "georgia": "🇬🇪",
+      "grenada": "🇬🇩",
+      "greece": "🇬🇷",
+      "guatemala": "🇬🇹",
+      "guyana": "🇬🇾",
+      "guinea": "🇬🇳",
+      "guinea-bissau": "🇬🇼",
+      "equatorial guinea": "🇬🇶",
+      "haiti": "🇭🇹",
+      "netherlands": "🇳🇱",
+      "honduras": "🇭🇳",
+      "hungary": "🇭🇺",
+      "iraq": "🇮🇶",
+      "iran": "🇮🇷",
+      "ireland": "🇮🇪",
+      "iceland": "🇮🇸",
+      "israel": "🇮🇱",
+      "italy": "🇮🇹",
+      "jamaica": "🇯🇲",
+      "japan": "🇯🇵",
+      "jordan": "🇯🇴",
+      "kiribati": "🇰🇮",
       "kuwait": "🇰🇼",
+      "kyrgyzstan": "🇰🇬",
       "laos": "🇱🇦",
-      "lesoto": "🇱🇸",
-      "letônia": "🇱🇻",
-      "líbano": "🇱🇧",
-      "libéria": "🇱🇷",
-      "líbia": "🇱🇾",
+      "lesotho": "🇱🇸",
+      "latvia": "🇱🇻",
+      "lebanon": "🇱🇧",
+      "liberia": "🇱🇷",
+      "libya": "🇱🇾",
       "liechtenstein": "🇱🇮",
-      "lituânia": "🇱🇹",
-      "luxemburgo": "🇱🇺",
+      "lithuania": "🇱🇹",
+      "luxembourg": "🇱🇺",
       "madagascar": "🇲🇬",
-      "malasia": "🇲🇾",
+      "malaysia": "🇲🇾",
       "malawi": "🇲🇼",
-      "maldivas": "🇲🇻",
+      "maldives": "🇲🇻",
       "mali": "🇲🇱",
       "malta": "🇲🇹",
-      "marrocos": "🇲🇦",
-      "marshall": "🇲🇭",
-      "maurício": "🇲🇺",
-      "mauritânia": "🇲🇷",
+      "morocco": "🇲🇦",
+      "marshall islands": "🇲🇭",
+      "mauritius": "🇲🇺",
+      "mauritania": "🇲🇷",
       "mexico": "🇲🇽",
-      "micronésia": "🇫🇲",
-      "moldávia": "🇲🇩",
-      "mônaco": "🇲🇨",
-      "mongólia": "🇲🇳",
+      "micronesia": "🇫🇲",
+      "moldova": "🇲🇩",
+      "monaco": "🇲🇨",
+      "mongolia": "🇲🇳",
       "montenegro": "🇲🇪",
       "mozambique": "🇲🇿",
       "namibia": "🇳🇦",
       "nauru": "🇳🇷",
       "nepal": "🇳🇵",
-      "nicarágua": "🇳🇮",
-      "níger": "🇳🇪",
+      "nicaragua": "🇳🇮",
+      "niger": "🇳🇪",
       "nigeria": "🇳🇬",
-      "noruega": "🇳🇴",
-      "nova zelândia": "🇳🇿",
-      "omã": "🇴🇲",
-      "países baixos": "🇳🇱",
-      "pakistão": "🇵🇰",
+      "norway": "🇳🇴",
+      "new zealand": "🇳🇿",
+      "oman": "🇴🇲",
+      "pakistan": "🇵🇰",
       "palau": "🇵🇼",
-      "panamá": "🇵🇦",
-      "papua nova guiné": "🇵🇬",
-      "paraguai": "🇵🇾",
+      "panama": "🇵🇦",
+      "papua new guinea": "🇵🇬",
+      "paraguay": "🇵🇾",
       "peru": "🇵🇪",
-      "polônia": "🇵🇱",
+      "poland": "🇵🇱",
       "portugal": "🇵🇹",
-      "qatar": "🇶🇦",
-      "romênia": "🇷🇴",
-      "ruanda": "🇷🇼",
+      "romania": "🇷🇴",
+      "rwanda": "🇷🇼",
       "russia": "🇷🇺",
       "samoa": "🇼🇸",
       "san marino": "🇸🇲",
-      "são cristóvão e nevis": "🇰🇳",
-      "são vicente e granadinas": "🇻🇨",
-      "santa lucia": "🇱🇨",
+      "saint kitts and nevis": "🇰🇳",
+      "saint vincent and the grenadines": "🇻🇨",
+      "saint lucia": "🇱🇨",
       "senegal": "🇸🇳",
       "serbia": "🇷🇸",
       "seychelles": "🇸🇨",
       "sierra leone": "🇸🇱",
-      "singapura": "🇸🇬",
-      "síria": "🇸🇾",
-      "somália": "🇸🇴",
+      "singapore": "🇸🇬",
+      "syria": "🇸🇾",
+      "somalia": "🇸🇴",
       "sri lanka": "🇱🇰",
-      "suécia": "🇸🇪",
-      "suíça": "🇨🇭",
-      "sudão": "🇸🇩",
-      "sudão do sul": "🇸🇸",
+      "sweden": "🇸🇪",
+      "switzerland": "🇨🇭",
+      "sudan": "🇸🇩",
+      "south sudan": "🇸🇸",
       "suriname": "🇸🇷",
-      "tailândia": "🇹🇭",
+      "thailand": "🇹🇭",
       "taiwan": "🇹🇼",
-      "tanzânia": "🇹🇿",
+      "tanzania": "🇹🇿",
       "togo": "🇹🇬",
       "tonga": "🇹🇴",
-      "trinidad e tobago": "🇹🇹",
-      "tunísia": "🇹🇳",
-      "turcomenistão": "🇹🇲",
-      "turquia": "🇹🇷",
+      "trinidad and tobago": "🇹🇹",
+      "tunisia": "🇹🇳",
+      "turkmenistan": "🇹🇲",
+      "turkey": "🇹🇷",
       "tuvalu": "🇹🇻",
-      "ucrânia": "🇺🇦",
+      "ukraine": "🇺🇦",
       "uganda": "🇺🇬",
-      "união europeia": "🇪🇺",
-      "uruguai": "🇺🇾",
-      "uzbequistão": "🇺🇿",
+      "united kingdom": "🇬🇧",
+      "united states": "🇺🇸",
+      "uruguay": "🇺🇾",
+      "uzbekistan": "🇺🇿",
       "vanuatu": "🇻🇺",
-      "vaticano": "🇻🇦",
+      "vatican city": "🇻🇦",
       "venezuela": "🇻🇪",
-      "vietnã": "🇻🇳",
-      "zâmbia": "🇿🇲",
-      "zimbábue": "🇿🇼"
+      "vietnam": "🇻🇳",
+      "zambia": "🇿🇲",
+      "zimbabwe": "🇿🇼"
     };
 
     let registrosChegadas = JSON.parse(localStorage.getItem('registrosChegadas')) || [];
@@ -929,13 +928,13 @@
         '</tr></thead><tbody>';
 
       registros.forEach((e, i) => {
-        const logo = `<td class='logo-cell'><img class='logo' src='logos/${normalizarNome(e.companhia)}.png' alt='Logo da companhia ${e.companhia}' onerror="this.src='logos/default.png'" title='${e.companhia}'></td>`;
+        const logo = \`<td class='logo-cell'><img class='logo' src='logos/\${normalizarNome(e.companhia)}.png' alt='Logo da companhia \${e.companhia}' onerror="this.src='logos/default.png'" title='\${e.companhia}'></td>\`;
 
-        // Obter bandeira e título tooltip para o país
-        const paisLower = e.pais ? e.pais.toLowerCase().trim() : "";
-        const flag = bandeiras[paisLower] || "";
-        const paisFlagHtml = flag ? 
-          \`<span role="img" aria-label="\${sanitizeHTML(e.pais)}" title="\${sanitizeHTML(e.pais)}" style="font-size: 1.4em; user-select:none;">\${flag}</span>\` 
+        const paisNormalized = e.pais ? e.pais.toLowerCase().trim() : "";
+        const flag = bandeiras[paisNormalized] || "";
+        // Use emoji with aria-label and tooltip title with the country name
+        const paisFlagHtml = flag
+          ? \`<span role="img" aria-label="\${sanitizeHTML(e.pais)}" title="\${sanitizeHTML(e.pais)}" style="font-size: 1.4em; user-select:none;">\${flag}</span>\`
           : sanitizeHTML(e.pais || "");
 
         let statusExibido = e.status || "";
@@ -966,7 +965,6 @@
       document.getElementById(destinoId).innerHTML = html;
     }
 
-    // Eventos do formulário e botões
     window.onload = () => {
       popularSelects();
       atualizarTabelas();
@@ -979,12 +977,10 @@
       document.getElementById('importar').addEventListener('change', importarBackup);
     };
 
-    // Inicializar listeners do formulário
     function initFormListeners() {
       const form = document.getElementById('formNovoVoo');
       form.addEventListener('submit', adicionarVoo);
 
-      // Habilitar botão adicionar somente se campos obrigatórios preenchidos
       const camposObrigatorios = ['companhia', 'cidade', 'icao', 'pais'];
       camposObrigatorios.forEach(id => {
         document.getElementById(id).addEventListener('input', validarForm);
@@ -1005,7 +1001,6 @@
       validarForm();
     }
 
-    // Funções de backup - exportar/importar
     function exportarBackup() {
       const dadosExport = {
         chegadas: registrosChegadas,
@@ -1037,7 +1032,6 @@
         }
       };
       reader.readAsText(file);
-      // Resetar input para poder carregar o mesmo arquivo novamente
       event.target.value = '';
     }
   </script>
