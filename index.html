@@ -305,19 +305,6 @@
       margin-top: 10px;
     }
 
-    /* Automation control styling */
-    #automation-control {
-      margin: 10px 0 20px;
-      text-align: center;
-    }
-
-    #automation-control button {
-      width: auto;
-      padding: 10px 20px;
-      font-size: 1rem;
-      user-select: none;
-    }
-
     /* Piscar vermelho e verde */
     .red-piscante {
       animation: blink-red 1s infinite;
@@ -404,11 +391,6 @@
   </nav>
 
   <main>
-    <section id="automation-control">
-      <button id="btnToggleAutomation" onclick="toggleAutomation()" aria-pressed="false"
-        aria-label="Iniciar ou parar simulação automática de operações">Iniciar Simulação Automática ✈️</button>
-    </section>
-
     <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
       <label for="filter-companhia">Filtrar por Companhia Aérea:</label>
       <select id="filter-companhia" aria-label="Filtrar por Companhia Aérea" onchange="filtrar()">
@@ -531,9 +513,6 @@
 
     let registrosFiltradosChegadas = registrosChegadas;
     let registrosFiltradosPartidas = registrosPartidas;
-
-    let automationActive = false;
-    let automationInterval = null;
 
     const statusWorkflowChegadas = [
       "Scheduled",
@@ -744,203 +723,6 @@
       filtrar();
     }
 
-    // Modal confirmação
-    const modal = document.getElementById('confirmModal');
-    const modalDesc = document.getElementById('modalDesc');
-    const btnConfirmed = document.getElementById('confirmConfirmed');
-    const btnDelayed = document.getElementById('confirmDelayed');
-    const btnCancelled = document.getElementById('confirmCancelled');
-
-    function abrirModalConfirma(voo, tipo) {
-      confirmandoVoo = voo;
-      confirmandoTipo = tipo;
-      modalDesc.textContent = `O voo ${voo.voo || ''} rumo à ${voo.cidade} está a 3 horas do horário previsto. Confirme o status do voo:`;
-      modal.style.display = 'block';
-      pauseAutomation();
-    }
-
-    function fecharModalConfirma() {
-      modal.style.display = 'none';
-      confirmandoVoo = null;
-      confirmandoTipo = null;
-      resumeAutomation();
-    }
-
-    btnConfirmed.onclick = () => {
-      if (confirmandoVoo) {
-        confirmandoVoo.status = "Confirmed HH:MM";
-        salvarDados();
-        atualizarTabelas();
-      }
-      fecharModalConfirma();
-    }
-    btnDelayed.onclick = () => {
-      if (confirmandoVoo) {
-        confirmandoVoo.status = "Delayed";
-        salvarDados();
-        atualizarTabelas();
-      }
-      fecharModalConfirma();
-    }
-    btnCancelled.onclick = () => {
-      if (confirmandoVoo) {
-        confirmandoVoo.status = "Cancelled";
-        salvarDados();
-        atualizarTabelas();
-      }
-      fecharModalConfirma();
-    }
-
-    window.onclick = function (event) {
-      if (event.target === modal) {
-        fecharModalConfirma();
-      }
-    }
-
-    // Automação
-    function toggleAutomation() {
-      automationActive = !automationActive;
-      const btn = document.getElementById('btnToggleAutomation');
-      btn.setAttribute('aria-pressed', automationActive);
-      btn.textContent = automationActive ? 'Parar Simulação Automática ✈️' : 'Iniciar Simulação Automática ✈️';
-
-      if (automationActive) {
-        startAutomation();
-      } else {
-        clearInterval(automationInterval);
-      }
-    }
-
-    function pauseAutomation() {
-      clearInterval(automationInterval);
-    }
-
-    function resumeAutomation() {
-      if (automationActive && !automationInterval) {
-        startAutomation();
-      }
-    }
-
-    function startAutomation() {
-      automationInterval = setInterval(() => {
-        if (confirmandoVoo) {
-          // Aguarda decisão do usuário
-          return;
-        }
-        updateFlightStatuses();
-        removeOldFlights();
-        salvarDados();
-        atualizarTabelas();
-        popularSelects();
-      }, 5000); // a cada 5 segundos
-    }
-
-    function verificarConfirmacoesPendentes(registros, tipo) {
-      if (confirmandoVoo) return; // já existe confirmação pendente
-
-      const agora = new Date();
-
-      for (const voo of registros) {
-        if (voo.status === "Scheduled" && voo.horario) {
-          const partes = voo.horario.split(":");
-          let dataVoo = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), parseInt(partes[0]), parseInt(partes[1]), 0, 0);
-          let diffMinutos = (dataVoo - agora) / (1000 * 60);
-
-          if (diffMinutos <= 180 && diffMinutos > 0) {
-            abrirModalConfirma(voo, tipo);
-            break;
-          }
-        }
-      }
-    }
-
-    function updateFlightStatuses() {
-      verificarConfirmacoesPendentes(registrosChegadas, "chegada");
-      verificarConfirmacoesPendentes(registrosPartidas, "partida");
-
-      if (confirmandoVoo) return;
-
-      registrosChegadas.forEach(voo => {
-        advanceStatus(voo, statusWorkflowChegadas);
-        voo.piscante = null;
-        if (voo.status === "Delayed" || voo.status === "Cancelled") voo.piscante = "red";
-        else if ([
-          "Confirmed HH:MM",
-          "Check-in Opened",
-          "Boarding Gate XXX",
-          "Boarding Now",
-          "Last Call",
-          "Taking Off",
-          "Landing",
-          "Landed",
-          "Deplaining"].includes(voo.status))
-          voo.piscante = "green";
-      });
-
-      registrosPartidas.forEach(voo => {
-        advanceStatus(voo, statusWorkflowPartidas);
-        voo.piscante = null;
-        if (voo.status === "Delayed" || voo.status === "Cancelled") voo.piscante = "red";
-        else if ([
-          "Confirmed HH:MM",
-          "Check-in Opened",
-          "Boarding Gate XXX",
-          "Boarding Now",
-          "Last Call",
-          "Taking Off",
-          "Landing",
-          "Landed",
-          "Deplaining"].includes(voo.status))
-          voo.piscante = "green";
-      });
-    }
-
-    function advanceStatus(voo, workflow) {
-      const currentIndex = workflow.indexOf(voo.status);
-      if (currentIndex === -1) voo.status = workflow[0];
-      else if (currentIndex < workflow.length - 1) {
-        const nextStatus = workflow[currentIndex + 1];
-        if (nextStatus === "Confirmed HH:MM") {
-          if (!voo.horarioConfirmado) {
-            const partes = voo.horario?.split(":") || ["00", "00"];
-            let hora = parseInt(partes[0]);
-            let minuto = parseInt(partes[1]);
-            const incremento = 5 + Math.floor(Math.random() * 11);
-            minuto += incremento;
-            if (minuto >= 60) {
-              minuto -= 60;
-              hora = (hora + 1) % 24;
-            }
-            voo.horarioConfirmado = (hora < 10 ? "0" + hora : hora) + ":" + (minuto < 10 ? "0" + minuto : minuto);
-          }
-          voo.status = nextStatus;
-        } else {
-          if (voo.status === "Confirmed HH:MM" && nextStatus !== "Confirmed HH:MM")
-            voo.horarioConfirmado = null;
-          voo.status = nextStatus;
-        }
-      }
-    }
-
-    function removeOldFlights() {
-      registrosChegadas = registrosChegadas.filter(voo => {
-        if (voo.status === "Finished" || voo.status === "Cancelled") {
-          const novo = { ...voo, status: "Scheduled", horarioConfirmado: null, piscante: null };
-          registrosChegadas.push(novo);
-          return false;
-        }
-        return true;
-      });
-      registrosPartidas = registrosPartidas.filter(voo => {
-        if (voo.status === "Finished" || voo.status === "Cancelled") {
-          const novo = { ...voo, status: "Scheduled", horarioConfirmado: null, piscante: null };
-          registrosPartidas.push(novo);
-          return false;
-        }
-        return true;
-      });
-    }
-
     function renderTabela(registros, destinoId) {
       registros.forEach(voo => {
         if (voo.horario && voo.horario.length < 5 && voo.horario.includes(':')) {
@@ -991,6 +773,7 @@
       document.getElementById(destinoId).innerHTML = html;
     }
 
+    // Eventos do formulário e botões
     window.onload = () => {
       popularSelects();
       atualizarTabelas();
@@ -1002,6 +785,68 @@
       });
       document.getElementById('importar').addEventListener('change', importarBackup);
     };
+
+    // Inicializar listeners do formulário
+    function initFormListeners() {
+      const form = document.getElementById('formNovoVoo');
+      form.addEventListener('submit', adicionarVoo);
+
+      // Habilitar botão adicionar somente se campos obrigatórios preenchidos
+      const camposObrigatorios = ['companhia', 'cidade', 'icao', 'pais'];
+      camposObrigatorios.forEach(id => {
+        document.getElementById(id).addEventListener('input', validarForm);
+      });
+
+      function validarForm() {
+        let valido = true;
+        camposObrigatorios.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el.value.trim()) {
+            valido = false;
+          }
+        });
+        const btn = document.getElementById('btnAdicionarVoo');
+        if (valido) btn.removeAttribute('disabled');
+        else btn.setAttribute('disabled', 'disabled');
+      }
+      validarForm();
+    }
+
+    // Funções de backup - exportar/importar
+    function exportarBackup() {
+      const dadosExport = {
+        chegadas: registrosChegadas,
+        partidas: registrosPartidas
+      };
+      const jsonStr = JSON.stringify(dadosExport, null, 2);
+      document.getElementById('output').value = jsonStr;
+    }
+
+    function importarBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const dadosImport = JSON.parse(e.target.result);
+          if (dadosImport.chegadas && Array.isArray(dadosImport.chegadas)) {
+            registrosChegadas = dadosImport.chegadas;
+          }
+          if (dadosImport.partidas && Array.isArray(dadosImport.partidas)) {
+            registrosPartidas = dadosImport.partidas;
+          }
+          salvarDados();
+          popularSelects();
+          atualizarTabelas();
+          alert('Backup importado com sucesso!');
+        } catch (error) {
+          alert('Erro ao importar backup: arquivo inválido.');
+        }
+      };
+      reader.readAsText(file);
+      // Resetar input para poder carregar o mesmo arquivo novamente
+      event.target.value = '';
+    }
   </script>
 </body>
 
