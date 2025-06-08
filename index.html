@@ -579,7 +579,7 @@
 </head>
 
 <body>
-  <h1 tabindex="0">New Dubai International Airport</h1>
+  <h1 tabindex="0">New Dubai International Airport <span id="clock" style="font-size: 0.8em; color: var(--primary-color);"></span></h1>
 
   <nav class="tabs" role="tablist" aria-label="Navegação das abas">
     <button role="tab" aria-selected="true" aria-controls="aba-chegadas" id="tab-chegadas" class="tab active" onclick="trocarAba(0)"
@@ -1386,47 +1386,80 @@
     // Auto-update status based on time
     function atualizarStatusAutomatico() {
       const agora = new Date();
-      const horaAtual = formatHora(agora);
-
+      
       // Update arrivals
       registrosChegadas.forEach(voo => {
-        if (voo.horario && voo.status !== 'Cancelled' && voo.status !== 'Finished') {
-          const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
-          const [horaAtualH, minutoAtualH] = horaAtual.split(':').map(Number);
-          const minutosPassados = (horaAtualH * 60 + minutoAtualH) - (horaVoo * 60 + minutoVoo);
-
-          if (minutosPassados >= 30) {
-            voo.status = 'Finished';
-            voo.piscante = null;
-          } else if (minutosPassados >= 0 && voo.status === 'Scheduled') {
-            voo.status = 'Landing';
-            voo.piscante = 'green';
-          }
+        if (!voo.horario || voo.status === 'Cancelled') return;
+        
+        const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
+        const horaAtual = agora.getHours();
+        const minutoAtual = agora.getMinutes();
+        
+        const minutosPassados = (horaAtual * 60 + minutoAtual) - (horaVoo * 60 + minutoVoo);
+        
+        // Atualizar status baseado no tempo passado
+        if (minutosPassados >= 30 && voo.status !== 'Finished') {
+          voo.status = 'Finished';
+          voo.piscante = null;
+          voo.horarioConfirmado = formatHora(agora);
+        } else if (minutosPassados >= 5 && voo.status !== 'Landed' && voo.status !== 'Finished') {
+          voo.status = 'Landed';
+          voo.piscante = null;
+          voo.horarioConfirmado = formatHora(agora);
+        } else if (minutosPassados >= 0 && voo.status === 'Scheduled') {
+          voo.status = 'Landing';
+          voo.piscante = 'green';
+          voo.horarioConfirmado = formatHora(agora);
         }
       });
 
       // Update departures
       registrosPartidas.forEach(voo => {
-        if (voo.horario && voo.status !== 'Cancelled' && voo.status !== 'Finished') {
-          const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
-          const [horaAtualH, minutoAtualH] = horaAtual.split(':').map(Number);
-          const minutosAte = (horaVoo * 60 + minutoVoo) - (horaAtualH * 60 + minutoAtualH);
-
-          if (minutosAte <= -30) {
-            voo.status = 'Finished';
-            voo.piscante = null;
-          } else if (minutosAte <= 0 && voo.status === 'Boarding Now') {
-            voo.status = 'Taking Off';
-            voo.piscante = 'green';
-          } else if (minutosAte <= 30 && voo.status === 'Scheduled') {
-            voo.status = 'Boarding Now';
-            voo.piscante = 'green';
-          }
+        if (!voo.horario || voo.status === 'Cancelled') return;
+        
+        const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
+        const horaAtual = agora.getHours();
+        const minutoAtual = agora.getMinutes();
+        
+        const minutosAte = (horaVoo * 60 + minutoVoo) - (horaAtual * 60 + minutoAtual);
+        
+        // Atualizar status baseado no tempo até a partida
+        if (minutosAte <= -30 && voo.status !== 'Finished') {
+          voo.status = 'Finished';
+          voo.piscante = null;
+          voo.horarioConfirmado = formatHora(agora);
+        } else if (minutosAte <= 0 && voo.status === 'Boarding Now') {
+          voo.status = 'Taking Off';
+          voo.piscante = 'green';
+          voo.horarioConfirmado = formatHora(agora);
+        } else if (minutosAte <= 30 && voo.status === 'Scheduled') {
+          voo.status = 'Boarding Now';
+          voo.piscante = 'green';
+          voo.horarioConfirmado = formatHora(agora);
         }
       });
 
+      // Salvar alterações e atualizar interface
       salvarDados();
+      
+      // Atualizar o título da página e relógio com o horário atual
+      const horaFormatada = formatHora(agora);
+      document.title = `New Dubai International Airport - ${horaFormatada}`;
+      document.getElementById('clock').textContent = horaFormatada;
     }
+
+    // Atualizar o relógio a cada segundo
+    setInterval(() => {
+      const agora = new Date();
+      document.getElementById('clock').textContent = formatHora(agora);
+    }, 1000);
+
+    // Garantir que a página seja atualizada se ficar em background
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        sincronizarStatusInicial();
+      }
+    });
 
     window.onload = () => {
       popularSelects();
@@ -1439,10 +1472,65 @@
       });
       document.getElementById('importar').addEventListener('change', importarBackup);
 
-      // Set up automatic status updates
-      setInterval(atualizarStatusAutomatico, 60000); // Check every minute
-      atualizarStatusAutomatico(); // Initial check
+      // Sincronizar status imediatamente ao carregar
+      sincronizarStatusInicial();
+      
+      // Configurar atualizações automáticas mais frequentes
+      setInterval(atualizarStatusAutomatico, 30000); // Atualizar a cada 30 segundos
     };
+
+    function sincronizarStatusInicial() {
+      const agora = new Date();
+      
+      // Sincronizar chegadas
+      registrosChegadas.forEach(voo => {
+        if (!voo.horario || voo.status === 'Cancelled') return;
+        
+        const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
+        const horaAtual = agora.getHours();
+        const minutoAtual = agora.getMinutes();
+        
+        const minutosPassados = (horaAtual * 60 + minutoAtual) - (horaVoo * 60 + minutoVoo);
+        
+        // Atualizar status baseado no tempo passado
+        if (minutosPassados >= 30) {
+          voo.status = 'Finished';
+          voo.piscante = null;
+        } else if (minutosPassados >= 5) {
+          voo.status = 'Landed';
+          voo.piscante = null;
+        } else if (minutosPassados >= 0) {
+          voo.status = 'Landing';
+          voo.piscante = 'green';
+        }
+      });
+      
+      // Sincronizar partidas
+      registrosPartidas.forEach(voo => {
+        if (!voo.horario || voo.status === 'Cancelled') return;
+        
+        const [horaVoo, minutoVoo] = voo.horario.split(':').map(Number);
+        const horaAtual = agora.getHours();
+        const minutoAtual = agora.getMinutes();
+        
+        const minutosAte = (horaVoo * 60 + minutoVoo) - (horaAtual * 60 + minutoAtual);
+        
+        // Atualizar status baseado no tempo até a partida
+        if (minutosAte <= -30) {
+          voo.status = 'Finished';
+          voo.piscante = null;
+        } else if (minutosAte <= 0) {
+          voo.status = 'Taking Off';
+          voo.piscante = 'green';
+        } else if (minutosAte <= 30) {
+          voo.status = 'Boarding Now';
+          voo.piscante = 'green';
+        }
+      });
+      
+      // Salvar alterações e atualizar interface
+      salvarDados();
+    }
 
     function initFormListeners() {
       const form = document.getElementById('formNovoVoo');
