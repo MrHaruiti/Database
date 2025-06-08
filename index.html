@@ -1397,8 +1397,15 @@
         
         const minutosPassados = (horaAtual * 60 + minutoAtual) - (horaVoo * 60 + minutoVoo);
         
-        // Atualizar status baseado no tempo passado
-        if (minutosPassados >= 30 && voo.status !== 'Finished') {
+        // Resetar status se o voo ainda não aconteceu
+        if (minutosPassados < 0) {
+          if (voo.status !== 'Delayed' && voo.status !== 'Cancelled') {
+            voo.status = 'Scheduled';
+            voo.piscante = null;
+          }
+        }
+        // Atualizar status apenas se o horário já passou
+        else if (minutosPassados >= 30 && voo.status !== 'Finished') {
           voo.status = 'Finished';
           voo.piscante = null;
           voo.horarioConfirmado = formatHora(agora);
@@ -1423,8 +1430,15 @@
         
         const minutosAte = (horaVoo * 60 + minutoVoo) - (horaAtual * 60 + minutoAtual);
         
+        // Resetar status se falta mais de 30 minutos
+        if (minutosAte > 30) {
+          if (voo.status !== 'Delayed' && voo.status !== 'Cancelled') {
+            voo.status = 'Scheduled';
+            voo.piscante = null;
+          }
+        }
         // Atualizar status baseado no tempo até a partida
-        if (minutosAte <= -30 && voo.status !== 'Finished') {
+        else if (minutosAte <= -30 && voo.status !== 'Finished') {
           voo.status = 'Finished';
           voo.piscante = null;
           voo.horarioConfirmado = formatHora(agora);
@@ -1492,8 +1506,15 @@
         
         const minutosPassados = (horaAtual * 60 + minutoAtual) - (horaVoo * 60 + minutoVoo);
         
-        // Atualizar status baseado no tempo passado
-        if (minutosPassados >= 30) {
+        // Resetar status se o voo ainda não aconteceu
+        if (minutosPassados < 0) {
+          if (voo.status !== 'Delayed' && voo.status !== 'Cancelled') {
+            voo.status = 'Scheduled';
+            voo.piscante = null;
+          }
+        }
+        // Atualizar status apenas se o horário já passou
+        else if (minutosPassados >= 30) {
           voo.status = 'Finished';
           voo.piscante = null;
         } else if (minutosPassados >= 5) {
@@ -1515,8 +1536,15 @@
         
         const minutosAte = (horaVoo * 60 + minutoVoo) - (horaAtual * 60 + minutoAtual);
         
+        // Resetar status se falta mais de 30 minutos
+        if (minutosAte > 30) {
+          if (voo.status !== 'Delayed' && voo.status !== 'Cancelled') {
+            voo.status = 'Scheduled';
+            voo.piscante = null;
+          }
+        }
         // Atualizar status baseado no tempo até a partida
-        if (minutosAte <= -30) {
+        else if (minutosAte <= -30) {
           voo.status = 'Finished';
           voo.piscante = null;
         } else if (minutosAte <= 0) {
