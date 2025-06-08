@@ -1453,20 +1453,20 @@
             voo.piscante = null;
           }
           // 1 hora depois do horário confirmado
-          else if (minutosDesdeConfirmado === 60 && voo.status === 'Deplaining') {
-            voo.status = 'Finished';
-            voo.piscante = null;
-            
-            // Reagendar o voo
-            const novoVoo = reagendarVoo(voo);
-            if (novoVoo) {
-              registrosChegadas.push(novoVoo);
+          else if (minutosDesdeConfirmado >= 60 && (voo.status === 'Deplaining' || voo.status === 'Finished')) {
+            // Reagendar o voo apenas se ainda não foi reagendado
+            if (voo.status !== 'Finished') {
+              const novoVoo = reagendarVoo(voo);
+              if (novoVoo) {
+                registrosChegadas.push(novoVoo);
+              }
             }
             
             // Remover o voo atual da lista
             const index = registrosChegadas.indexOf(voo);
             if (index > -1) {
               registrosChegadas.splice(index, 1);
+              salvarDados(); // Salvar após remover
             }
           }
         }
@@ -1490,21 +1490,24 @@
           }
         }
         // Atualizar status baseado no tempo até a partida
-        else if (minutosAte <= -30 && voo.status !== 'Finished') {
-          voo.status = 'Finished';
-          voo.piscante = null;
-          voo.horarioConfirmado = formatHora(agora);
-          
-          // Reagendar o voo
-          const novoVoo = reagendarVoo(voo);
-          if (novoVoo) {
-            registrosPartidas.push(novoVoo);
+        else if (minutosAte <= -30 || voo.status === 'Finished') {
+          // Reagendar o voo apenas se ainda não foi reagendado
+          if (voo.status !== 'Finished') {
+            voo.status = 'Finished';
+            voo.piscante = null;
+            voo.horarioConfirmado = formatHora(agora);
+            
+            const novoVoo = reagendarVoo(voo);
+            if (novoVoo) {
+              registrosPartidas.push(novoVoo);
+            }
           }
           
           // Remover o voo atual da lista
           const index = registrosPartidas.indexOf(voo);
           if (index > -1) {
             registrosPartidas.splice(index, 1);
+            salvarDados(); // Salvar após remover
           }
         } else if (minutosAte <= 0 && voo.status === 'Boarding Now') {
           voo.status = 'Taking Off';
