@@ -1395,28 +1395,63 @@
         const horaAtual = agora.getHours();
         const minutoAtual = agora.getMinutes();
         
-        const minutosPassados = (horaAtual * 60 + minutoAtual) - (horaVoo * 60 + minutoVoo);
+        // Calcular minutos até/após o horário programado
+        const minutosAteVoo = (horaVoo * 60 + minutoVoo) - (horaAtual * 60 + minutoAtual);
         
-        // Resetar status se o voo ainda não aconteceu
-        if (minutosPassados < 0) {
-          if (voo.status !== 'Delayed' && voo.status !== 'Cancelled') {
-            voo.status = 'Scheduled';
+        // Se o voo foi cancelado, remover após 1 hora
+        if (voo.status === 'Cancelled') {
+          const minutosDesdeStatus = voo.horarioConfirmado ? 
+            ((horaAtual * 60 + minutoAtual) - 
+             (parseInt(voo.horarioConfirmado.split(':')[0]) * 60 + 
+              parseInt(voo.horarioConfirmado.split(':')[1]))) : 0;
+              
+          if (minutosDesdeStatus >= 60) {
+            const index = registrosChegadas.indexOf(voo);
+            if (index > -1) {
+              registrosChegadas.splice(index, 1);
+              return;
+            }
+          }
+          return;
+        }
+        
+        // 3 horas antes do voo: mostrar popup para confirmar horário
+        if (minutosAteVoo === 180 && voo.status === 'Scheduled') {
+          mostrarPopupConfirmacao(voo, 'chegada');
+          return;
+        }
+        
+        // Se tiver horário confirmado, usar ele como referência
+        if (voo.horarioConfirmado) {
+          const [horaConf, minutoConf] = voo.horarioConfirmado.split(':').map(Number);
+          const minutosDesdeConfirmado = (horaAtual * 60 + minutoAtual) - (horaConf * 60 + minutoConf);
+          
+          // 5 minutos antes do horário confirmado
+          if (minutosDesdeConfirmado === -5 && voo.status === 'Confirmed') {
+            voo.status = 'Landing';
+            voo.piscante = 'green';
+          }
+          // 3 minutos depois do horário confirmado
+          else if (minutosDesdeConfirmado === 3 && voo.status === 'Landing') {
+            voo.status = 'Landed';
             voo.piscante = null;
           }
-        }
-        // Atualizar status apenas se o horário já passou
-        else if (minutosPassados >= 30 && voo.status !== 'Finished') {
-          voo.status = 'Finished';
-          voo.piscante = null;
-          voo.horarioConfirmado = formatHora(agora);
-        } else if (minutosPassados >= 5 && voo.status !== 'Landed' && voo.status !== 'Finished') {
-          voo.status = 'Landed';
-          voo.piscante = null;
-          voo.horarioConfirmado = formatHora(agora);
-        } else if (minutosPassados >= 0 && voo.status === 'Scheduled') {
-          voo.status = 'Landing';
-          voo.piscante = 'green';
-          voo.horarioConfirmado = formatHora(agora);
+          // 10 minutos depois do horário confirmado
+          else if (minutosDesdeConfirmado === 10 && voo.status === 'Landed') {
+            voo.status = 'Deplaining';
+            voo.piscante = null;
+          }
+          // 1 hora depois do horário confirmado
+          else if (minutosDesdeConfirmado === 60 && voo.status === 'Deplaining') {
+            voo.status = 'Finished';
+            voo.piscante = null;
+            
+            // Remover o voo da lista
+            const index = registrosChegadas.indexOf(voo);
+            if (index > -1) {
+              registrosChegadas.splice(index, 1);
+            }
+          }
         }
       });
 
@@ -1707,7 +1742,7 @@
     }
 
     // Modal handling functions
-    function showConfirmModal(voo, tipo) {
+    function mostrarPopupConfirmacao(voo, tipo) {
       const modal = document.getElementById('confirmModal');
       const modalDesc = document.getElementById('modalDesc');
       const modalContent = document.getElementById('confirmModalContent');
@@ -1715,54 +1750,71 @@
       confirmandoVoo = voo;
       confirmandoTipo = tipo;
       
-      // Store the element that had focus before opening modal
+      // Armazenar elemento que tinha foco antes do modal
       modal.dataset.previousFocus = document.activeElement.id || '';
       
-      // Update modal description
-      modalDesc.textContent = `Voo ${voo.voo || '(sem código)'} para ${voo.cidade}`;
+      // Atualizar descrição do modal
+      modalDesc.textContent = `Confirmar horário do voo ${voo.voo || '(sem código)'} para ${voo.cidade}`;
       
-      // Clear existing buttons
+      // Limpar botões existentes
       const buttonContainer = modalContent.querySelector('.button-container') || document.createElement('div');
       buttonContainer.className = 'button-container';
       buttonContainer.innerHTML = '';
       
-      // Define available status options based on current status and flight type
-      const statusOptions = [];
-      const currentTime = new Date();
-      const flightTime = voo.horario ? new Date(currentTime.toDateString() + ' ' + voo.horario) : null;
+      // Criar campo de horário para Confirmed e Delayed
+      const timeContainer = document.createElement('div');
+      timeContainer.style.marginBottom = '20px';
+      timeContainer.style.display = 'none';
+      timeContainer.innerHTML = `
+        <label for="confirmTime" style="display: block; margin-bottom: 10px; color: var(--primary-color);">
+          Selecione o novo horário:
+        </label>
+        <input type="time" id="confirmTime" 
+          style="padding: 8px; border-radius: 4px; background: var(--background-lighter); color: var(--text-color-light); border: 1px solid var(--primary-color);">
+      `;
+      modalContent.insertBefore(timeContainer, buttonContainer);
       
-      if (voo.status !== 'Cancelled' && voo.status !== 'Finished') {
-        if (tipo === 'chegadasTabela') {
-          // Arrival status options
-          statusOptions.push(
-            { status: 'Confirmed', label: 'Confirm Arrival', color: '#4CAF50' },
-            { status: 'Landing', label: 'Landing', color: '#2196F3' }
-          );
-        } else {
-          // Departure status options
-          statusOptions.push(
-            { status: 'Boarding Now', label: 'Start Boarding', color: '#2196F3' },
-            { status: 'Taking Off', label: 'Taking Off', color: '#4CAF50' }
-          );
-        }
-        
-        // Common status options
-        statusOptions.push(
-          { status: 'Delayed', label: 'Mark Delayed', color: '#ff9800' },
-          { status: 'Cancelled', label: 'Cancel Flight', color: '#f44336' }
-        );
-      }
+      // Opções de status
+      const statusOptions = [
+        { status: 'Confirmed', label: 'Confirmar Horário', color: '#4CAF50' },
+        { status: 'Delayed', label: 'Atrasar Voo', color: '#ff9800' },
+        { status: 'Cancelled', label: 'Cancelar Voo', color: '#f44336' }
+      ];
       
-      if (voo.status === 'Delayed' || voo.status === 'Boarding Now') {
-        statusOptions.push({ status: 'Scheduled', label: 'Reset to Scheduled', color: '#757575' });
-      }
-      
-      // Create buttons for each status option
+      // Criar botões para cada opção
       statusOptions.forEach(option => {
         const button = document.createElement('button');
         button.textContent = option.label;
         button.style.backgroundColor = option.color;
-        button.onclick = () => updateStatus(option.status);
+        button.onclick = () => {
+          if (option.status === 'Confirmed' || option.status === 'Delayed') {
+            timeContainer.style.display = 'block';
+            const timeInput = document.getElementById('confirmTime');
+            timeInput.value = voo.horario; // Preencher com horário atual
+            
+            // Atualizar outros botões
+            buttonContainer.querySelectorAll('button').forEach(btn => {
+              if (btn !== button) btn.style.display = 'none';
+            });
+            
+            // Adicionar botão de confirmar horário
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Confirmar';
+            confirmButton.style.backgroundColor = option.color;
+            confirmButton.onclick = () => {
+              const novoHorario = timeInput.value;
+              if (!novoHorario) {
+                alert('Por favor, selecione um horário.');
+                return;
+              }
+              updateStatus(option.status, novoHorario);
+            };
+            buttonContainer.appendChild(confirmButton);
+          } else {
+            // Para Cancelled, não precisa de horário
+            updateStatus(option.status);
+          }
+        };
         buttonContainer.appendChild(button);
       });
       
@@ -1830,40 +1882,56 @@
           break;
       }
     }
-    function updateStatus(newStatus) {
-      if (confirmandoVoo && confirmandoTipo) {
-        const now = new Date();
-        confirmandoVoo.status = newStatus;
-        confirmandoVoo.horarioConfirmado = formatHora(now);
-        confirmandoVoo.ultimaAtualizacao = now.toISOString();
-
-        switch (newStatus) {
-          case 'Delayed':
-            confirmandoVoo.piscante = 'red';
-            break;
-          case 'Confirmed':
-            confirmandoVoo.piscante = 'green';
-            break;
-          case 'Cancelled':
-            confirmandoVoo.piscante = null;
-            break;
-          case 'Boarding Now':
-            confirmandoVoo.piscante = 'green';
-            break;
-          case 'Taking Off':
-          case 'Landing':
-            confirmandoVoo.piscante = 'green';
-            break;
-          case 'Finished':
-            confirmandoVoo.piscante = null;
-            break;
-          default:
-            confirmandoVoo.piscante = null;
-        }
-        
-        if (salvarDados()) {
-          hideConfirmModal();
-        }
+    function updateStatus(newStatus, novoHorario) {
+      if (!confirmandoVoo) return;
+      
+      confirmandoVoo.status = newStatus;
+      
+      switch (newStatus) {
+        case 'Confirmed':
+          confirmandoVoo.piscante = 'green';
+          confirmandoVoo.horarioConfirmado = novoHorario;
+          break;
+        case 'Delayed':
+          confirmandoVoo.piscante = 'yellow';
+          confirmandoVoo.horarioConfirmado = novoHorario;
+          break;
+        case 'Cancelled':
+          confirmandoVoo.piscante = 'red';
+          confirmandoVoo.horarioConfirmado = formatHora(new Date());
+          // Programar remoção após 1 hora
+          setTimeout(() => {
+            const index = registrosChegadas.indexOf(confirmandoVoo);
+            if (index > -1) {
+              registrosChegadas.splice(index, 1);
+              salvarDados();
+            }
+          }, 60 * 60 * 1000); // 1 hora
+          break;
+        case 'Landing':
+          confirmandoVoo.piscante = 'green';
+          break;
+        case 'Landed':
+        case 'Deplaining':
+        case 'Finished':
+          confirmandoVoo.piscante = null;
+          break;
+        default:
+          confirmandoVoo.piscante = null;
+      }
+      
+      salvarDados();
+      hideConfirmModal();
+      
+      // Mostrar mensagem de confirmação
+      const mensagens = {
+        'Confirmed': `Voo confirmado para ${novoHorario}`,
+        'Delayed': `Voo atrasado para ${novoHorario}`,
+        'Cancelled': 'Voo cancelado'
+      };
+      
+      if (mensagens[newStatus]) {
+        alert(mensagens[newStatus]);
       }
     }
 
