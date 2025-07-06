@@ -804,13 +804,26 @@
     let currentEditIndex = null;
     let currentEditTipo = null;
 
+    // Remove the inline onclick handler and add event listener for edit buttons
+    document.addEventListener('click', function(event) {
+      if (event.target && event.target.classList.contains('edit-btn')) {
+        const index = parseInt(event.target.getAttribute('data-index'), 10);
+        const tipo = event.target.getAttribute('data-tipo');
+        abrirModalEdicao(index, tipo);
+      }
+    });
+
     function abrirModalEdicao(index, tipo) {
+      console.log('abrirModalEdicao called with index:', index, 'tipo:', tipo);
       currentEditIndex = index;
       currentEditTipo = tipo;
 
       const registros = tipo === 'chegadasTabela' ? registrosFiltradosChegadas : registrosFiltradosPartidas;
       const voo = registros[index];
-      if (!voo) return;
+      if (!voo) {
+        console.error('No flight found at index:', index, 'for tipo:', tipo);
+        return;
+      }
 
       document.getElementById('editCompanhia').value = voo.companhia || '';
       document.getElementById('editCidade').value = voo.cidade || '';
@@ -823,7 +836,18 @@
       document.getElementById('editTps').value = voo.tps || '';
       document.getElementById('editTipo').value = tipo;
 
-      document.getElementById('editModal').style.display = 'block';
+      const modal = document.getElementById('editModal');
+      if (modal) {
+        modal.style.display = 'block';
+        modal.style.position = 'fixed';
+        modal.style.top = '50%';
+        modal.style.left = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+        modal.style.zIndex = '10000';
+        console.log('Edit modal displayed');
+      } else {
+        console.error('Edit modal element not found');
+      }
     }
 
     document.getElementById('cancelEditBtn').addEventListener('click', () => {
@@ -1438,7 +1462,7 @@
           (e.horarioConfirmado ? '<span class="confirmed-time">' + sanitizeHTML(formatarHorarioStatus(e.horarioConfirmado, e.status)) + '</span>' : '') +
           '</td>' +
           '<td>' +
-          '<button class="edit-btn small-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="abrirModalEdicao(' + i + ', \'' + destinoId + '\')">✎</button> ' +
+          '<button class="edit-btn small-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" data-index="' + i + '" data-tipo="' + destinoId + '">✎</button> ' +
           '<button class="remove-btn small-btn" aria-label="Remover voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="confirmRemoverVoo(' + i + ', \'' + destinoId + '\')">✖</button>' +
           '</td>' +
           '</tr>';
