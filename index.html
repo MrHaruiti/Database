@@ -576,6 +576,14 @@
         width: 100%;
       }
     }
+    }
+    .small-btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      min-width: 30px;
+      height: 28px;
+      line-height: 1;
+    }
   </style>
 </head>
 
@@ -1430,8 +1438,8 @@
           (e.horarioConfirmado ? '<span class="confirmed-time">' + sanitizeHTML(formatarHorarioStatus(e.horarioConfirmado, e.status)) + '</span>' : '') +
           '</td>' +
           '<td>' +
-          '<button class="edit-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="abrirModalEdicao(' + i + ', \'' + destinoId + '\')">✎</button> ' +
-          '<button class="remove-btn" aria-label="Remover voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="confirmRemoverVoo(' + i + ', \'' + destinoId + '\')">✖</button>' +
+          '<button class="edit-btn small-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="abrirModalEdicao(' + i + ', \'' + destinoId + '\')">✎</button> ' +
+          '<button class="remove-btn small-btn" aria-label="Remover voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="confirmRemoverVoo(' + i + ', \'' + destinoId + '\')">✖</button>' +
           '</td>' +
           '</tr>';
       });
