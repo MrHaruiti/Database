@@ -1471,7 +1471,13 @@
       registros.forEach((e, i) => {
         const logo = '<td class="logo-cell"><img class="logo" src="logos/' + normalizarNome(e.companhia) + '.png" alt="Logo da companhia ' + e.companhia + '" onerror="this.src=\'logos/default.png\'" title="' + e.companhia + '"></td>';
 
-        const paisNormalized = e.pais ? e.pais.toLowerCase().trim() : "";
+        // Function to normalize country names by removing accents and converting to lowercase
+        function normalizeCountryName(name) {
+          if (!name) return "";
+          return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        }
+
+        const paisNormalized = normalizeCountryName(e.pais);
         const flag = bandeiras[paisNormalized] || "";
         const paisFlagHtml = flag
           ? '<span role="img" aria-label="' + sanitizeHTML(e.pais) + '" title="' + sanitizeHTML(e.pais) + '" style="font-size: 1.4em; user-select:none;">' + flag + '</span>'
