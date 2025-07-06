@@ -1461,8 +1461,8 @@
           '<span class="status-text">' + sanitizeHTML(statusExibido) + '</span>' +
           (e.horarioConfirmado ? '<span class="confirmed-time">' + sanitizeHTML(formatarHorarioStatus(e.horarioConfirmado, e.status)) + '</span>' : '') +
           '</td>' +
-          '<td>' +
-          '<button class="edit-btn small-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" data-index="' + i + '" data-tipo="' + destinoId + '">✎</button> ' +
+          '<td style="white-space: nowrap; display: flex; gap: 4px; align-items: center;">' +
+          '<button class="edit-btn small-btn" aria-label="Editar voo ' + (e.voo || '') + ' para ' + e.cidade + '" data-index="' + i + '" data-tipo="' + destinoId + '">✎</button>' +
           '<button class="remove-btn small-btn" aria-label="Remover voo ' + (e.voo || '') + ' para ' + e.cidade + '" onclick="confirmRemoverVoo(' + i + ', \'' + destinoId + '\')">✖</button>' +
           '</td>' +
           '</tr>';
