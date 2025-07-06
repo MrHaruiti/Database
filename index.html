@@ -17,7 +17,7 @@
         --text-color-muted: #8ab4f8;
         --danger-color: #ff4e50;
         --danger-color-hover: #e43e3e;
-        --font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --font-family: 'Arial', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         --border-radius: 6px;
         --max-width-table-cell: 300px;
         --max-width-logo-cell: 70px;
@@ -196,10 +196,10 @@
       border: 1px solid #2a2a2a;
       text-align: left;
       background: var(--background-light);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: var(--max-width-table-cell);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      max-width: none;
       vertical-align: middle;
     }
 
