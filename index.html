@@ -1283,6 +1283,114 @@
         // Add new flight
         registros.push(novoRegistro);
 
+        // Function to add departure flight based on conditions
+        function adicionarPartidaAutomatica() {
+          // Only add departure if the added flight is an arrival
+          if (tipo !== "chegada") return;
+
+          // Helper to parse time string HH:MM to Date object
+          function parseTimeToDate(timeStr) {
+            const now = new Date();
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            now.setHours(hours, minutes, 0, 0);
+            return now;
+          }
+
+          // Helper to format Date object to HH:MM string
+          function formatDateToTime(date) {
+            const h = date.getHours().toString().padStart(2, '0');
+            const m = date.getMinutes().toString().padStart(2, '0');
+            return `${h}:${m}`;
+          }
+
+          // ICAO group for ground time rules
+          const icaoGroup = ['O', 'H', 'V', 'L', 'U', 'G', 'D', 'E', 'F'];
+
+          // Determine if aircraft is Narrowbody or Widebody
+          // For simplicity, assume Narrowbody if aeronave includes A320, 737, 321, 319, 320, else Widebody
+          const narrowbodyKeywords = ['A320', '737', '321', '319', '320'];
+          const isNarrowbody = narrowbodyKeywords.some(keyword => aeronave.toUpperCase().includes(keyword));
+          const isWidebody = !isNarrowbody;
+
+          // Determine ground time in minutes based on conditions
+          let groundTimeMinutes = 120; // default 2h
+
+          if (icaoGroup.includes(icao.charAt(0))) {
+            if (isNarrowbody) {
+              groundTimeMinutes = 60; // 1h
+            } else if (isWidebody) {
+              groundTimeMinutes = 120; // 2h
+            }
+          } else {
+            if (isNarrowbody) {
+              groundTimeMinutes = 120; // 2h
+            } else if (isWidebody) {
+              groundTimeMinutes = 180; // 3h
+            }
+          }
+
+          // Calculate departure flight number and time
+          let partidaVooNumero = '';
+          let partidaHorario = '';
+
+          if (companhia.toUpperCase() === 'EMIRATES AIRLINES') {
+            // Show prompt for departure time
+            let inputHorario = prompt('Informe o horário para o voo de partida (HH:MM):', '');
+            if (!inputHorario || !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(inputHorario)) {
+              alert('Horário inválido. O voo de partida não será adicionado automaticamente.');
+              return;
+            }
+            partidaHorario = inputHorario;
+            partidaVooNumero = '-1';
+          } else {
+            // Calculate departure flight number as arrival flight number + 1
+            const vooNumInt = parseInt(voo, 10);
+            if (!isNaN(vooNumInt)) {
+              partidaVooNumero = (vooNumInt + 1).toString();
+            } else {
+              partidaVooNumero = voo || '';
+            }
+
+            // Calculate departure time by adding ground time to arrival time
+            if (horario && /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(horario)) {
+              const chegadaDate = parseTimeToDate(horario);
+              const partidaDate = new Date(chegadaDate.getTime() + groundTimeMinutes * 60000);
+              partidaHorario = formatDateToTime(partidaDate);
+            } else {
+              partidaHorario = '';
+            }
+          }
+
+          // Create departure flight record
+          const novoRegistroPartida = {
+            companhia,
+            cidade,
+            icao,
+            pais,
+            voo: partidaVooNumero,
+            horario: partidaHorario,
+            aeronave,
+            status: 'Scheduled',
+            tps,
+            horarioConfirmado: null,
+            frequencia: 1,
+            dataCadastro: new Date().toISOString()
+          };
+
+          // Check for duplicate in departures
+          if (!registrosPartidas.some(e =>
+            e.companhia === companhia &&
+            e.cidade === cidade &&
+            e.icao === icao &&
+            e.horario === partidaHorario)) {
+            registrosPartidas.push(novoRegistroPartida);
+            salvarDados();
+          }
+        }
+
+        // Call function to add departure flight automatically
+        adicionarPartidaAutomatica();
+
         // Save data and update UI
         if (salvarDados()) {
           document.getElementById("formNovoVoo").reset();
