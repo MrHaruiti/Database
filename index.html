@@ -1053,7 +1053,7 @@
           .filter(voo => {
             if (!voo) return false;
             return (
-              (filtroCompanhia === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhia))) &&
+              (filtroCompanhia === '' || (voo.companhia && voo.companhia.toLowerCase() === filtroCompanhia)) &&
               (filtroDestino === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestino))) &&
               (filtroPais === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPais))) &&
               (filtroTps === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTps)))
@@ -1079,7 +1079,7 @@
           .filter(voo => {
             if (!voo) return false;
             return (
-              (filtroCompanhiaP === '' || (voo.companhia && voo.companhia.toLowerCase().includes(filtroCompanhiaP))) &&
+              (filtroCompanhiaP === '' || (voo.companhia && voo.companhia.toLowerCase() === filtroCompanhiaP)) &&
               (filtroDestinoP === '' || (voo.cidade && voo.cidade.toLowerCase().includes(filtroDestinoP))) &&
               (filtroPaisP === '' || (voo.pais && voo.pais.toLowerCase().includes(filtroPaisP))) &&
               (filtroTpsP === '' || (voo.tps && voo.tps.toLowerCase().includes(filtroTpsP)))
