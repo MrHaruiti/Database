@@ -1297,7 +1297,7 @@
         const paisNormalized = normalizeCountryName(e.pais);
         // Use local flag images from flags/ directory
         const flagImgSrc = 'flags/' + paisNormalized.replace(/ /g, '_') + '.png';
-        const paisFlagHtml = '<img src="' + flagImgSrc + '" alt="Flag of ' + sanitizeHTML(e.pais) + '" title="' + sanitizeHTML(e.pais) + '" style="height: 20px; vertical-align: middle; border-radius: 3px; margin-right: 5px;" onerror="this.style.display=\'none\'" />' + sanitizeHTML(e.pais || "");
+        const paisFlagHtml = '<img src="' + flagImgSrc + '" alt="Flag of ' + sanitizeHTML(e.pais) + '" title="' + sanitizeHTML(e.pais) + '" style="height: 20px; vertical-align: middle; border-radius: 3px; margin-right: 5px;" onerror="this.style.display=\'none\'" />';
 
         let statusExibido = e.status || "";
 
