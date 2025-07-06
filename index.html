@@ -1125,8 +1125,8 @@
           const icaoGroup = ['O', 'H', 'V', 'L', 'U', 'G', 'D', 'E', 'F'];
 
           // Determine if aircraft is Narrowbody or Widebody
-          // For simplicity, assume Narrowbody if aeronave includes A320, 737, 321, 319, 320, else Widebody
-          const narrowbodyKeywords = ['A320', '737', '321', '319', '320'];
+          // Use the detailed narrowbody list provided by user
+          const narrowbodyKeywords = ['B722', 'B731', 'B732', 'B733', 'B734', 'B735', 'B736', 'B737', 'B738', 'B739', 'B73X', 'A318', 'A319', 'A320', 'A321', 'E170', 'E175', 'E190', 'E195', 'MD81', 'MD82', 'MD83', 'MD86', 'MD87', 'MD88', 'MD89', 'MD90', 'AT72', 'AT75', 'AT76', 'AT42', 'AT43', 'AT45', 'AT46', 'E110', 'E120', 'E135', 'E140', 'E145', 'L410'];
           const isNarrowbody = narrowbodyKeywords.some(keyword => aeronave.toUpperCase().includes(keyword));
           const isWidebody = !isNarrowbody;
 
