@@ -732,29 +732,47 @@
   <div id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" style="display:none;">
     <div id="editModalContent" style="background-color: var(--background-lighter); margin: 5% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; color: var(--text-color-light); box-shadow: 0 8px 32px rgba(0,0,0,0.3); user-select: none; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
       <h2 id="editModalTitle" class="modal-title" style="color: var(--primary-color); margin-bottom: 20px;">Editar Voo</h2>
-      <form id="editForm">
-        <label for="editCompanhia">Companhia Aérea:</label>
-        <input type="text" id="editCompanhia" name="companhia" required />
-        <label for="editCidade">Cidade (Destino):</label>
-        <input type="text" id="editCidade" name="cidade" required />
-        <label for="editIcao">Código ICAO:</label>
-        <input type="text" id="editIcao" name="icao" maxlength="4" required style="text-transform: uppercase;" />
-        <label for="editPais">País:</label>
-        <input type="text" id="editPais" name="pais" required />
-        <label for="editVoo">Voo (Flight):</label>
-        <input type="text" id="editVoo" name="voo" />
-        <label for="editHorario">Horário (HH:MM):</label>
-        <input type="text" id="editHorario" name="horario" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
-        <label for="editAeronave">Aeronave (A/C):</label>
-        <input type="text" id="editAeronave" name="aeronave" />
-        <label for="editStatus">Status:</label>
-        <input type="text" id="editStatus" name="status" />
-        <label for="editTps">TPS:</label>
-        <input type="text" id="editTps" name="tps" />
+      <form id="editForm" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;">
+        <div style="flex: 1 1 45%;">
+          <label for="editCompanhia">Companhia Aérea:</label>
+          <input type="text" id="editCompanhia" name="companhia" required style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editCidade">Cidade (Destino):</label>
+          <input type="text" id="editCidade" name="cidade" required style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editIcao">Código ICAO:</label>
+          <input type="text" id="editIcao" name="icao" maxlength="4" required style="text-transform: uppercase; width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editPais">País:</label>
+          <input type="text" id="editPais" name="pais" required style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editVoo">Voo (Flight):</label>
+          <input type="text" id="editVoo" name="voo" style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editHorario">Horário (HH:MM):</label>
+          <input type="text" id="editHorario" name="horario" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editAeronave">Aeronave (A/C):</label>
+          <input type="text" id="editAeronave" name="aeronave" style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editStatus">Status:</label>
+          <input type="text" id="editStatus" name="status" style="width: 100%;" />
+        </div>
+        <div style="flex: 1 1 45%;">
+          <label for="editTps">TPS:</label>
+          <input type="text" id="editTps" name="tps" style="width: 100%;" />
+        </div>
         <input type="hidden" id="editTipo" name="tipo" />
-        <div style="margin-top: 20px;">
+        <div style="flex: 1 1 100%; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
           <button type="submit" id="saveEditBtn">Salvar</button>
-          <button type="button" id="cancelEditBtn" style="margin-left: 10px;">Cancelar</button>
+          <button type="button" id="cancelEditBtn">Cancelar</button>
         </div>
       </form>
     </div>
