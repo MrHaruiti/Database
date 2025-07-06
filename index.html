@@ -1341,7 +1341,13 @@
               return;
             }
             partidaHorario = inputHorario;
-            partidaVooNumero = '-1';
+            // Calculate departure flight number as arrival flight number - 1
+            const vooNumInt = parseInt(voo, 10);
+            if (!isNaN(vooNumInt)) {
+              partidaVooNumero = (vooNumInt - 1).toString();
+            } else {
+              partidaVooNumero = voo || '';
+            }
           } else {
             // Calculate departure flight number as arrival flight number + 1
             const vooNumInt = parseInt(voo, 10);
