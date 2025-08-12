@@ -21,3 +21,21 @@
 2025-08-12 04:04:10,679 - INFO - Starting import from exemplo_so_chegadas.csv
 2025-08-12 04:04:10,680 - INFO - Loaded 4 rows
 2025-08-12 04:04:10,681 - INFO - Import complete: {'rows_received': 4, 'arrivals_created': 4, 'departures_created': 0, 'warnings': []}
+2025-08-12 04:07:38,116 - INFO - Starting import from teste_simples.csv
+2025-08-12 04:07:38,118 - INFO - Loaded 1 rows
+2025-08-12 04:07:38,121 - INFO - Import complete: {'rows_received': 1, 'arrivals_created': 0, 'departures_created': 1, 'warnings': []}
+2025-08-12 04:09:50,387 - INFO - Starting import from lista_voos_converted.csv
+2025-08-12 04:09:50,389 - INFO - Loaded 22 rows
+2025-08-12 04:09:50,392 - INFO - Import complete: {'rows_received': 22, 'arrivals_created': 18, 'departures_created': 4, 'warnings': []}
+2025-08-12 04:11:23,608 - INFO - Starting import from lista_voos_converted.csv
+2025-08-12 04:11:23,610 - INFO - Loaded 22 rows
+2025-08-12 04:11:23,613 - INFO - Import complete: {'rows_received': 22, 'arrivals_created': 18, 'departures_created': 4, 'warnings': []}
+2025-08-12 04:14:33,933 - INFO - Starting import from lista_voos_converted.csv
+2025-08-12 04:14:33,937 - INFO - Loaded 22 rows
+2025-08-12 04:14:33,942 - INFO - Import complete: {'rows_received': 22, 'arrivals_created': 22, 'departures_created': 0, 'warnings': []}
+2025-08-12 04:23:30,395 - INFO - Starting import from lista_voos_converted.csv
+2025-08-12 04:23:30,397 - INFO - Loaded 22 rows
+2025-08-12 04:23:30,400 - INFO - Import complete: {'rows_received': 22, 'arrivals_created': 22, 'departures_created': 0, 'warnings': []}
+2025-08-12 04:30:59,497 - INFO - Starting import from lista_voos_converted.csv
+2025-08-12 04:30:59,499 - INFO - Loaded 22 rows
+2025-08-12 04:30:59,502 - INFO - Import complete: {'rows_received': 22, 'arrivals_created': 22, 'departures_created': 0, 'warnings': []}

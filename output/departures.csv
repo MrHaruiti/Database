@@ -1,3 +1,5 @@
-flight_no,callsign,ac_type,reg,schedule_time,actual_time,terminal,gate,dom_intl,night_stop,actual_out,actual_in
-XY123,ABY123,A320,XY-ABC,2024-06-01T08:00:00,2024-06-01T08:05:00,T1,A5,intl,False,2024-06-01T08:05:00,2024-06-01T07:20:00
-XY125,ABY125,A330,XY-ABE,,2024-06-01T22:00:00,T3,C1,intl,False,2024-06-01T22:00:00,2024-06-01T21:00:00
+flight_no,callsign,ac_type,reg,actual_time,destination,icao,country,terminal,gate,dom_intl,tps,status,actual_out
+VRH05045,VRH05045,B737,EP-05045,2024-06-01T15:10:00,Isfahan,OIFM,IRAN,T4,A9,dom,9,Scheduled,2024-06-01T15:10:00
+ZAG06331,ZAG06331,MD83,EP-06331,2024-06-01T17:35:00,Isfahan,OIFM,IRAN,T4,A9,dom,9,Scheduled,2024-06-01T17:35:00
+AAL00951,AAL00951,B777,EP-00951,2024-06-01T02:55:00,Los Angeles,KLAX,UNITED STATES,T3,A8,intl,8,Scheduled,2024-06-01T02:55:00
+DAL00103,DAL00103,A350,EP-00103,2024-06-01T03:45:00,Los Angeles,KLAX,UNITED STATES,T3,A6,intl,6,Scheduled,2024-06-01T03:45:00
