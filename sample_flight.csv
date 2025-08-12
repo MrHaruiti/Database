@@ -1,0 +1,4 @@
+flight_no,callsign,ac_type,reg,schedule_time,actual_time,terminal,gate,dom_intl,night_stop
+XY123,ABY123,A320,XY-ABC,2024-06-01T08:00:00,2024-06-01T08:05:00,T1,A5,intl,false
+XY124,ABY124,B737,XY-ABD,2024-06-01T14:30:00,,T2,B3,dom,true
+XY125,ABY125,A330,XY-ABE,,2024-06-01T22:00:00,T3,C1,intl,false
