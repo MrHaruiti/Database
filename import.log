@@ -12,3 +12,9 @@
 2025-08-12 03:44:08,478 - INFO - Starting import from sample_flight.csv
 2025-08-12 03:44:08,480 - INFO - Loaded 3 rows
 2025-08-12 03:44:08,483 - INFO - Import complete: {'rows_received': 3, 'arrivals_created': 1, 'departures_created': 2, 'warnings': []}
+2025-08-12 03:51:46,313 - INFO - Starting import from exemplo_importacao_massiva.csv
+2025-08-12 03:51:46,315 - INFO - Loaded 8 rows
+2025-08-12 03:51:46,317 - INFO - Import complete: {'rows_received': 8, 'arrivals_created': 8, 'departures_created': 0, 'warnings': []}
+2025-08-12 03:52:23,349 - INFO - Starting import from exemplo_so_chegadas.csv
+2025-08-12 03:52:23,353 - INFO - Loaded 4 rows
+2025-08-12 03:52:23,357 - INFO - Import complete: {'rows_received': 4, 'arrivals_created': 4, 'departures_created': 0, 'warnings': []}
