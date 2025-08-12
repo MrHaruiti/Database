@@ -18,3 +18,6 @@
 2025-08-12 03:52:23,349 - INFO - Starting import from exemplo_so_chegadas.csv
 2025-08-12 03:52:23,353 - INFO - Loaded 4 rows
 2025-08-12 03:52:23,357 - INFO - Import complete: {'rows_received': 4, 'arrivals_created': 4, 'departures_created': 0, 'warnings': []}
+2025-08-12 04:04:10,679 - INFO - Starting import from exemplo_so_chegadas.csv
+2025-08-12 04:04:10,680 - INFO - Loaded 4 rows
+2025-08-12 04:04:10,681 - INFO - Import complete: {'rows_received': 4, 'arrivals_created': 4, 'departures_created': 0, 'warnings': []}
