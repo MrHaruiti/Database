@@ -693,7 +693,7 @@
 
       const logoFile = logoMap[companhia.toUpperCase()];
       if (logoFile) {
-        return `<img src="logos/${logoFile}" alt="${companhia}" style="height: 30px; vertical-align: middle; margin-right: 8px;" onerror="this.style.display='none'">`;
+        return `<img src="logos/${logoFile}" alt="${companhia}" title="${companhia}" onerror="this.style.display='none'">`;
       }
       return '';
     }
@@ -715,7 +715,7 @@
 
       const flagFile = flagMap[pais.toUpperCase()];
       if (flagFile) {
-        return `<img src="flags/${flagFile}" alt="${pais}" style="height: 20px; vertical-align: middle; margin-right: 5px;" onerror="this.style.display='none'">`;
+        return `<img src="flags/${flagFile}" alt="${pais}" title="${pais}" style="height: 20px; vertical-align: middle;" onerror="this.style.display='none'">`;
       }
       return '';
     }
@@ -731,11 +731,11 @@
         const countryFlag = getCountryFlag(e.pais);
         
         html += '<tr>' +
-          '<td>' + airlineLogo + (e.companhia || '') + '</td>' +
+          '<td class="logo-cell">' + airlineLogo + '</td>' +
           '<td>' + (e.voo || '') + '</td>' +
           '<td>' + (e.cidade || '') + '</td>' +
           '<td>' + (e.icao || '') + '</td>' +
-          '<td>' + countryFlag + (e.pais || '') + '</td>' +
+          '<td>' + countryFlag + '</td>' +
           '<td>' + (e.horario || '') + '</td>' +
           '<td>' + (e.aeronave || '') + '</td>' +
           '<td>' + (e.tps || '') + '</td>' +
