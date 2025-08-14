@@ -642,6 +642,15 @@
         if (!vooParaEditar) return;
 
         // Preencher o formulário com os dados do voo
+        document.getElementById('companhia').value = vooParaEditar.companhia || '';
+        document.getElementById('cidade').value = vooParaEditar.cidade || '';
+        document.getElementById('icao').value = vooParaEditar.icao || '';
+        document.getElementById('pais').value = vooParaEditar.pais || '';
+        document.getElementById('voo').value = vooParaEditar.voo || '';
+        document.getElementById('horario').value = vooParaEditar.horario || '';
+        document.getElementById('aeronave').value = vooParaEditar.aeronave || '';
+        document.getElementById('status').value = vooParaEditar.status || '';
+        document.getElementById('tps').value = vooParaEditar.tps || '';
         document.getElementById('tipo').value = tipo === 'chegadasTabela' ? 'chegada' : 'partida';
 
         // Remover o voo original
@@ -658,23 +667,9 @@
         }
 
         // Ir para a aba de novo voo
-        // Editar usando prompts
-        const novaCompanhia = prompt("Companhia Aérea:", vooParaEditar.companhia || "");
-        if (novaCompanhia === null) return;
-        const novaCidade = prompt("Cidade:", vooParaEditar.cidade || "");
-        if (novaCidade === null) return;
-        const novoHorario = prompt("Horário (HH:MM):", vooParaEditar.horario || "");
-        if (novoHorario === null) return;
+        trocarAba(2);
         
-        // Atualizar o voo
-        registrosOriginais[globalIndex].companhia = novaCompanhia;
-        registrosOriginais[globalIndex].cidade = novaCidade;
-        registrosOriginais[globalIndex].horario = novoHorario;
-        registrosOriginais.splice(globalIndex, 1);
-          salvarDados();
-        alert("Voo editado com sucesso!");
-        return;
-        
+        alert('Voo carregado para edição! Modifique os campos necessários e clique em "Adicionar" para salvar.');
 
       } catch (error) {
         console.error('Erro ao editar voo:', error);

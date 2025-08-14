@@ -221,6 +221,89 @@
         background: #218838;
       }
 
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal-content {
+        background-color: var(--background-lighter);
+        margin: 5% auto;
+        padding: 30px;
+        border: 1px solid #444;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+      }
+
+      .modal-title {
+        color: var(--primary-color);
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: var(--primary-color);
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .modal-buttons button {
+        flex: 1;
+      }
+
+      .cancel-btn {
+        background: #6c757d !important;
+      }
+
+      .cancel-btn:hover {
+        background: #5a6268 !important;
+      }
+
       textarea#output {
         height: 150px;
         resize: vertical;
@@ -308,6 +391,12 @@
           width: 20px !important;
           height: 14px !important;
         }
+
+        .modal-content {
+          width: 95%;
+          margin: 2% auto;
+          padding: 20px;
+        }
       }
     </style>
 </head>
@@ -321,6 +410,49 @@
     <button role="tab" aria-selected="false" aria-controls="aba-novo" id="tab-novo" class="tab" onclick="trocarAba(2)">➕ Novo Voo</button>
     <button role="tab" aria-selected="false" aria-controls="aba-backup" id="tab-backup" class="tab" onclick="trocarAba(3)">💾 Backup</button>
   </nav>
+
+  <!-- Modal de Edição -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">✏️ Editar Voo</h2>
+        <span class="close" onclick="fecharModal()">&times;</span>
+      </div>
+      <form id="editForm">
+        <label for="edit-companhia">Companhia Aérea:</label>
+        <input id="edit-companhia" type="text" required />
+
+        <label for="edit-cidade">Cidade (Destino):</label>
+        <input id="edit-cidade" type="text" required />
+
+        <label for="edit-icao">Código ICAO:</label>
+        <input id="edit-icao" type="text" required maxlength="4" style="text-transform: uppercase;" />
+
+        <label for="edit-pais">País:</label>
+        <input id="edit-pais" type="text" required />
+
+        <label for="edit-voo">Voo (Flight):</label>
+        <input id="edit-voo" type="text" />
+
+        <label for="edit-horario">Horário (Time - HH:MM):</label>
+        <input id="edit-horario" type="text" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" />
+
+        <label for="edit-aeronave">Aeronave (A/C):</label>
+        <input id="edit-aeronave" type="text" />
+
+        <label for="edit-status">Status:</label>
+        <input id="edit-status" type="text" />
+
+        <label for="edit-tps">TPS:</label>
+        <input id="edit-tps" type="text" />
+
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="fecharModal()">Cancelar</button>
+          <button type="submit">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <main>
     <section class="tab-content active" id="aba-chegadas" role="tabpanel" aria-labelledby="tab-chegadas" tabindex="0">
@@ -434,6 +566,8 @@
     let registrosPartidas = JSON.parse(localStorage.getItem('registrosPartidas')) || [];
     let registrosFiltradosChegadas = registrosChegadas;
     let registrosFiltradosPartidas = registrosPartidas;
+    let vooEditando = null;
+    let tipoEditando = null;
 
     // Basic functions
     function formatHora(date) {
@@ -591,171 +725,4 @@
         .replace(/[^a-z0-9_]/g, '')     // Remove caracteres especiais
         + '.png';
       
-      return `<img src="flags/${flagFileName}" alt="${pais}" title="${pais}" style="width: 24px; height: 16px; object-fit: cover; vertical-align: middle; display: block; margin: 0 auto;" onerror="this.style.display='none'">`;
-    }
-
-    function renderTabela(registros, destinoId) {
-      let html = '<table><thead><tr>' +
-        '<th>AIRLINES</th><th>FLIGHT</th><th>DESTINATION</th><th>ICAO</th>' +
-        '<th>COUNTRY</th><th>TIME</th><th>A/C</th><th>TPS</th><th>STATUS</th><th>ACTION</th>' +
-        '</tr></thead><tbody>';
-
-      registros.forEach((e, i) => {
-        const airlineLogo = getAirlineLogo(e.companhia);
-        const countryFlag = getCountryFlag(e.pais);
-        
-        html += '<tr>' +
-          '<td class="logo-cell">' + airlineLogo + '</td>' +
-          '<td>' + (e.voo || '') + '</td>' +
-          '<td>' + (e.cidade || '') + '</td>' +
-          '<td>' + (e.icao || '') + '</td>' +
-          '<td class="flag-cell">' + countryFlag + '</td>' +
-          '<td>' + (e.horario || '') + '</td>' +
-          '<td>' + (e.aeronave || '') + '</td>' +
-          '<td>' + (e.tps || '') + '</td>' +
-          '<td>' + (e.status || 'Scheduled') + '</td>' +
-          '<td>' +
-            '<button class="edit-btn small-btn" onclick="editarVoo(' + i + ', \'' + destinoId + '\')">✏️</button>' +
-            '<button class="remove-btn small-btn" onclick="removerVoo(' + i + ', \'' + destinoId + '\')">✖</button>' +
-          '</td>' +
-          '</tr>';
-      });
-
-      html += '</tbody></table>';
-      document.getElementById(destinoId).innerHTML = html;
-    }
-
-    function editarVoo(indice, tipo) {
-      try {
-        let registrosFiltrados = null;
-        let registrosOriginais = null;
-
-        if (tipo === 'chegadasTabela') {
-          registrosFiltrados = registrosFiltradosChegadas;
-          registrosOriginais = registrosChegadas;
-        } else {
-          registrosFiltrados = registrosFiltradosPartidas;
-          registrosOriginais = registrosPartidas;
-        }
-
-        const vooParaEditar = registrosFiltrados[indice];
-        if (!vooParaEditar) return;
-
-        // Preencher o formulário com os dados do voo
-        document.getElementById('tipo').value = tipo === 'chegadasTabela' ? 'chegada' : 'partida';
-
-        // Remover o voo original
-        const globalIndex = registrosOriginais.findIndex(v => 
-          v.companhia === vooParaEditar.companhia &&
-          v.cidade === vooParaEditar.cidade &&
-          v.horario === vooParaEditar.horario &&
-          v.voo === vooParaEditar.voo
-        );
-
-        if (globalIndex > -1) {
-          registrosOriginais.splice(globalIndex, 1);
-          salvarDados();
-        }
-
-        // Ir para a aba de novo voo
-        // Editar usando prompts
-        const novaCompanhia = prompt("Companhia Aérea:", vooParaEditar.companhia || "");
-        if (novaCompanhia === null) return;
-        const novaCidade = prompt("Cidade:", vooParaEditar.cidade || "");
-        if (novaCidade === null) return;
-        const novoHorario = prompt("Horário (HH:MM):", vooParaEditar.horario || "");
-        if (novoHorario === null) return;
-        
-        // Atualizar o voo
-        registrosOriginais[globalIndex].companhia = novaCompanhia;
-        registrosOriginais[globalIndex].cidade = novaCidade;
-        registrosOriginais[globalIndex].horario = novoHorario;
-        registrosOriginais.splice(globalIndex, 1);
-          salvarDados();
-        alert("Voo editado com sucesso!");
-        return;
-        
-
-      } catch (error) {
-        console.error('Erro ao editar voo:', error);
-        alert('Erro ao editar o voo');
-      }
-    }
-
-    function removerVoo(indice, tipo) {
-      try {
-        let registrosFiltrados = null;
-        let registrosOrigin
-
-        if (tipo === "chegadasTabela") {
-          registrosFiltrados = registrosFiltradosChegadas;
-          registrosOriginais = registrosChegadas;
-        } else {
-          registrosFiltrados = registrosFiltradosPartidas;
-          registrosOriginais = registrosPartidas;
-        }
-
-        const vooParaRemover = registrosFiltrados[indice];
-        if (!vooParaRemover) return;
-
-        const globalIndex = registrosOriginais.findIndex(v => 
-          v.companhia === vooParaRemover.companhia &&
-          v.cidade === vooParaRemover.cidade &&
-          v.horario === vooParaRemover.horario &&
-          v.voo === vooParaRemover.voo
-        );
-
-        if (globalIndex > -1) {
-          registrosOriginais.splice(globalIndex, 1);
-          salvarDados();
-          alert("Voo removido com sucesso!");
-        }
-      } catch (error) {
-        console.error("Erro ao remover voo:", error);
-        alert("Erro ao remover o voo");
-      }
-    }
-
-    function salvarDados() {
-      try {
-        registrosChegadas = registrosChegadas.filter(Boolean);
-        registrosPartidas = registrosPartidas.filter(Boolean);
-
-        localStorage.setItem("registrosChegadas", JSON.stringify(registrosChegadas));
-        localStorage.setItem("registrosPartidas", JSON.stringify(registrosPartidas));
-
-        registrosFiltradosChegadas = [...registrosChegadas];
-        registrosFiltradosPartidas = [...registrosPartidas];
-
-        popularSelects();
-        filtrar();
-        return true;
-      } catch (error) {
-        console.error("Erro ao salvar dados:", error);
-        return false;
-      }
-    }
-
-    // Clock update
-    setInterval(() => {
-      const agora = new Date();
-      document.getElementById("clock").textContent = formatHora(agora);
-    }, 1000);
-
-    // Initialize
-    window.onload = () => {
-      popularSelects();
-      filtrar();
-      
-      // Setup unified import/export
-      document.getElementById("btnImportarVoos").addEventListener("click", () => {
-        document.getElementById("inputImportarVoos").click();
-      });
-      
-      document.getElementById("inputImportarVoos").addEventListener("change", unifiedImport);
-      document.getElementById("btnExportarVoos").addEventListener("click", unifiedExport);
-    };
-  </script>
-  <script src="unified_import_export.js"></script>
-</body>
-</html>
+      return `<img src="flags/${flagFileName}" alt="${pais}" title="${pais}" style="width: 24px; height: 16px; object-fit: cover; vertical-align: middle; display: block; margin: 0
