@@ -522,202 +522,30 @@
       }
     }
 
-    // Função para obter logo da companhia aérea
+    // Função para obter logo da companhia aérea - RECONHECIMENTO AUTOMÁTICO
     function getAirlineLogo(companhia) {
       if (!companhia) return '';
       
-      const logoMap = {
-        'AEGEAN AIRLINES': 'aegean_airlines.png',
-        'AER LINGUS IRELAND': 'aer_lingus_ireland.png',
-        'AER LINGUS UK': 'aer_lingus_uk.png',
-        'AEROFLOT RUSSIAN AIRLINES': 'aeroflot_russian_airlines.png',
-        'AEROLINEAS ARGENTINAS': 'aerolineas_argentinas.png',
-        'AEROMEXICO': 'aeromexico_aerov_as_de_mexico.png',
-        'AIR ALGERIE': 'air_algerie.png',
-        'AIR ASTANA': 'air_astana.png',
-        'AIR BLUE': 'air_blue.png',
-        'AIR CANADA': 'air_canada.png',
-        'AIR CHINA': 'air_china.png',
-        'AIR EUROPA': 'air_europa_lineas_aereas.png',
-        'AIR FRANCE': 'air_france.png',
-        'AIR INDIA': 'air_india.png',
-        'AIR KORYO': 'air_koryo.png',
-        'AIR MACAU': 'air_macau.png',
-        'AIR NEW ZEALAND': 'air_new_zealand.png',
-        'AIR SERBIA': 'air_serbia.png',
-        'AIR TANZANIA': 'air_tanzania.png',
-        'AIRBALTIC ESTONIA': 'airbaltic_estonia.png',
-        'AIRBALTIC LATVIA': 'airbaltic_latvia.png',
-        'AIRBALTIC LITHUANIA': 'airbaltic_lithuania.png',
-        'AJET': 'ajet.png',
-        'ALASKA AIRLINES': 'alaska_airlines.png',
-        'ALL NIPPON AIRWAYS': 'all_nippon_airways.png',
-        'AMERICAN AIRLINES': 'american_airlines.png',
-        'ARIANA AFGHAN AIRLINES': 'ariana_afghan_airlines.png',
-        'ARKIA ISRAELI AIRLINES': 'arkia_israeli_airlines.png',
-        'ASIANA AIRLINES': 'asiana_airlines.png',
-        'AUSTRIAN AIRLINES': 'austrian_airlines.png',
-        'AVIANCA ARGENTINA': 'avianca_argentina.png',
-        'AVIANCA BRAZIL': 'avianca_brazil.png',
-        'AVIANCA COLOMBIA': 'avianca_colombia.png',
-        'AVIANCA COSTA RICA': 'avianca_costa_rica.png',
-        'AVIANCA ECUADOR': 'avianca_ecuador.png',
-        'AVIANCA EL SALVADOR': 'avianca_el_salvador.png',
-        'AVIANCA GUATEMALA': 'avianca_guatemala.png',
-        'AVIANCA HONDURAS': 'avianca_honduras.png',
-        'AVIANCA NICARAGUA': 'avianca_nicaragua.png',
-        'AVIANCA PANAMA': 'avianca_panama.png',
-        'AVIANCA PERU': 'avianca_peru.png',
-        'AZERBAIJAN AIRLINES': 'azerbaijan_airlines.png',
-        'BEIJING CAPITAL AIRLINES': 'beijing_capital_airlines.png',
-        'BELAVIA': 'belavia.png',
-        'BERNIQ AIRWAYS': 'berniq_airways.png',
-        'BIMAN BANGLADESH AIRLINES': 'biman_bangladesh_airlines.png',
-        'BOLIVIANA DE AVIACION': 'boliviana_de_aviaci_n.png',
-        'BRITISH AIRWAYS': 'british_airways.png',
-        'BRUSSELS AIRLINES': 'brussels_airlines.png',
-        'BULGARIA AIR': 'bulgaria_air.png',
-        'CABO VERDE AIRLINES': 'cabo_verde_airlines.png',
-        'CASPIAN AIRLINES': 'caspian_airlines.png',
-        'CATHAY PACIFIC HONG KONG': 'cathay_pacific_hong_kong.png',
-        'CATHAY PACIFIC TAIWAN': 'cathay_pacific_taiwan.png',
-        'CEBU PACIFIC': 'cebu_pacific.png',
-        'CENTRUM AIR': 'centrum_air.png',
-        'CHINA AIRLINES': 'china_airlines.png',
-        'CHINA EASTERN AIRLINES': 'china_eastern_airlines.png',
-        'CHINA SOUTHERN AIRLINES': 'china_southern_airlines.png',
-        'CONDOR FLUGDIENST': 'condor_flugdienst.png',
-        'CROATIA AIRLINES': 'croatia_airlines.png',
-        'CYPRUS AIRWAYS': 'cyprus_airways.png',
-        'DAALLO AIRLINES': 'daallo_airlines.png',
-        'DELTA AIRLINES': 'delta_airlines.png',
-        'DRUKAIR ROYAL BHUTAN AIRLINES': 'drukair_royal_bhutan_airlines.png',
-        'EGYPT AIR': 'egypt_air.png',
-        'EL AL ISRAEL AIRLINES': 'el_al_israel_airlines.png',
-        'EMIRATES AIRLINES': 'emirates_airlines.png',
-        'EMIRATES': 'emirates.png',
-        'ENTER AIR': 'enter_air.png',
-        'ETHIOPIAN AIRLINES': 'ethiopian_airlines.png',
-        'EUROWINGS GERMANY': 'eurowings_germany.png',
-        'EVA AIR': 'eva_air.png',
-        'FIJI AIRWAYS': 'fiji_airways.png',
-        'FINNAIR FINLAND': 'finnair_finland.png',
-        'FITS AIR': 'fits_air.png',
-        'FLYADEAL': 'flyadeal.png',
-        'FLYARYSTAN': 'flyarystan.png',
-        'FLYBAGHDAD': 'flybaghdad.png',
-        'FLYNAS': 'flynas.png',
-        'FLYONE ARMENIA': 'flyone_armenia.png',
-        'FLYONE MOLDOVA': 'flyone_moldova.png',
-        'GARUDA INDONESIA AIRLINES': 'garuda_indonesia_airlines.png',
-        'GULF AIR': 'gulf_air.png',
-        'HAINAN AIRLINES': 'hainan_airlines.png',
-        'HAWAIIAN AIRLINES': 'hawaiian_airlines.png',
-        'IBERIA': 'iberia_l_nea_aerea_de_espa_a.png',
-        'ICELANDAIR': 'icelandair.png',
-        'INDIGO': 'indigo.png',
-        'IRAN AIR': 'iran_air.png',
-        'IRAN AIRTOUR': 'iran_airtour.png',
-        'IRAN ASEMAN AIRLINES': 'iran_aseman_airlines.png',
-        'IRAQI AIRWAYS': 'iraqi_airways.png',
-        'ISRAIR': 'israir.png',
-        'ITA AIRWAYS': 'ita_airways.png',
-        'JAPAN AIRLINES': 'japan_airlines.png',
-        'JAZEERA AIRWAYS': 'jazeera_airways.png',
-        'JORDAN AVIATION': 'jordan_aviation.png',
-        'JUBBA AIRWAYS': 'jubba_airways.png',
-        'KAM AIR': 'kam_air.png',
-        'KENYA AIRWAYS': 'kenya_airways.png',
-        'KISH AIR': 'kish_air.png',
-        'KLM ROYAL DUTCH AIRLINES': 'klm_royal_dutch_airlines.png',
-        'KM MALTA AIRLINES': 'km_malta_airlines.png',
-        'KOREAN AIR': 'korean_air.png',
-        'KUWAIT AIRWAYS': 'kuwait_airways.png',
-        'LATAM ARGENTINA': 'latam_argentina.png',
-        'LATAM BRAZIL': 'latam_brazil.png',
-        'LATAM CHILE': 'latam_chile.png',
-        'LATAM COLOMBIA': 'latam_colombia.png',
-        'LATAM ECUADOR': 'latam_ecuador.png',
-        'LATAM PERU': 'latam_peru.png',
-        'LEVEL FRANCE': 'level_france.png',
-        'LEVEL SPAIN': 'level_spain.png',
-        'LION AIR INDONESIA': 'lion_air_indonesia.png',
-        'LION AIR MALAYSIA': 'lion_air_malaysia.png',
-        'LION AIR THAILAND': 'lion_air_thailand.png',
-        'LOT POLAND': 'lot_poland.png',
-        'LUFTHANSA': 'lufthansa.png',
-        'MAHAN AIR': 'mahan_air.png',
-        'MALAYSIA AIRLINES': 'malaysia_airlines.png',
-        'MALDIVIAN': 'maldivian.png',
-        'MIAT MONGOLIAN AIRLINES': 'miat_mongolian_airlines.png',
-        'MIDDLE EAST AIRLINES': 'middle_east_airlines.png',
-        'MYANMAR AIRWAYS INTERNATIONAL': 'myanmar_airways_international.png',
-        'NEPAL AIRLINES': 'nepal_airlines.png',
-        'OMAN AIR': 'oman_air.png',
-        'PAKISTAN INTERNATIONAL AIRLINES': 'pakistan_international_airlines.png',
-        'PARS AIR': 'pars_air.png',
-        'PEGASUS AIRLINES': 'pegasus_airlines.png',
-        'PHILIPPINE AIRLINES': 'philippine_airlines.png',
-        'QANTAS AUSTRALIA': 'qantas_australia.png',
-        'QANTAS NEW ZEALAND': 'qantas_new_zealand.png',
-        'QATAR AIRWAYS': 'qatar_airways.png',
-        'QESHM AIR': 'qeshm_air.png',
-        'ROYAL AIR MAROC': 'royal_air_maroc.png',
-        'ROYAL BRUNEI AIRLINES': 'royal_brunei_airlines.png',
-        'ROYAL JORDANIAN AIRLINES': 'royal_jordanian_airlines.png',
-        'RWANDAIR': 'rwandair.png',
-        'S7 AIRLINES': 's7_airlines.png',
-        'SALAMAIR': 'salamair.png',
-        'SAUDIA': 'saudia.png',
-        'SCANDINAVIAN AIRLINES DENMARK': 'scandinavian_airlines_denmark.png',
-        'SCANDINAVIAN AIRLINES IRELAND': 'scandinavian_airlines_ireland.png',
-        'SCANDINAVIAN AIRLINES NORWAY': 'scandinavian_airlines_norway.png',
-        'SCANDINAVIAN AIRLINES SWEDEN': 'scandinavian_airlines_sweden.png',
-        'SCANDINAVIAN AIRLINES UK': 'scandinavian_airlines_uk.png',
-        'SERENEAIR': 'sereneair.png',
-        'SHENZHEN AIRLINES': 'shenzhen_airlines.png',
-        'SICHUAN AIRLINES': 'sichuan_airlines.png',
-        'SINGAPORE AIRLINES': 'singapore_airlines.png',
-        'SMARTWINGS AUSTRIA': 'smartwings_austria.png',
-        'SMARTWINGS CZECHIA': 'smartwings_czechia.png',
-        'SMARTWINGS HUNGARY': 'smartwings_hungary.png',
-        'SMARTWINGS POLAND': 'smartwings_poland.png',
-        'SMARTWINGS SLOVAKIA': 'smartwings_slovakia.png',
-        'SOMON AIR': 'somon_air.png',
-        'SOUTH AFRICAN AIRWAYS': 'south_african_airways.png',
-        'SPICEJET': 'spicejet.png',
-        'SRILANKAN AIRLINES': 'srilankan_airlines.png',
-        'SUNEXPRESS': 'sunexpress.png',
-        'SWISS INTERNATIONAL AIRLINES': 'swiss_international_airlines.png'
-      };
-
-      const logoFile = logoMap[companhia.toUpperCase()];
-      if (logoFile) {
-        return `<img src="logos/${logoFile}" alt="${companhia}" title="${companhia}" onerror="this.style.display='none'">`;
-      }
-      return '';
+      // Converte o nome da companhia para o formato do arquivo
+      const logoFileName = companhia.toLowerCase()
+        .replace(/\s+/g, '_')           // Substitui espaços por underscore
+        .replace(/[^a-z0-9_]/g, '')     // Remove caracteres especiais
+        + '.png';
+      
+      return `<img src="logos/${logoFileName}" alt="${companhia}" title="${companhia}" onerror="this.style.display='none'">`;
     }
 
-    // Função para obter bandeira do país
+    // Função para obter bandeira do país - RECONHECIMENTO AUTOMÁTICO
     function getCountryFlag(pais) {
       if (!pais) return '';
       
-      const flagMap = {
-        'BAHRAIN': 'bahrain.png',
-        'CHINA': 'china.png',
-        'IRAN': 'iran.png',
-        'KUWAIT': 'kuwait.png',
-        'OMAN': 'oman.png',
-        'QATAR': 'qatar.png',
-        'SAUDI ARABIA': 'saudi_arabia.png',
-        'UNITED STATES': 'united_states.png'
-      };
-
-      const flagFile = flagMap[pais.toUpperCase()];
-      if (flagFile) {
-        return `<img src="flags/${flagFile}" alt="${pais}" title="${pais}" style="height: 20px; vertical-align: middle;" onerror="this.style.display='none'">`;
-      }
-      return '';
+      // Converte o nome do país para o formato do arquivo
+      const flagFileName = pais.toLowerCase()
+        .replace(/\s+/g, '_')           // Substitui espaços por underscore
+        .replace(/[^a-z0-9_]/g, '')     // Remove caracteres especiais
+        + '.png';
+      
+      return `<img src="flags/${flagFileName}" alt="${pais}" title="${pais}" style="height: 20px; vertical-align: middle;" onerror="this.style.display='none'">`;
     }
 
     function renderTabela(registros, destinoId) {
