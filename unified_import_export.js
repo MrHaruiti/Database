@@ -58,8 +58,20 @@ function unifiedImport(event) {
           dataCadastro: new Date().toISOString()
         };
 
+        // Debug: mostrar o que foi mapeado
+        console.log('DEBUG - Record original:', record);
+        console.log('DEBUG - Mapeado:', mappedRecord);
+        
+        // Verificação mais detalhada
+        if (!mappedRecord.companhia) {
+          logMessage += `ERRO: Companhia não encontrada. Campos disponíveis: ${Object.keys(record).join(', ')}\n`;
+        }
+        if (!mappedRecord.cidade) {
+          logMessage += `ERRO: Cidade não encontrada. Campos disponíveis: ${Object.keys(record).join(', ')}\n`;
+        }
+
         if (!mappedRecord.companhia || !mappedRecord.cidade) {
-          logMessage += `Registro ignorado por falta de campos obrigatórios: ${JSON.stringify(record)}\n`;
+          logMessage += `Registro ignorado - companhia: "${mappedRecord.companhia}", cidade: "${mappedRecord.cidade}"\n`;
           return;
         }
 
