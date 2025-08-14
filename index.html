@@ -250,6 +250,24 @@
         object-fit: contain;
       }
 
+      /* Estilos para coluna das bandeiras */
+      td.flag-cell {
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+      }
+
+      td.flag-cell img {
+        width: 24px !important;
+        height: 16px !important;
+        object-fit: cover !important;
+        display: block !important;
+        margin: 0 auto !important;
+      }
+
       /* Responsivo para logos */
       @media (max-width: 768px) {
         td.logo-cell {
@@ -261,6 +279,17 @@
         td.logo-cell img {
           width: 45px;
           max-height: 30px;
+        }
+
+        td.flag-cell {
+          width: 50px;
+          min-width: 50px;
+          max-width: 50px;
+        }
+
+        td.flag-cell img {
+          width: 20px !important;
+          height: 14px !important;
         }
       }
     </style>
@@ -545,7 +574,7 @@
         .replace(/[^a-z0-9_]/g, '')     // Remove caracteres especiais
         + '.png';
       
-      return `<img src="flags/${flagFileName}" alt="${pais}" title="${pais}" style="height: 20px; vertical-align: middle;" onerror="this.style.display='none'">`;
+      return `<img src="flags/${flagFileName}" alt="${pais}" title="${pais}" style="width: 24px; height: 16px; object-fit: cover; vertical-align: middle; display: block; margin: 0 auto;" onerror="this.style.display='none'">`;
     }
 
     function renderTabela(registros, destinoId) {
@@ -563,7 +592,7 @@
           '<td>' + (e.voo || '') + '</td>' +
           '<td>' + (e.cidade || '') + '</td>' +
           '<td>' + (e.icao || '') + '</td>' +
-          '<td>' + countryFlag + '</td>' +
+          '<td class="flag-cell">' + countryFlag + '</td>' +
           '<td>' + (e.horario || '') + '</td>' +
           '<td>' + (e.aeronave || '') + '</td>' +
           '<td>' + (e.tps || '') + '</td>' +
