@@ -44,15 +44,15 @@ function unifiedImport(event) {
 
       importedData.forEach(record => {
         const mappedRecord = {
-          companhia: record.companhia || record.airline || '',
-          cidade: record.cidade || record.destination || record.city || '',
-          icao: record.icao || record.airport_code || '',
-          pais: record.pais || record.country || '',
-          voo: record.voo || record.flight_no || record.flight || '',
-          horario: record.horario || record.actual_time || record.time || '',
-          aeronave: record.aeronave || record.ac_type || record.aircraft || '',
-          status: record.status || 'Scheduled',
-          tps: record.tps || record.terminal || record.gate || '',
+          companhia: record.companhia || record.airline || record.AIRLINE || record.Airline || '',
+          cidade: record.cidade || record.destination || record.DESTINATION || record.city || record.CITY || '',
+          icao: record.icao || record.ICAO || record.airport_code || '',
+          pais: record.pais || record.country || record.COUNTRY || record.Country || '',
+          voo: record.voo || record.flight_no || record.flight || record.FLIGHT || record.Flight || '',
+          horario: record.horario || record.actual_time || record.time || record.TIME || record.Time || '',
+          aeronave: record.aeronave || record.ac_type || record.aircraft || record['A/C'] || record.AC || '',
+          status: record.status || record.STATUS || record.Status || 'Scheduled',
+          tps: record.tps || record.terminal || record.gate || record.TPS || record.Terminal || '',
           horarioConfirmado: null,
           frequencia: 1,
           dataCadastro: new Date().toISOString()
