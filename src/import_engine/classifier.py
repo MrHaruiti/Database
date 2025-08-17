@@ -26,14 +26,40 @@ def classify_movement(
     """
     enriched = raw.copy()
     
-    # Parse times - handle NaN values from pandas
+    # Parse times - handle NaN values from pandas and multiple time formats
     actual_time = None
     if raw.get("actual_time") and str(raw["actual_time"]) != "nan":
-        actual_time = datetime.fromisoformat(raw["actual_time"])
+        time_str = str(raw["actual_time"]).strip()
+        try:
+            # Try ISO format first
+            actual_time = datetime.fromisoformat(time_str)
+        except ValueError:
+            try:
+                # Try HH:MM format (add current date)
+                if ':' in time_str and len(time_str.split(':')) == 2:
+                    from datetime import date
+                    today = date.today()
+                    actual_time = datetime.strptime(f"{today} {time_str}", "%Y-%m-%d %H:%M")
+                else:
+                    raise ValueError(f"Unsupported time format: {time_str}")
+            except ValueError as e:
+                raise ValueError(f"Cannot parse time '{time_str}': {e}")
     
     schedule_time = None
     if raw.get("schedule_time") and str(raw["schedule_time"]) != "nan":
-        schedule_time = datetime.fromisoformat(raw["schedule_time"])
+        time_str = str(raw["schedule_time"]).strip()
+        try:
+            schedule_time = datetime.fromisoformat(time_str)
+        except ValueError:
+            try:
+                if ':' in time_str and len(time_str.split(':')) == 2:
+                    from datetime import date
+                    today = date.today()
+                    schedule_time = datetime.strptime(f"{today} {time_str}", "%Y-%m-%d %H:%M")
+                else:
+                    raise ValueError(f"Unsupported time format: {time_str}")
+            except ValueError as e:
+                raise ValueError(f"Cannot parse schedule time '{time_str}': {e}")
     
     # Get aircraft type and ICAO for TAT calculation
     ac_type = raw.get("ac_type", "A320")
