@@ -22,7 +22,7 @@ OPTIONAL_FIELDS = ["flight_no", "callsign", "ac_type"]  # These can be auto-gene
 # Map columns from your CSV to the expected names in the code
 COLUMN_MAP = {
     'FlightNumber': 'flight_no',
-    'ICAO': 'callsign',  
+    'ICAO': 'icao',  # Map to icao field, not callsign
     'Aircraft': 'ac_type',
     'Time': 'actual_time',
     'Destination': 'cidade',
