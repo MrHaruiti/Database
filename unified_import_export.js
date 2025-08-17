@@ -45,12 +45,12 @@ function unifiedImport(event) {
       importedData.forEach(record => {
         const mappedRecord = {
           companhia: record.companhia || record.airline || record.AIRLINE || record.Airline || '',
-          cidade: record.cidade || record.destination || record.DESTINATION || record.city || record.CITY || '',
+          cidade: record.cidade || record.destination || record.DESTINATION || record.Destination || '',
           icao: record.icao || record.ICAO || record.airport_code || '',
           pais: record.pais || record.country || record.COUNTRY || record.Country || '',
-          voo: record.voo || record.flight_no || record.flight || record.FLIGHT || record.Flight || '',
+          voo: record.voo || record.flight_no || record.FlightNumber || record.flight || record.FLIGHT || record.Flight || '',
           horario: record.horario || record.actual_time || record.time || record.TIME || record.Time || '',
-          aeronave: record.aeronave || record.ac_type || record.aircraft || record['A/C'] || record.AC || '',
+          aeronave: record.aeronave || record.ac_type || record.aircraft || record.Aircraft || record['A/C'] || record.AC || '',
           status: record.status || record.STATUS || record.Status || 'Scheduled',
           tps: record.tps || record.terminal || record.gate || record.TPS || record.Terminal || '',
           horarioConfirmado: null,
