@@ -16,6 +16,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+REQUIRED_FIELDS = ["flight_no", "callsign", "ac_type", "actual_time"]
+
 def process_csv(file_path: str) -> Dict[str, Any]:
     """Process single CSV file and return summary."""
     logger.info(f"Starting import from {file_path}")
@@ -28,18 +30,45 @@ def process_csv(file_path: str) -> Dict[str, Any]:
     warnings = []
     
     for idx, row in df.iterrows():
+        row_dict = row.to_dict()
+        # Fill missing required fields with sensible defaults and log warnings
+        for field in REQUIRED_FIELDS:
+            if field not in row_dict or pd.isna(row_dict[field]) or str(row_dict[field]).strip() == "":
+                warnings.append(f"Row {idx}: Missing required field '{field}'. Auto-filled with default value.")
+                if field == "ac_type":
+                    row_dict[field] = "A320"
+                elif field == "actual_time":
+                    # Skip row if no time at all
+                    logger.warning(f"Row {idx}: Cannot process without 'actual_time'. Skipping row.")
+                    continue
+                else:
+                    row_dict[field] = f"AUTO_{field}_{idx}"
+
         try:
-            classification, enriched = classify_movement(row.to_dict())
-            
+            classification, enriched = classify_movement(row_dict)
+
             if classification in ["arrival", "both"]:
                 arrivals.append(enriched)
             if classification in ["departure", "both"]:
                 departures.append(enriched)
-                
+            # Garantir a geração da partida para toda chegada (exceto Emirates)
+            if classification == "arrival" and "actual_out" in enriched:
+                dep_row = enriched.copy()
+                # Troca os campos de chegada para partida
+                dep_row["actual_in"] = None
+                dep_row["classification"] = "departure"
+                departures.append(dep_row)
+
         except Exception as e:
             warning = f"Row {idx}: {str(e)}"
             warnings.append(warning)
             logger.warning(warning)
+    
+    # Remove duplicatas exatas de partidas
+    if departures:
+        departures_df = pd.DataFrame(departures)
+        departures_df = departures_df.drop_duplicates()
+        departures = departures_df.to_dict(orient="records")
     
     # Save results
     output_dir = Path("output")
