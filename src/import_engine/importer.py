@@ -16,7 +16,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-REQUIRED_FIELDS = ["flight_no", "callsign", "ac_type", "actual_time"]
+REQUIRED_FIELDS = ["actual_time"]  # Only time is truly required
+OPTIONAL_FIELDS = ["flight_no", "callsign", "ac_type"]  # These can be auto-generated
 
 # Map columns from your CSV to the expected names in the code
 COLUMN_MAP = {
