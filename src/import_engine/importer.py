@@ -64,8 +64,8 @@ def process_csv(file_path: str) -> Dict[str, Any]:
                     row_dict[field] = "A320"  # Default aircraft
                 elif field == "callsign":
                     # Generate callsign from airline + flight number
-                    airline = row_dict.get("companhia", "")
-                    flight_no = row_dict.get("flight_no", "")
+                    airline = str(row_dict.get("companhia", ""))
+                    flight_no = str(row_dict.get("flight_no", ""))
                     if airline and flight_no:
                         # Create callsign from first letters of airline + flight number
                         airline_code = ''.join([word[0] for word in airline.split() if word])[:3].upper()
