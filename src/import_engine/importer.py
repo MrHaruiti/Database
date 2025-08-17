@@ -23,6 +23,9 @@ def process_csv(file_path: str) -> Dict[str, Any]:
     logger.info(f"Starting import from {file_path}")
     
     df = pd.read_csv(file_path)
+    # Accept 'Destination' as 'cidade'
+    if 'Destination' in df.columns and 'cidade' not in df.columns:
+        df['cidade'] = df['Destination']
     logger.info(f"Loaded {len(df)} rows")
     
     arrivals = []
