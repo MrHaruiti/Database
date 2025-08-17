@@ -21,10 +21,14 @@ REQUIRED_FIELDS = ["flight_no", "callsign", "ac_type", "actual_time"]
 # Map columns from your CSV to the expected names in the code
 COLUMN_MAP = {
     'FlightNumber': 'flight_no',
-    'ICAO': 'callsign',
+    'ICAO': 'callsign',  
     'Aircraft': 'ac_type',
     'Time': 'actual_time',
-    'Destination': 'cidade'
+    'Destination': 'cidade',
+    'Airline': 'companhia',
+    'Country': 'pais',
+    'TPS': 'tps',
+    'Status': 'status'
 }
 
 def process_csv(file_path: str) -> Dict[str, Any]:
