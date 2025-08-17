@@ -54,14 +54,18 @@ def process_csv(file_path: str) -> Dict[str, Any]:
         # Fill missing required fields with sensible defaults and log warnings
         for field in REQUIRED_FIELDS:
             if field not in row_dict or pd.isna(row_dict[field]) or str(row_dict[field]).strip() == "":
-                warnings.append(f"Row {idx}: Missing required field '{field}'. Auto-filled with default value.")
+                warnings.append(f"Row {idx}: Missing required field '{field}'. Skipping row.")
+                continue
+        
+        # Fill missing optional fields with auto-generated values
+        for field in OPTIONAL_FIELDS:
+            if field not in row_dict or pd.isna(row_dict[field]) or str(row_dict[field]).strip() == "":
                 if field == "ac_type":
-                    row_dict[field] = "A320"
-                elif field == "actual_time":
-                    logger.warning(f"Row {idx}: Cannot process without 'actual_time'. Skipping row.")
-                    continue
-                else:
-                    row_dict[field] = f"AUTO_{field}_{idx}"
+                    row_dict[field] = "A320"  # Default aircraft
+                elif field == "callsign":
+                    row_dict[field] = row_dict.get("flight_no", f"AUTO_CALL_{idx}")
+                elif field == "flight_no":
+                    row_dict[field] = f"FLT{idx+1000}"  # Generate flight number
 
         try:
             classification, enriched = classify_movement(row_dict)
