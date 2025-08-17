@@ -69,13 +69,15 @@ def classify_movement(
     tat = rules.get_turnaround(ac_type, icao)
     
     # Identificar se é Emirates
-    callsign = raw.get("callsign", "")
-    flight_no = raw.get("flight_no", "")
-    airline = raw.get("airline", "")
+    callsign = str(raw.get("callsign", "")).upper()
+    flight_no = str(raw.get("flight_no", "")).upper()
+    airline = str(raw.get("airline", "")).upper()
+    companhia = str(raw.get("companhia", "")).upper()  # Add support for Portuguese field
     is_emirates = (
-        "UAE" in callsign.upper() or 
-        "EMIRATES" in airline.upper() or
-        "UAE" in flight_no.upper()
+        "UAE" in callsign or 
+        "EMIRATES" in airline or 
+        "EMIRATES" in companhia or
+        "UAE" in flight_no
     )
     
     # Check if both actual_in and actual_out are provided
