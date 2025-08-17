@@ -62,8 +62,8 @@ def classify_movement(
                 raise ValueError(f"Cannot parse schedule time '{time_str}': {e}")
     
     # Get aircraft type and ICAO for TAT calculation
-    ac_type = raw.get("ac_type", "A320")
-    icao = raw.get("icao", "")
+    ac_type = str(raw.get("ac_type", "A320")).upper()
+    icao = str(raw.get("icao", "")).upper()
     
     # Calculate TAT using EXACT rules from manual system
     tat = rules.get_turnaround(ac_type, icao)
