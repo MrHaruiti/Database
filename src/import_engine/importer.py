@@ -18,14 +18,26 @@ logger = logging.getLogger(__name__)
 
 REQUIRED_FIELDS = ["flight_no", "callsign", "ac_type", "actual_time"]
 
+# Map columns from your CSV to the expected names in the code
+COLUMN_MAP = {
+    'FlightNumber': 'flight_no',
+    'ICAO': 'callsign',
+    'Aircraft': 'ac_type',
+    'Time': 'actual_time',
+    'Destination': 'cidade'
+}
+
 def process_csv(file_path: str) -> Dict[str, Any]:
     """Process single CSV file and return summary."""
     logger.info(f"Starting import from {file_path}")
-    
     df = pd.read_csv(file_path)
-    # Accept 'Destination' as 'cidade'
-    if 'Destination' in df.columns and 'cidade' not in df.columns:
-        df['cidade'] = df['Destination']
+    
+    # Mapeamento automático dos nomes das colunas
+    for csv_col, expected_col in COLUMN_MAP.items():
+        if csv_col in df.columns and expected_col not in df.columns:
+            df[expected_col] = df[csv_col]
+            logger.info(f"Mapped column '{csv_col}' to '{expected_col}'.")
+
     logger.info(f"Loaded {len(df)} rows")
     
     arrivals = []
@@ -41,7 +53,6 @@ def process_csv(file_path: str) -> Dict[str, Any]:
                 if field == "ac_type":
                     row_dict[field] = "A320"
                 elif field == "actual_time":
-                    # Skip row if no time at all
                     logger.warning(f"Row {idx}: Cannot process without 'actual_time'. Skipping row.")
                     continue
                 else:
@@ -49,31 +60,25 @@ def process_csv(file_path: str) -> Dict[str, Any]:
 
         try:
             classification, enriched = classify_movement(row_dict)
-
             if classification in ["arrival", "both"]:
                 arrivals.append(enriched)
             if classification in ["departure", "both"]:
                 departures.append(enriched)
-            # Garantir a geração da partida para toda chegada (exceto Emirates)
             if classification == "arrival" and "actual_out" in enriched:
                 dep_row = enriched.copy()
-                # Troca os campos de chegada para partida
                 dep_row["actual_in"] = None
                 dep_row["classification"] = "departure"
                 departures.append(dep_row)
-
         except Exception as e:
             warning = f"Row {idx}: {str(e)}"
             warnings.append(warning)
             logger.warning(warning)
     
-    # Remove duplicatas exatas de partidas
     if departures:
         departures_df = pd.DataFrame(departures)
         departures_df = departures_df.drop_duplicates()
         departures = departures_df.to_dict(orient="records")
     
-    # Save results
     output_dir = Path("output")
     output_dir.mkdir(exist_ok=True)
     
